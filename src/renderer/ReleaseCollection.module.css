@@ -1,0 +1,3 @@
+.container {
+  @apply flex gap-5 flex-wrap;
+}

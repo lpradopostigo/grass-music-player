@@ -1,0 +1,21 @@
+.container {
+  @apply flex flex-col;
+}
+
+.picture {
+  @apply object-contain h-60 w-60 overflow-hidden rounded-lg;
+}
+
+.textContainer {
+  @apply flex flex-col;
+}
+
+.title {
+  @apply mt-2;
+  font-family: Nunito-Bold, sans-serif;
+}
+
+.artist {
+  @apply text-xs;
+  font-family: Nunito-Regular, sans-serif;
+}

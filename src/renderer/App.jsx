@@ -1,13 +1,26 @@
 import React from "react";
-import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { MemoryRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Home from "./Home";
+import "./global.css"
+import ReleaseCollectionView from "./views/ReleaseCollectionView";
+import ReleaseView from "./views/ReleaseView/ReleaseView";
 
 export default function App() {
   return (
     <MemoryRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          exact
+          path="/"
+          element={<Navigate to="/ReleaseCollectionView" />}
+        />
+
+        <Route
+          path="/ReleaseCollectionView"
+          element={<ReleaseCollectionView />}
+        />
+
+        <Route path="/ReleaseView" element={<ReleaseView />} />
       </Routes>
     </MemoryRouter>
   );

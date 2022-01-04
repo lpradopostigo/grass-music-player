@@ -1,0 +1,7 @@
+.container {
+  @apply flex;
+}
+
+.textInfo{
+  @apply flex flex-col
+}

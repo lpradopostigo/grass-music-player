@@ -1,5 +1,5 @@
 .container {
-  @apply flex flex-col;
+  @apply flex flex-col ;
 }
 
 .picture {
@@ -11,11 +11,9 @@
 }
 
 .title {
-  @apply mt-2;
-  font-family: Nunito-Bold, sans-serif;
+  @apply mt-2 font-semibold;
 }
 
 .artist {
   @apply text-xs;
-  font-family: Nunito-Regular, sans-serif;
 }

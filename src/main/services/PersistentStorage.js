@@ -1,36 +1,33 @@
 const ElectronStore = require("electron-store");
-const { includes } = require("ramda");
+const { includes, values } = require("ramda");
 
 class PersistentStorage {
-  #schema = {
-    libraryPath: {
+  static Keys = {
+    LIBRARY_PATH: "libraryPath",
+  };
+
+  static #schema = {
+    [PersistentStorage.Keys.LIBRARY_PATH]: {
       type: "string",
       default: "",
     },
   };
-  #store = new ElectronStore({ schema: this.#schema });
-  #keys = ["libraryPath"];
 
-  /** @return {any} */
+  #store = new ElectronStore({ schema: PersistentStorage.#schema });
+
   get(key, defaultValue = undefined) {
-    if (includes(key, this.#keys)) {
+    if (includes(key, values(PersistentStorage.Keys))) {
       return this.#store.get(key, defaultValue);
-    } else {
-      throw Error("invalid key");
     }
+    throw Error("invalid key");
   }
 
-  /** @param {"libraryPath"} key
-   * @param {T[string]} value
-   * @return {void} */
   set(key, value) {
-    if (includes(key, this.#keys)) {
+    if (includes(key, values(PersistentStorage.Keys))) {
       this.#store.set(key, value);
-    } else {
-      throw Error("invalid key");
     }
+    throw Error("invalid key");
   }
 }
-
 
 module.exports = PersistentStorage;

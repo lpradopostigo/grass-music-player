@@ -1,0 +1,19 @@
+.container {
+  @apply flex gap-5;
+}
+
+.text {
+  @apply flex flex-col self-center;
+}
+
+.title {
+  @apply text-2xl font-semibold;
+}
+
+.artist {
+  @apply mt-1;
+}
+
+.duration {
+  @apply mt-5;
+}

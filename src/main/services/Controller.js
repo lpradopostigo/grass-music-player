@@ -1,19 +1,15 @@
 const Database = require("./Database");
+const Scanner  = require("./Scanner");
 
 class Controller {
-  constructor() {
-    if (!Controller._instance) {
-      Controller._instance = this;
-    }
-    return Controller._instance;
-  }
-
-  static getInstance() {
-    return this._instance;
-  }
+  #scanner = new Scanner()
 
   async doStartup() {
-    await Database.construct();
+    const database = await Database.construct();
+    const parsedLibrary = await this.#scanner.getLibrary();
+    await database.open();
+    await database.insertLibrary(parsedLibrary);
+    await database.close();
   }
 }
 

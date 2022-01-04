@@ -1,8 +1,17 @@
 module.exports = {
-  content: [],
+  content: ["./src/**/*.{html,js}"],
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: [
+        "Roboto",
+        "ui-sans-serif",
+        "system-ui",
+        "-apple-system",
+        "BlinkMacSystemFont",
+        "Segoe UI",
+      ],
+    },
   },
   plugins: [],
-  purge: ["./dist/*.html"],
+  purge: false
 };

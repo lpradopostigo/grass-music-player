@@ -1,14 +1,12 @@
-const path = require("path");
 const fs = require("fs");
 const { values, any } = require("ramda");
+const { resolve } = require("path");
 
 const AudioExtension = {
   FLAC: "flac",
   MP3: "mp3",
 };
 
-/** @param {string} path
- * @return {Promise<boolean>} */
 function pathExist(path) {
   return new Promise((resolve) =>
     fs.access(path, fs.constants.F_OK, (err) => {
@@ -17,22 +15,18 @@ function pathExist(path) {
   );
 }
 
-/** @param {string} filePath
- * @return {boolean} */
-function isAudioFile(filePath) {
+function isAudioPath(path) {
   const audioExtensions = values(AudioExtension);
   const isExtensionOf = (str) => (ext) => str.endsWith(`.${ext}`);
-  return any(isExtensionOf(filePath))(audioExtensions);
+  return any(isExtensionOf(path))(audioExtensions);
 }
 
-/** @param {string} directoryPath
- * @return { AsyncGenerator<string, void, void>} */
-async function* getFiles(directoryPath) {
-  const dirents = await fs.promises.readdir(directoryPath, {
+async function* getFiles(path) {
+  const dirents = await fs.promises.readdir(path, {
     withFileTypes: true,
   });
   for (const dirent of dirents) {
-    const res = path.resolve(directoryPath, dirent.name);
+    const res = resolve(path, dirent.name);
     if (dirent.isDirectory()) {
       yield* getFiles(res);
     } else {
@@ -41,8 +35,6 @@ async function* getFiles(directoryPath) {
   }
 }
 
-/** @param {string} path
- * @return {Promise<any>} */
 function readJson(path) {
   return new Promise((resolve, reject) => {
     fs.promises
@@ -52,9 +44,6 @@ function readJson(path) {
   });
 }
 
-/** @param {any} obj
- * @param {string} path
- * @return {Promise<void>} */
 function writeJson(obj, path) {
   return new Promise((resolve, reject) => {
     fs.promises
@@ -65,9 +54,9 @@ function writeJson(obj, path) {
 }
 
 module.exports = {
-  isAudioFile,
+  isAudioPath,
   getFiles,
   readJson,
   writeJson,
-  pathExist
+  pathExist,
 };

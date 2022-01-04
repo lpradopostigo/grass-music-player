@@ -1,14 +1,17 @@
 const rules = require("./webpack.rules");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 rules.push({
   test: /\.css$/,
   use: [
-    { loader: "style-loader" },
+    MiniCssExtractPlugin.loader,
     {
       loader: "css-loader",
       options: {
         importLoaders: 1,
-        modules: true,
+        modules: {
+          localIdentName: "[local]_[hash:base64:5]",
+        },
       },
     },
     "postcss-loader",
@@ -22,4 +25,9 @@ module.exports = {
   resolve: {
     extensions: [".jsx", "..."],
   },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "styles.css",
+    }),
+  ],
 };

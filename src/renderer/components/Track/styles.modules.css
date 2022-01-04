@@ -1,0 +1,19 @@
+.container {
+  @apply flex w-3/4 justify-between items-center;
+}
+
+.trackNumber {
+  @apply text-slate-600 mr-5 text-xs;
+}
+
+.title {
+  @apply font-medium;
+}
+
+.artist {
+  @apply text-xs text-slate-600;
+}
+
+.duration {
+  @apply text-xs text-slate-600;
+}

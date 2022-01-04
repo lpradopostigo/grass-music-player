@@ -1,6 +1,9 @@
 module.exports = {
-  entry: './src/main/main.js',
+  entry: "./src/main/main.js",
   module: {
-    rules: require('./webpack.rules'),
+    rules: require("./webpack.rules"),
+  },
+  resolve: {
+    extensions: ["mjs", "..."],
   },
 };

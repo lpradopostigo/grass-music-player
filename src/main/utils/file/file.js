@@ -1,32 +1,37 @@
 const fs = require("fs");
+const fsp = require("fs/promises");
+
 const { values, any } = require("ramda");
-const { resolve } = require("path");
+const path = require("path");
+const log = require("loglevel");
 
 const AudioExtension = {
   FLAC: "flac",
   MP3: "mp3",
 };
 
-function pathExist(path) {
+function pathExist(filePath) {
   return new Promise((resolve) =>
-    fs.access(path, fs.constants.F_OK, (err) => {
+    fs.access(filePath, fs.constants.F_OK, (err) => {
       resolve(!err);
     })
   );
 }
 
-function isAudioPath(path) {
+function isAudioPath(filePath) {
   const audioExtensions = values(AudioExtension);
   const isExtensionOf = (str) => (ext) => str.endsWith(`.${ext}`);
-  return any(isExtensionOf(path))(audioExtensions);
+  return any(isExtensionOf(filePath))(audioExtensions);
 }
 
-async function* getFiles(path) {
-  const dirents = await fs.promises.readdir(path, {
-    withFileTypes: true,
-  });
+async function* getFiles(filePath) {
+  const dirents = await fsp
+    .readdir(filePath, {
+      withFileTypes: true,
+    })
+    .catch((error) => log.error(error));
   for (const dirent of dirents) {
-    const res = resolve(path, dirent.name);
+    const res = path.join(filePath, dirent.name);
     if (dirent.isDirectory()) {
       yield* getFiles(res);
     } else {

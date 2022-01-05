@@ -3,6 +3,7 @@ const { map } = require("ramda");
 const { pathExist } = require("../utils/file");
 const { databasePath } = require("./constants");
 const { terminateApp } = require("../utils/error");
+const log = require("loglevel");
 
 class Database {
   static #Table = {
@@ -38,7 +39,7 @@ class Database {
   }
 
   async insertLibrary(releases) {
-    await this.#insertReleases(releases).catch((error) => console.log(error));
+    await this.#insertReleases(releases).catch(log.warn);
 
     return Promise.all(
       map(
@@ -99,6 +100,8 @@ class Database {
             "title" TEXT,
             "artist" TEXT,
             "year" INTEGER,
+            "numberOfTracks" INTEGER,
+            "numberOfDiscs" INTEGER,
             "picture" BLOB,
             PRIMARY KEY("id" AUTOINCREMENT)
           )`,
@@ -106,6 +109,10 @@ class Database {
             "id" INTEGER NOT NULL,
             "title" TEXT,
             "artist" TEXT,
+            "trackNumber" INTEGER,
+            "discNumber" INTEGER,
+            "duration" INTEGER,
+            "filePath" TEXT,
             "releaseId" INTEGER NOT NULL,
             PRIMARY KEY("id" AUTOINCREMENT)
             FOREIGN KEY (releaseId)
@@ -113,7 +120,7 @@ class Database {
           )`,
     };
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.#database?.run(Query[table], (error) => {
         if (error != null) throw error;
         resolve();
@@ -124,11 +131,22 @@ class Database {
   #insertOneTrack(track, releaseInfo) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
-        `INSERT INTO "${Database.#Table.TRACK}" (title, artist, releaseId)
-          values (?,?,
+        `INSERT INTO "${Database.#Table.TRACK}" 
+          (title, artist, trackNumber, discNumber, duration, filePath,releaseId)
+          values (?,?,?,
+            ?,?,?,
             (SELECT id FROM "${Database.#Table.RELEASE}"
               WHERE title = ? AND artist = ?))`,
-        [track.title, track.artist, releaseInfo.title, releaseInfo.artist],
+        [
+          track.title,
+          track.artist,
+          track.trackNumber,
+          track.discNumber,
+          track.duration,
+          track.filePath,
+          releaseInfo.title,
+          releaseInfo.artist,
+        ],
         (error) => {
           if (error != null) reject(error);
           resolve();
@@ -146,9 +164,17 @@ class Database {
   #insertOneRelease(release) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
-        `INSERT INTO "${Database.#Table.RELEASE}"(title, artist,year, picture)
-            values (?,?,?,?)`,
-        [release.title, release.artist, release.year, release.picture],
+        `INSERT INTO "${Database.#Table.RELEASE}"
+            (title, artist,year, picture,numberOfTracks, numberOfDiscs)
+            values (?,?,?,?,?,?)`,
+        [
+          release.title,
+          release.artist,
+          release.year,
+          release.picture,
+          release.numberOfTracks,
+          release.numberOfDiscs,
+        ],
         (error) => {
           if (error != null) reject(error);
           resolve();

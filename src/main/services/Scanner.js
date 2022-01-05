@@ -20,8 +20,10 @@ class Scanner {
             filePath,
             title: common.title,
             artist: common.artist,
-            track: common.track,
-            disk: common.disk,
+            trackNumber: common.track.no,
+            numberOfTracks: common.track.of,
+            discNumber: common.disk.no,
+            numberOfDiscs: common.disk.of,
             releaseTitle: common.album,
             releaseArtist: common.albumartist,
             year: common.year,
@@ -42,8 +44,8 @@ class Scanner {
     const toParsedTrack = (obj) => ({
       title: obj.title,
       artist: obj.artist,
-      number: obj.track.no,
-      diskNumber: obj.disk.no,
+      trackNumber: obj.trackNumber,
+      discNumber: obj.discNumber,
       duration: obj.duration,
       filePath: obj.filePath,
     });
@@ -55,6 +57,8 @@ class Scanner {
         picture: first.picture,
         title: first.releaseTitle,
         artist: first.releaseArtist,
+        numberOfTracks: first.numberOfTracks,
+        numberOfDiscs: first.numberOfDiscs,
         tracks: map(toParsedTrack, tracks),
       };
     };

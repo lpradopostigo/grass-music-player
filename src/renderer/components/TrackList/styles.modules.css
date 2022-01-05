@@ -1,3 +1,7 @@
 .container {
   @apply flex flex-col gap-5;
 }
+
+.disc{
+  @apply text-slate-600 text-xs pb-2
+}

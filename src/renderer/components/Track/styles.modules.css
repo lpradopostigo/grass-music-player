@@ -1,9 +1,18 @@
 .container {
-  @apply flex w-3/4 justify-between items-center;
+  @apply flex w-full justify-between items-center;
 }
 
 .trackNumber {
-  @apply text-slate-600 mr-5 text-xs;
+  @apply text-slate-600 mr-5 text-xs text-left;
+  width: 2ch;
+}
+
+.trackNumberAndTitleWrapper {
+  @apply flex-1 items-center flex;
+}
+
+.artistAndDurationWrapper {
+  @apply flex flex-1 items-center justify-between;
 }
 
 .title {

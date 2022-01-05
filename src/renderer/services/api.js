@@ -3,14 +3,14 @@ const { api } = window;
 export const audioPlayer = {};
 
 export const library = {
-  /** @return {Promise<import("../../main/services/Database.js").Release[]>} */
+  /** @return {Promise<any[]>} */
   getReleases() {
-    return api.invoke('library:getReleases');
+    return api.invoke("library:getReleases");
   },
 
   /** @param {number} releaseId
-   * @return {Promise<import("../../main/services/Database.js").Track[]>} */
+   * @return {Promise<any[]>} */
   getTracks(releaseId) {
-    return api.invoke('library:getTracks', releaseId);
+    return api.invoke("library:getTracks", releaseId);
   },
 };

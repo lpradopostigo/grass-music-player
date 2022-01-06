@@ -1,7 +1,7 @@
 .container {
-  @apply p-10;
+  @apply p-10 gap-10 flex flex-col;
 }
 
 .trackListWrapper {
-  @apply flex flex-col gap-5 mt-5;
+  @apply flex flex-col gap-10;
 }

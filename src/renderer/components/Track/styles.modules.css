@@ -1,5 +1,5 @@
 .container {
-  @apply flex w-full justify-between items-center;
+  @apply flex w-full justify-between items-center gap-10;
 }
 
 .trackNumber {

@@ -1,14 +1,18 @@
 .container {
-  @apply flex w-full justify-between items-center gap-10;
+  @apply flex w-full justify-between items-center gap-10 py-2 px-4;
+}
+
+.containerPlaying {
+  @apply flex w-full justify-between items-center gap-10 py-2 px-4 bg-background-secondary rounded-md;
 }
 
 .trackNumber {
-  @apply text-slate-600 mr-5 text-xs text-left;
+  @apply text-typography-tertiary text-xs text-left;
   width: 2ch;
 }
 
 .trackNumberAndTitleWrapper {
-  @apply flex-1 items-center flex;
+  @apply flex-1 items-center flex gap-4;
 }
 
 .artistAndDurationWrapper {
@@ -16,13 +20,13 @@
 }
 
 .title {
-  @apply font-medium;
+  @apply font-medium text-typography-primary;
 }
 
 .artist {
-  @apply text-xs text-slate-600;
+  @apply text-xs text-typography-tertiary;
 }
 
 .duration {
-  @apply text-xs text-slate-600;
+  @apply text-xs text-typography-tertiary;
 }

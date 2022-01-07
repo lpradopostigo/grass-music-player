@@ -4,9 +4,9 @@ import styles from "./styles.modules.css";
 import PropTypes from "prop-types";
 import { secondsToAudioDuration } from "../../utils/format/format";
 
-export default function Track({ data }) {
+export default function Track({ data, playing }) {
   return (
-    <div className={styles.container}>
+    <div className={playing ? styles.containerPlaying : styles.container}>
       <div className={styles.trackNumberAndTitleWrapper}>
         <span className={styles.trackNumber}>{data.trackNumber}</span>
         <span className={styles.title}>{data.title}</span>
@@ -21,7 +21,9 @@ export default function Track({ data }) {
   );
 }
 
-Track.defaultProps = {};
+Track.defaultProps = {
+  playing: false,
+};
 
 Track.propTypes = {
   data: PropTypes.shape({
@@ -31,4 +33,5 @@ Track.propTypes = {
     artist: PropTypes.string.isRequired,
     duration: PropTypes.number.isRequired,
   }).isRequired,
+  playing: PropTypes.bool,
 };

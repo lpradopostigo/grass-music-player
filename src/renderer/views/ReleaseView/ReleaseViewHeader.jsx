@@ -1,7 +1,7 @@
 import React from "react";
 
 import classNames from "./ReleaseViewHeader.module.css";
-import ReleasePicture from "../../components/ReleasePicture";
+import ReleasePicture from "../../components/ReleasePicture/ReleasePicture";
 
 export default function ReleaseViewHeader({ data }) {
   return (

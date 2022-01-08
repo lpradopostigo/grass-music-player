@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 import classNames from "./Release.module.css";
-import ReleasePicture from "./ReleasePicture";
+import ReleasePicture from "./ReleasePicture/ReleasePicture";
 
 export default function Release({ data }) {
   return (

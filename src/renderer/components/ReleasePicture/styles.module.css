@@ -1,0 +1,18 @@
+.container {
+  @apply object-contain overflow-hidden rounded-xl shadow-lg;
+}
+
+.big {
+  height: 200px;
+  width: 200px;
+}
+
+.medium {
+  height: 85px;
+  width: 85px;
+}
+
+.small {
+  height: 70px;
+  width: 70px;
+}

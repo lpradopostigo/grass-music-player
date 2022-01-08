@@ -12,7 +12,7 @@
 }
 
 .trackNumberAndTitleWrapper {
-  @apply flex-1 items-center flex gap-4;
+  @apply w-1/2 items-center flex gap-4;
 }
 
 .artistAndDurationWrapper {
@@ -20,11 +20,11 @@
 }
 
 .title {
-  @apply font-medium text-typography-primary;
+  @apply font-medium text-typography-primary truncate;
 }
 
 .artist {
-  @apply text-xs text-typography-tertiary;
+  @apply text-xs text-typography-tertiary flex-1;
 }
 
 .duration {

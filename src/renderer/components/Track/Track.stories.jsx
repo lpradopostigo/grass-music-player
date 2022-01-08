@@ -7,8 +7,8 @@ export default {
   component: Track,
 };
 
-export const Normal = (args) => (
-  <Track
+export function Normal(args) {
+  return <Track
     data={{
       trackNumber: 1,
       discNumber: 1,
@@ -18,4 +18,18 @@ export const Normal = (args) => (
     }}
     {...args}
   />
-);
+}
+
+
+export function LongTitle(args) {
+  return <Track
+    data={{
+      trackNumber: 1,
+      discNumber: 1,
+      artist: "Anathema",
+      title: "The Lost Song, Part 1 (acoustic in session - Liverpool Parr Street Studios)\n",
+      duration: 349,
+    }}
+    {...args}
+  />
+}

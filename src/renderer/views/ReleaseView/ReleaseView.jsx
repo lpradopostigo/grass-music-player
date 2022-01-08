@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 
 import { useLocation } from "react-router-dom";
+import { map, groupBy, prop, values, compose, head, sortBy } from "ramda";
 import ReleaseViewHeader from "./ReleaseViewHeader";
 import TrackList from "../../components/TrackList";
 import { library } from "../../services/api";
 import styles from "./styles.module.css";
-import { map, groupBy, prop, values, compose, head, sortBy } from "ramda";
 
 export default function ReleaseView() {
   const { state: releaseData } = useLocation();
@@ -20,10 +20,10 @@ export default function ReleaseView() {
   const sortByTrackNumber = sortBy(prop("trackNumber"));
   const showDiscNumber = releaseData.numberOfDiscs > 1;
   const groupByDiscNumber = groupBy(prop("discNumber"));
-  const renderTrackList = (tracks) => (
+  const renderTrackList = (arr) => (
     <TrackList
-      key={head(tracks)?.discNumber}
-      data={tracks}
+      key={head(arr)?.discNumber}
+      data={arr}
       showDiscNumber={showDiscNumber}
     />
   );

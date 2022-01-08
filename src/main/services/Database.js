@@ -1,9 +1,9 @@
 const sqlite3 = require("sqlite3");
 const { map } = require("ramda");
+const log = require("loglevel");
 const { pathExist } = require("../utils/file");
 const { databasePath } = require("./constants");
 const { terminateApp } = require("../utils/error");
-const log = require("loglevel");
 
 class Database {
   static #Table = {

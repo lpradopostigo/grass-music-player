@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 
+import { map } from "ramda";
 import { library } from "../services/api";
 import classNames from "./ReleaseCollectionView.module.css";
-import { map } from "ramda";
 import Release from "../components/Release";
 
 export default function ReleaseCollectionView() {

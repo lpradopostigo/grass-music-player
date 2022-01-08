@@ -11,11 +11,11 @@ const AudioExtension = {
 };
 
 function pathExist(filePath) {
-  return new Promise((resolve) =>
+  return new Promise((resolve) => {
     fs.access(filePath, fs.constants.F_OK, (err) => {
       resolve(!err);
-    })
-  );
+    });
+  });
 }
 
 function isAudioPath(filePath) {
@@ -40,19 +40,19 @@ async function* getFiles(filePath) {
   }
 }
 
-function readJson(path) {
+function readJson(filePath) {
   return new Promise((resolve, reject) => {
     fs.promises
-      .readFile(path)
+      .readFile(filePath)
       .then((data) => resolve(JSON.parse(data.toString())))
       .catch((error) => reject(error));
   });
 }
 
-function writeJson(obj, path) {
+function writeJson(obj, filePath) {
   return new Promise((resolve, reject) => {
     fs.promises
-      .writeFile(path, Buffer.from(JSON.stringify(obj)))
+      .writeFile(filePath, Buffer.from(JSON.stringify(obj)))
       .then(() => resolve())
       .catch((error) => reject(error));
   });

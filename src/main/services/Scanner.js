@@ -1,14 +1,14 @@
 const { parseFile } = require("music-metadata");
 const { compose, groupBy, head, map, prop, values } = require("ramda");
+const log = require("loglevel");
 const { getFiles, isAudioPath } = require("../utils/file");
 const PersistentStorage = require("./PersistentStorage");
-const log = require("loglevel");
 
 class Scanner {
   #store = new PersistentStorage();
 
   static async parseAudioFiles(path) {
-    let parsedFiles = [];
+    const parsedFiles = [];
     for await (const filePath of getFiles(path)) {
       if (isAudioPath(filePath)) {
         const { common, format } = await parseFile(filePath).catch(() =>

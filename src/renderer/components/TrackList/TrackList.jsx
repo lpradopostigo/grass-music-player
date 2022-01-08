@@ -1,10 +1,9 @@
 import React from "react";
-
-import styles from "./styles.modules.css";
-import Track from "../Track";
 import { map, head, addIndex } from "ramda";
 import PropTypes from "prop-types";
 import { When } from "react-if";
+import styles from "./styles.modules.css";
+import Track from "../Track";
 
 export default function TrackList({ data, showDiscNumber, playingTrackIndex }) {
   const mapIndexed = addIndex(map);

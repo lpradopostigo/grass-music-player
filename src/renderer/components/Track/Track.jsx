@@ -1,7 +1,6 @@
 import React from "react";
-
-import styles from "./styles.modules.css";
 import PropTypes from "prop-types";
+import styles from "./styles.modules.css";
 import { secondsToAudioDuration } from "../../utils/format/format";
 
 export default function Track({ data, playing }) {

@@ -6,8 +6,8 @@ export default {
   component: TrackList,
 };
 
-export const Normal = (args) => (
-  <TrackList
+export function Normal(args) {
+  return <TrackList
     showDiscNumber
     data={[
       {
@@ -27,4 +27,4 @@ export const Normal = (args) => (
     ]}
     {...args}
   />
-);
+}

@@ -12,8 +12,8 @@ export function Normal(args) {
   return (
     <ReleasePicture
       data={{
-        artist: "Yes",
-        title: "Roundabout",
+        artist: "Anathema",
+        title: "Distant Satellites",
         picture: picture,
       }}
       {...args}

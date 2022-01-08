@@ -110,8 +110,9 @@ export default function MediaButton({ color, variant, size }) {
 MediaButton.propTypes = {
   color: PropTypes.string,
   variant: PropTypes.oneOf(["play", "next", "previous", "pause"]),
-  size: PropTypes.oneOf(["normal, small"]),
+  size: PropTypes.oneOf(["normal", "small"]),
 };
+
 MediaButton.defaultProps = {
   color: colors.grey.darkest,
   variant: "play",

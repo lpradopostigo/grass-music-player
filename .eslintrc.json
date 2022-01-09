@@ -16,7 +16,10 @@
     "no-use-before-define": "off",
     "no-restricted-syntax": "off",
     "global-require": "off",
-    "react/jsx-props-no-spreading": "off"
+    "react/jsx-props-no-spreading": "off",
+    "react/destructuring-assignment": "off",
+    "react/forbid-prop-types": "off",
+    "dot-notation": "off"
   },
   "parser": "@babel/eslint-parser",
   "parserOptions": {

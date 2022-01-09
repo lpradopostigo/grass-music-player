@@ -1,18 +1,25 @@
 import React from "react";
 import PropTypes from "prop-types";
-import styles from "./styles.modules.css";
+import clsx from "clsx";
+import cls from "./styles.modules.css";
 import { secondsToAudioDuration } from "../../utils/format/format";
 
 export default function Track({ data, playing }) {
   return (
-    <div className={playing ? styles.containerPlaying : styles.container}>
-      <div className={styles.trackNumberAndTitleWrapper}>
-        <span className={styles.trackNumber}>{data.trackNumber}</span>
-        <span className={styles.title}>{data.title}</span>
+    <div
+      className={clsx(cls["container"], {
+        [cls["container--playing"]]: playing,
+      })}
+    >
+      <div className={cls["track-number-and-title-wrapper"]}>
+        <span className={cls["track-number"]}>{data.trackNumber}</span>
+        <span className={cls["title"]}>{data.title}</span>
       </div>
-      <div className={styles.artistAndDurationWrapper}>
-        <span className={styles.artist}>{data.artist}</span>
-        <span className={styles.duration}>
+
+      <div className={cls["artist-and-duration-wrapper"]}>
+        <span className={cls["artist"]}>{data.artist}</span>
+
+        <span className={cls["duration"]}>
           {secondsToAudioDuration(data.duration)}
         </span>
       </div>

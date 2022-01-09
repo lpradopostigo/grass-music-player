@@ -1,3 +1,57 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* "ga" stands for grass-audio, naming convention for variables is BEM */
+
+:root {
+  --ga-spacing__xs: 0.5rem;
+  --ga-spacing__sm: 1rem;
+  --ga-spacing__rg: 1.5rem;
+  --ga-spacing__md: 2rem;
+  --ga-spacing__lg: 2.5rem;
+  --ga-spacing__xl: 2.5rem;
+
+  --ga-radius__xs: 0.125rem;
+  --ga-radius__sm: 0.25rem;
+  --ga-radius__rg: 0.375rem;
+  --ga-radius__md: 0.5rem;
+  --ga-radius__lg: 0.75rem;
+  --ga-radius__xl: 1rem;
+
+  --ga-font-size__2xs: 0.625rem;
+  --ga-font-size__xs: 0.75rem;
+  --ga-font-size__sm: 0.875rem;
+  --ga-font-size__rg: 1rem;
+  --ga-font-size__lg: 1.125rem;
+  --ga-font-size__xl: 1.25rem;
+  --ga-font-size__2xl: 1.5rem;
+  --ga-font-size__3xl: 1.875rem;
+  --ga-font-size__4xl: 2.25rem;
+
+  --ga-font-weight__regular: 400;
+  --ga-font-weight__medium: 500;
+  --ga-font-weight__bold: 600;
+
+  --ga-color__white: #fff;
+  --ga-color__black: #000;
+  --ga-color__gray--50: #f2f2f7;
+  --ga-color__gray--100: #e5e5ea;
+  --ga-color__gray--200: #d1d1d6;
+  --ga-color__gray--300: #c7c7cc;
+  --ga-color__gray--400: #aeaeb2;
+  --ga-color__gray--500: #8e8e93;
+  --ga-color__gray--600: #636366;
+  --ga-color__gray--700: #48484a;
+  --ga-color__gray--800: #3a3a3c;
+  --ga-color__gray--900: #2c2c2e;
+  --ga-color__gray--1000: #1c1c1e;
+
+  --ga-text__color--primary: var(--ga-color__gray--1000);
+  --ga-text__color--secondary: var(--ga-color__gray--800);
+  --ga-text__color--tertiary: var(--ga-color__gray--600);
+  --ga-text__color--quaternary: var(--ga-color__gray--400);
+
+  --ga-background__color--primary: var(--ga-color__white);
+  --ga-background__color--secondary: var(--ga-color__gray--100);
+}

@@ -2,10 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Switch, Case } from "react-if";
 import colors from "../../../theme/colors";
-import styles from "./styles.module.css";
+import cls from "./styles.module.css";
 
 export default function MediaButton({ color, variant, size }) {
-  const className = styles[size];
+  const className = cls[size];
   return (
     <Switch>
       <Case condition={variant === "play"}>

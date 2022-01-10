@@ -2,15 +2,15 @@ import React from "react";
 import { map, head, addIndex } from "ramda";
 import PropTypes from "prop-types";
 import { When } from "react-if";
-import styles from "./styles.modules.css";
+import cls from "./styles.modules.css";
 import Track from "../Track";
 
 export default function TrackList({ data, showDiscNumber, playingTrackIndex }) {
   const mapIndexed = addIndex(map);
   return (
-    <div className={styles.container}>
+    <div className={cls["container"]}>
       <When condition={showDiscNumber}>
-        <span className={styles.disc}>Disc {head(data)?.discNumber}</span>
+        <span className={cls["disc"]}>Disc {head(data)?.discNumber}</span>
       </When>
 
       {mapIndexed((track, index) => (

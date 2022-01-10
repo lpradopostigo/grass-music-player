@@ -1,7 +1,10 @@
 .container {
-  @apply flex flex-col;
+  display: flex;
+  flex-direction: column;
 }
 
-.disc{
-  @apply text-typography-tertiary text-xs mb-1
+.disc {
+  color: var(--ga-text__color--tertiary);
+  font-size: var(--ga-font-size__xs);
+  margin-bottom: var(--ga-spacing__xs);
 }

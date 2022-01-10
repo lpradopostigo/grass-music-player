@@ -5,13 +5,13 @@ import base64js from "base64-js";
 import clsx from "clsx";
 import { If, Then, Else } from "react-if";
 
-import styles from "./styles.module.css";
+import cls from "./styles.module.css";
 import colors from "../../../theme/colors";
 
 export default function ReleasePicture({ data, variant }) {
   const pictureAlt = `${data.title} - ${data.artist} release picture`;
   const pictureSrc = parsePictureSrc(data.picture);
-  const className = clsx(styles.container, styles[variant]);
+  const className = clsx(cls["container"], cls[variant]);
 
   return (
     <If condition={data.picture}>

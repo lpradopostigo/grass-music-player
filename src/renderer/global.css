@@ -12,6 +12,12 @@
   --ga-spacing__lg: 2.5rem;
   --ga-spacing__xl: 2.5rem;
 
+  --ga-box-shadow__sm: 0.5px 1px 1px rgb(0 0 0 / 0.5);
+  --ga-box-shadow__rg: 1px 2px 2px rgb(0 0 0 / 0.2),
+    2px 4px 4px rgb(0 0 0 / 0.2);
+  --ga-box-shadow__md: 2px 4px 4px rgb(0 0 0 / 0.175),
+    3px 6px 8px rgb(0 0 0 / 0.175);
+
   --ga-radius__xs: 0.125rem;
   --ga-radius__sm: 0.25rem;
   --ga-radius__rg: 0.375rem;

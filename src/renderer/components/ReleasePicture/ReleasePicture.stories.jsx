@@ -1,7 +1,7 @@
 import React from "react";
 
 import ReleasePicture from "./ReleasePicture";
-import picture from "../../../../dummy_local_files/library/Distant Satellites/cover.jpg";
+import picture from "../../../../dummy_local_files/library/Katatonia/The Great Cold Distance/cover.jpg";
 
 export default {
   title: "ReleasePicture",

@@ -8,8 +8,8 @@ import { secondsToAudioDuration } from "../../utils/format/format";
 
 export default function Player({ data }) {
   return (
-    <div className={styles.container}>
-      <div className={styles.mediaButtonWrapper}>
+    <div className={styles["container"]}>
+      <div className={styles["media-button-wrapper"]}>
         <MediaButton variant="previous" size="small" />
         <MediaButton variant="play" />
         <MediaButton variant="next" size="small" />

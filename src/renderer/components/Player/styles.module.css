@@ -1,31 +1,49 @@
 .container {
-  @apply flex items-center border-t-border border-t-2 py-3;
+  display: flex;
+  align-items: center;
+  padding: var(--ga-spacing__rg);
+  gap: calc(2 * var(--ga-spacing__xl));
+  @apply border-t-border border-t-2;
 }
 
-.mediaButtonWrapper {
-  @apply flex items-center gap-4 min-w-fit w-1/4 justify-center;
+.media-button-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--ga-spacing__sm);
+  justify-content: center;
 }
 
 .restWrapper {
-  @apply flex items-center gap-4 flex-1 px-10;
+  display: flex;
+  align-items: center;
+  gap: var(--ga-spacing__sm);
+  flex: 1;
 }
 
 .trackInfo {
-  @apply flex items-center gap-4 flex-1;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: var(--ga-spacing__sm);
 }
 
 .trackInfoText {
-  @apply flex flex-col flex-shrink-0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .trackInfoTitle {
-  @apply font-medium text-typography-primary mb-1;
+  font-weight: var(--ga-font-weight__medium);
+  color: var(--ga-text__color--primary);
 }
 
 .trackInfoArtist {
-  @apply text-typography-secondary text-xs;
+  color: var(--ga-text__color--secondary);
+  font-size: var(--ga-font-size__xs);
 }
 
 .trackInfoRelease {
-  @apply text-typography-secondary text-2xs;
+  color: var(--ga-text__color--secondary);
+  font-size: var(--ga-font-size__2xs);
 }

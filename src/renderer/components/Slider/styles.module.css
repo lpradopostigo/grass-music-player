@@ -1,7 +1,6 @@
 .container {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   flex: 1;
   touch-action: none;
@@ -10,8 +9,6 @@
 .output {
   font-size: var(--ga-font-size__xs);
   color: var(--ga-text__color--tertiary);
-  text-align: right;
-  width: 100%;
 }
 
 .track__total {
@@ -38,6 +35,7 @@
   position: relative;
   width: 100%;
   padding: var(--ga-spacing__sm) 0;
+  margin: 0 var(--ga-spacing__sm);
 }
 
 .thumb {

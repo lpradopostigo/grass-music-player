@@ -31,7 +31,6 @@ export default function Slider(props) {
       <output {...outputProps} className={cls["output"]}>
         {props.formatter(state.getThumbValue(0))}
       </output>
-
       <div
         {...trackProps}
         ref={trackRef}
@@ -43,6 +42,9 @@ export default function Slider(props) {
 
         <Thumb index={0} state={state} trackRef={trackRef} />
       </div>
+      <output {...outputProps} className={cls["output"]}>
+        {props.formatter(props.maxValue)}
+      </output>
     </div>
   );
 }

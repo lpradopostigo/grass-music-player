@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import { map } from "ramda";
-import { library } from "../services/api";
-import classNames from "./ReleaseCollectionView.module.css";
-import Release from "../components/Release/Release";
+import { library } from "../../services/api";
+import cls from "./styles.module.css";
+import Release from "../../components/Release/Release";
 
 export default function ReleaseCollectionView() {
   const [releases, setReleases] = useState([]);
@@ -15,7 +15,7 @@ export default function ReleaseCollectionView() {
   }, []);
 
   return (
-    <div className={classNames.container}>
+    <div className={cls["container"]}>
       {map(
         (release) => (
           <Release data={release} key={release.id} />

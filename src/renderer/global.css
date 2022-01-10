@@ -1,8 +1,29 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url("./reset.css");
 
 /* "ga" stands for grass-audio, naming convention for variables is BEM */
+@font-face {
+  font-family: "Roboto";
+  src: url(/assets/fonts/Roboto-Regular.ttf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url(/assets/fonts/Roboto-Medium.ttf);
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url(/assets/fonts/Roboto-Bold.ttf);
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url(/assets/fonts/Roboto-Black.ttf);
+  font-weight: 700;
+}
 
 :root {
   --ga-spacing__xs: 0.5rem;
@@ -39,7 +60,7 @@
   --ga-font-size__3xl: 1.875rem;
   --ga-font-size__4xl: 2.25rem;
 
-  --ga-font-weight__regular: 400;
+  --ga-font-weight__normal: 400;
   --ga-font-weight__medium: 500;
   --ga-font-weight__semi-bold: 600;
 
@@ -73,4 +94,9 @@
 
   --ga-border__color: var(--ga-color__gray--50);
   --ga-border__width: 0.1rem;
+}
+
+* {
+  font-family: "Roboto";
+  font-weight: var(--ga-font-weight__normal);
 }

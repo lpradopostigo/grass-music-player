@@ -1,9 +1,9 @@
 import React from "react";
 import { MemoryRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import "./global.css"
+import "./global.css";
 import ReleaseCollectionView from "./views/ReleaseCollectionView";
-import ReleaseView from "./views/ReleaseView/ReleaseView";
+import ReleaseView from "./views/ReleaseView";
 
 export default function App() {
   return (

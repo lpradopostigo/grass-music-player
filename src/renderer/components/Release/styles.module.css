@@ -9,7 +9,7 @@
 }
 
 .title {
-  font-weight: var(--ga-font-weight__semi-bold);
+  font-weight: var(--ga-font-weight__medium);
   margin-top: var(--ga-spacing__xs);
 }
 

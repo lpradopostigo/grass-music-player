@@ -1,7 +1,36 @@
 .container {
-  @apply p-10 gap-10 flex flex-col;
+  display: flex;
+  flex-direction: column;
+  padding: var(--ga-spacing__md);
+  gap: var(--ga-spacing__md);
 }
 
-.trackListWrapper {
-  @apply flex flex-col gap-10;
+.track-list__wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ga-spacing__md);
+}
+
+.header__container {
+  display: flex;
+  gap: var(--ga-spacing__md);
+}
+
+.header__info__wrapper {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.header__info__title {
+  font-size: var(--ga-font-size__2xl);
+  font-weight: var(--ga-font-weight__semi-bold);
+}
+
+.header__info__artist {
+  margin-top: var(--ga-spacing__xs);
+}
+
+.header__info__year {
+  margin-top: var(--ga-spacing__rg);
 }

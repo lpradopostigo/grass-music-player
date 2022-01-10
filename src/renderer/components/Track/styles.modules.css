@@ -34,7 +34,7 @@
 }
 
 .title {
-  font-weight: 500;
+  font-weight: var(--ga-font-weight__medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

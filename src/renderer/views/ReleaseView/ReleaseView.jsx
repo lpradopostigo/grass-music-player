@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 
 import { useLocation } from "react-router-dom";
 import { map, groupBy, prop, values, compose, head, sortBy } from "ramda";
-import ReleaseViewHeader from "./ReleaseViewHeader";
 import TrackList from "../../components/TrackList";
 import { library } from "../../services/api";
-import styles from "./styles.module.css";
+import cls from "./styles.module.css";
+import ReleasePicture from "../../components/ReleasePicture";
 
 export default function ReleaseView() {
   const { state: releaseData } = useLocation();
@@ -35,9 +35,24 @@ export default function ReleaseView() {
   );
 
   return (
-    <div className={styles.container}>
-      <ReleaseViewHeader data={releaseData} />
-      <div className={styles.trackListWrapper}>{process(tracks)}</div>
+    <div className={cls["container"]}>
+      <div className={cls["header__container"]}>
+        <ReleasePicture data={releaseData} />
+
+        <div className={cls["header__info__wrapper"]}>
+          <span className={cls["header__info__title"]}>
+            {releaseData.title}
+          </span>
+
+          <span className={cls["header__info__artist"]}>
+            {releaseData.artist}
+          </span>
+
+          <span className={cls["header__info__year"]}>{releaseData.year}</span>
+        </div>
+      </div>
+
+      <div className={cls["track-list__wrapper"]}>{process(tracks)}</div>
     </div>
   );
 }

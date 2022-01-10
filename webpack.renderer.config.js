@@ -1,5 +1,5 @@
-const rules = require("./webpack.rules");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const rules = require("./webpack.rules");
 
 rules.push({
   test: /\.css$/,
@@ -8,13 +8,11 @@ rules.push({
     {
       loader: "css-loader",
       options: {
-        importLoaders: 1,
         modules: {
           localIdentName: "[local]_[hash:base64:5]",
         },
       },
     },
-    "postcss-loader",
   ],
 });
 

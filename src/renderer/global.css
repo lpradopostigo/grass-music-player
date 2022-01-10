@@ -12,11 +12,15 @@
   --ga-spacing__lg: 2.5rem;
   --ga-spacing__xl: 2.5rem;
 
-  --ga-box-shadow__sm: 0.5px 1px 1px rgb(0 0 0 / 0.5);
+  --ga-box-shadow__sm: 1px 2px 2px rgb(0 0 0 / 0.5);
   --ga-box-shadow__rg: 1px 2px 2px rgb(0 0 0 / 0.2),
     2px 4px 4px rgb(0 0 0 / 0.2);
   --ga-box-shadow__md: 2px 4px 4px rgb(0 0 0 / 0.175),
     3px 6px 8px rgb(0 0 0 / 0.175);
+
+  --ga-drop-shadow__sm: drop-shadow(1px 2px 2px rgb(0 0 0 / 0.5));
+  --ga-drop-shadow__rg: drop-shadow(1px 2px 2px rgb(0 0 0 / 0.2))
+    drop-shadow(2px 4px 4px rgb(0 0 0 / 0.2));
 
   --ga-radius__xs: 0.125rem;
   --ga-radius__sm: 0.25rem;
@@ -53,7 +57,7 @@
   --ga-color__gray--900: #2c2c2e;
   --ga-color__gray--1000: #1c1c1e;
 
-  --ga-color__blue: #007AFF;
+  --ga-color__blue: #007aff;
 
   --ga-accent-color--primary: var(--ga-color__blue);
   --ga-accent-color--secondary: var(--ga-color__gray--800);

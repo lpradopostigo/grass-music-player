@@ -1,4 +1,12 @@
-.container{
+.container {
+  filter: var(--ga-drop-shadow__rg);
+}
+
+.container > circle{
+  fill: var(--ga-color__white)
+}
+
+.container > path{
   fill: var(--ga-accent-color--primary);
 }
 

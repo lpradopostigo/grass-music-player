@@ -17,7 +17,6 @@
 .rest__wrapper {
   display: flex;
   align-items: center;
-  gap: var(--ga-spacing__sm);
   flex: 1;
 }
 

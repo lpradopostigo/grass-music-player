@@ -1,0 +1,18 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.text__wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-weight: var(--ga-font-weight__semi-bold);
+  margin-top: var(--ga-spacing__xs);
+}
+
+.artist {
+  font-size: var(--ga-font-size__xs);
+}

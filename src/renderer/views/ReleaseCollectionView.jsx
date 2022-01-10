@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { map } from "ramda";
 import { library } from "../services/api";
 import classNames from "./ReleaseCollectionView.module.css";
-import Release from "../components/Release";
+import Release from "../components/Release/Release";
 
 export default function ReleaseCollectionView() {
   const [releases, setReleases] = useState([]);

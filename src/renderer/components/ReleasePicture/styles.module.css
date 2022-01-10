@@ -1,5 +1,9 @@
 .container {
-  @apply object-contain overflow-hidden rounded-xl shadow-lg;
+  object-fit: contain;
+  overflow: hidden;
+  border-radius: var(--ga-radius__lg);
+  flex-shrink: 0;
+  box-shadow: var(--ga-box-shadow__rg);
 }
 
 .big {

@@ -9,20 +9,22 @@ import { secondsToAudioDuration } from "../../utils/format/format";
 export default function Player({ data }) {
   return (
     <div className={styles["container"]}>
-      <div className={styles["media-button-wrapper"]}>
+      <div className={styles["media-button__wrapper"]}>
         <MediaButton variant="previous" size="small" />
         <MediaButton variant="play" />
         <MediaButton variant="next" size="small" />
       </div>
 
-      <div className={styles.restWrapper}>
-        <div className={styles.trackInfo}>
+      <div className={styles["rest__wrapper"]}>
+        <div className={styles["track-info"]}>
           <ReleasePicture variant="small" />
 
-          <div className={styles.trackInfoText}>
-            <span className={styles.trackInfoTitle}>{data.title}</span>
-            <span className={styles.trackInfoArtist}>{data.artist}</span>
-            <span className={styles.trackInfoRelease}>{data.releaseTitle}</span>
+          <div className={styles["track-info__text"]}>
+            <span className={styles["track-info__title"]}>{data.title}</span>
+            <span className={styles["track-info__artist"]}>{data.artist}</span>
+            <span className={styles["track-info__release"]}>
+              {data.releaseTitle}
+            </span>
           </div>
         </div>
 

@@ -25,6 +25,7 @@ export function Normal(args) {
         duration: 323,
       },
     ]}
+    playingTrackIndex={1}
     {...args}
   />
 }

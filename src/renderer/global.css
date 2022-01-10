@@ -70,4 +70,7 @@
 
   --ga-background__color--primary: var(--ga-color__white);
   --ga-background__color--secondary: var(--ga-color__gray--100);
+
+  --ga-border__color: var(--ga-color__gray--50);
+  --ga-border__width: 0.1rem;
 }

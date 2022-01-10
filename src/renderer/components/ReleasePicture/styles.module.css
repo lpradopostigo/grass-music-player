@@ -4,6 +4,7 @@
   border-radius: var(--ga-radius__lg);
   flex-shrink: 0;
   box-shadow: var(--ga-box-shadow__rg);
+  fill: var(--ga-accent-color--primary);
 }
 
 .big {

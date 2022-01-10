@@ -6,7 +6,6 @@ import clsx from "clsx";
 import { If, Then, Else } from "react-if";
 
 import cls from "./styles.module.css";
-import colors from "../../../theme/colors";
 
 export default function ReleasePicture({ data, variant }) {
   const pictureAlt = `${data.title} - ${data.artist} release picture`;
@@ -24,7 +23,7 @@ export default function ReleasePicture({ data, variant }) {
           viewBox="0 0 200 200"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect width="200" height="200" fill={colors.grey.darkest} />
+          <rect width="200" height="200" />
           <path
             d="M89.5833 137.5C99.9386 137.5 108.333 129.105 108.333 118.75C108.333 108.395 99.9386 100 89.5833 100C79.2279 100 70.8333 108.395 70.8333 118.75C70.8333 129.105 79.2279 137.5 89.5833 137.5Z"
             fill="white"

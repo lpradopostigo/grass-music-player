@@ -53,6 +53,12 @@
   --ga-color__gray--900: #2c2c2e;
   --ga-color__gray--1000: #1c1c1e;
 
+  --ga-color__blue: #007AFF;
+
+  --ga-accent-color--primary: var(--ga-color__blue);
+  --ga-accent-color--secondary: var(--ga-color__gray--800);
+  --ga-accent-color--tertiary: var(--ga-color__gray--600);
+
   --ga-text__color--primary: var(--ga-color__gray--1000);
   --ga-text__color--secondary: var(--ga-color__gray--800);
   --ga-text__color--tertiary: var(--ga-color__gray--600);

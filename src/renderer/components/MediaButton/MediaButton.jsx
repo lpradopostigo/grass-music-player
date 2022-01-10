@@ -1,17 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Switch, Case } from "react-if";
-import colors from "../../../theme/colors";
+import clsx from "clsx";
 import cls from "./styles.module.css";
 
-export default function MediaButton({ color, variant, size }) {
-  const className = cls[size];
+export default function MediaButton({ variant, size }) {
+  const className = clsx(cls["container"], cls[size]);
   return (
     <Switch>
       <Case condition={variant === "play"}>
         <svg
           className={className}
-          fill={color}
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -34,7 +33,6 @@ export default function MediaButton({ color, variant, size }) {
       <Case condition={variant === "pause"}>
         <svg
           className={className}
-          fill={color}
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -57,7 +55,6 @@ export default function MediaButton({ color, variant, size }) {
 
       <Case condition={variant === "next"}>
         <svg
-          fill={color}
           className={className}
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +79,6 @@ export default function MediaButton({ color, variant, size }) {
 
       <Case condition={variant === "previous"}>
         <svg
-          fill={color}
           className={className}
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -108,13 +104,11 @@ export default function MediaButton({ color, variant, size }) {
 }
 
 MediaButton.propTypes = {
-  color: PropTypes.string,
   variant: PropTypes.oneOf(["play", "next", "previous", "pause"]),
   size: PropTypes.oneOf(["normal", "small"]),
 };
 
 MediaButton.defaultProps = {
-  color: colors.grey.darkest,
   variant: "play",
   size: "normal",
 };

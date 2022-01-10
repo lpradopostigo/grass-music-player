@@ -1,0 +1,31 @@
+.container {
+  @apply flex items-center border-t-border border-t-2 py-3;
+}
+
+.mediaButtonWrapper {
+  @apply flex items-center gap-4 min-w-fit w-1/4 justify-center;
+}
+
+.restWrapper {
+  @apply flex items-center gap-4 flex-1 px-10;
+}
+
+.trackInfo {
+  @apply flex items-center gap-4 flex-1;
+}
+
+.trackInfoText {
+  @apply flex flex-col flex-shrink-0;
+}
+
+.trackInfoTitle {
+  @apply font-medium text-typography-primary mb-1;
+}
+
+.trackInfoArtist {
+  @apply text-typography-secondary text-xs;
+}
+
+.trackInfoRelease {
+  @apply text-typography-secondary text-2xs;
+}

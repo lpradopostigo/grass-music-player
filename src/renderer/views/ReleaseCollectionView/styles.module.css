@@ -1,5 +1,6 @@
 .container {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ga-spacing__rg);
+  gap: var(--ga-spacing__6);
+  padding: var(--ga-spacing__6);
 }

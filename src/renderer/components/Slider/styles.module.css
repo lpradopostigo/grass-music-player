@@ -34,8 +34,8 @@
 .thumb-and-track-wrapper {
   position: relative;
   width: 100%;
-  padding: var(--ga-spacing__sm) 0;
-  margin: 0 var(--ga-spacing__sm);
+  padding: var(--ga-spacing__4) 0;
+  margin: 0 var(--ga-spacing__4);
 }
 
 .thumb {

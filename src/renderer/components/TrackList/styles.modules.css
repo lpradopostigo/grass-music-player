@@ -6,5 +6,5 @@
 .disc {
   color: var(--ga-text__color--tertiary);
   font-size: var(--ga-font-size__xs);
-  margin-bottom: var(--ga-spacing__xs);
+  padding: var(--ga-spacing__2--5) 0;
 }

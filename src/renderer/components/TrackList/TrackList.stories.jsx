@@ -24,6 +24,13 @@ export function Normal(args) {
         title: "The fish",
         duration: 323,
       },
+      {
+        trackNumber: 3,
+        discNumber: 1,
+        artist: "Yes",
+        title: "Five percent for nothing",
+        duration: 323,
+      }
     ]}
     playingTrackIndex={1}
     {...args}

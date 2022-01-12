@@ -18,3 +18,7 @@
   margin-top: var(--ga-spacing__1);
   color: var(--ga-text__color--secondary);
 }
+
+a {
+  height: fit-content;
+}

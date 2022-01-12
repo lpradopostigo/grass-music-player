@@ -115,4 +115,14 @@ body {
   font-family: "Inter";
   font-size: var(--ga-font-size__rg);
   font-weight: var(--ga-font-weight__normal);
+
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--ga-color__gray--50);
 }

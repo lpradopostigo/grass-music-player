@@ -1,5 +1,6 @@
 .container {
   object-fit: contain;
+  object-position: center;
   overflow: hidden;
   border-radius: var(--ga-radius__lg);
   flex-shrink: 0;
@@ -8,8 +9,8 @@
 }
 
 .big {
-  height: 200px;
-  width: 200px;
+  height: 192px;
+  aspect-ratio: 1;
 }
 
 .medium {

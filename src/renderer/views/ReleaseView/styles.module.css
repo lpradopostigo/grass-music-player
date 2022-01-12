@@ -3,6 +3,9 @@
   flex-direction: column;
   padding: var(--ga-spacing__10);
   gap: var(--ga-spacing__10);
+  flex: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .track-list__wrapper {

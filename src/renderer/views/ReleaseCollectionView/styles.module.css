@@ -3,4 +3,7 @@
   flex-wrap: wrap;
   gap: var(--ga-spacing__6);
   padding: var(--ga-spacing__6);
+  overflow-y: scroll;
+  flex: 1;
+  overflow-x: hidden;
 }

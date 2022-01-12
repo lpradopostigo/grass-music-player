@@ -5,6 +5,8 @@
   gap: calc(var(--ga-spacing__12));
   border-color: var(--ga-border__color);
   border-top-width: var(--ga-border__width);
+  border-style: solid;
+  flex-shrink: 0;
 }
 
 .media-button__wrapper {

@@ -1,8 +1,8 @@
 .container {
   display: flex;
   align-items: center;
-  padding: var(--ga-spacing__4);
-  gap: calc(var(--ga-spacing__12));
+  padding: var(--ga-spacing__4) var(--ga-spacing__8);
+  gap: var(--ga-spacing__16);
   border-color: var(--ga-border__color);
   border-top-width: var(--ga-border__width);
   border-style: solid;
@@ -25,7 +25,7 @@
 .track-info {
   display: flex;
   align-items: center;
-  flex: 1;
+  min-width: 30%;
   gap: var(--ga-spacing__3--5);
 }
 
@@ -42,10 +42,12 @@
 
 .track-info__artist {
   color: var(--ga-text__color--secondary);
-  font-size: var(--ga-font-size__xs);
+  font-size: var(--ga-font-size__sm);
+  margin-top: var(--ga-spacing__1);
+  margin-bottom: var(--ga-spacing__0--5);
 }
 
 .track-info__release {
   color: var(--ga-text__color--secondary);
-  font-size: var(--ga-font-size__2xs);
+  font-size: var(--ga-font-size__xs);
 }

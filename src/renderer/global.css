@@ -45,6 +45,14 @@
   --ga-spacing__10: 2.5rem;
   --ga-spacing__11: 2.75rem;
   --ga-spacing__12: 3rem;
+  --ga-spacing__14: 3.5rem;
+  --ga-spacing__16: 4rem;
+  --ga-spacing__20: 5rem;
+  --ga-spacing__24: 6rem;
+  --ga-spacing__28: 7rem;
+  --ga-spacing__32: 8rem;
+  --ga-spacing__36: 9rem;
+  --ga-spacing__40: 10rem;
 
   --ga-box-shadow__sm: 1px 2px 2px rgb(0 0 0 / 0.5);
   --ga-box-shadow__rg: 1px 2px 2px rgb(0 0 0 / 0.2),
@@ -115,13 +123,12 @@ body {
   font-family: "Inter";
   font-size: var(--ga-font-size__rg);
   font-weight: var(--ga-font-weight__normal);
-
+  user-select: none;
 }
 
 ::-webkit-scrollbar {
   width: 10px;
 }
-
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--ga-color__gray--50);

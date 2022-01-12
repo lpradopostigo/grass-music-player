@@ -24,13 +24,8 @@ export default function App() {
 
           <Route path="/ReleaseView" element={<ReleaseView />} />
         </Routes>
-        <Player
-          data={{
-            title: "AMON",
-            artist: "DIR EN GREY",
-            releaseTitle: "DUM SPIRO SPERO",
-          }}
-        />
+
+        <Player />
       </MemoryRouter>
     </div>
   );

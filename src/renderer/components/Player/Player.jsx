@@ -17,7 +17,7 @@ export default function Player({ data }) {
 
       <div className={styles["rest__wrapper"]}>
         <div className={styles["track-info"]}>
-          <ReleasePicture variant="small" />
+          <ReleasePicture data={{ title: "", artist: "" }} variant="small" />
 
           <div className={styles["track-info__text"]}>
             <span className={styles["track-info__title"]}>{data.title}</span>
@@ -35,11 +35,11 @@ export default function Player({ data }) {
 }
 
 Player.propTypes = {
-  data: {
+  data: PropTypes.shape({
     title: PropTypes.string,
     artist: PropTypes.string,
     releaseTitle: PropTypes.string,
-  },
+  }),
 };
 
 Player.defaultProps = {

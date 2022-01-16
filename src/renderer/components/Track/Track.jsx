@@ -4,12 +4,13 @@ import clsx from "clsx";
 import cls from "./styles.modules.css";
 import { secondsToAudioDuration } from "../../utils/format/format";
 
-export default function Track({ data, playing }) {
+export default function Track({ data, playing, onClick }) {
   return (
     <div
       className={clsx(cls["container"], {
         [cls["container--playing"]]: playing,
       })}
+      onClick={onClick}
     >
       <div className={cls["track-number-and-title-wrapper"]}>
         <span className={cls["track-number"]}>{data.trackNumber}</span>
@@ -40,4 +41,5 @@ Track.propTypes = {
     duration: PropTypes.number.isRequired,
   }).isRequired,
   playing: PropTypes.bool,
+  onClick: PropTypes.func.isRequired,
 };

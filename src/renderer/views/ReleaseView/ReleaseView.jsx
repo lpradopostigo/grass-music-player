@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { map, groupBy, prop, values, compose, head, sortBy } from "ramda";
 import TrackList from "../../components/TrackList";
+import Track from "../../components/Track";
 import { library } from "../../services/api";
 import cls from "./styles.module.css";
 import ReleasePicture from "../../components/ReleasePicture";
@@ -20,12 +21,19 @@ export default function ReleaseView() {
   const sortByTrackNumber = sortBy(prop("trackNumber"));
   const showDiscNumber = releaseData.numberOfDiscs > 1;
   const groupByDiscNumber = groupBy(prop("discNumber"));
-  const renderTrackList = (arr) => (
+  const renderTrackList = (dataArr) => (
     <TrackList
-      key={head(arr)?.discNumber}
-      data={arr}
+      key={head(dataArr)?.discNumber}
       showDiscNumber={showDiscNumber}
-    />
+      discNumber={head(dataArr)?.discNumber}
+    >
+      {map(
+        (data) => (
+          <Track key={data.id} data={data} onClick={() => {}} />
+        ),
+        dataArr
+      )}
+    </TrackList>
   );
   const process = compose(
     map(renderTrackList),

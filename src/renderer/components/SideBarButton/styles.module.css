@@ -1,0 +1,8 @@
+svg > path {
+  stroke: var(--ga-accent-color--primary);
+}
+
+svg {
+  height: 30px;
+  width: 30px;
+}

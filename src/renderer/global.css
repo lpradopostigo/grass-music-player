@@ -124,7 +124,11 @@ body {
   font-size: var(--ga-font-size__rg);
   font-weight: var(--ga-font-weight__normal);
   user-select: none;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
 }
+
 
 ::-webkit-scrollbar {
   width: 10px;

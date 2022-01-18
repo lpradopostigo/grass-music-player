@@ -1,38 +1,70 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { identity } from "ramda";
 import { useSliderState } from "react-stately";
 import {
+  usePress,
   useSlider,
   useSliderThumb,
   useFocusRing,
   VisuallyHidden,
   mergeProps,
   useNumberFormatter,
+  useMove,
 } from "react-aria";
 import cls from "./styles.module.css";
+import useTrackPosition from "../../hooks/useTrackPosition";
+import { secondsToAudioDuration } from "../../utils/format/format";
+import { grass } from "../../services/api";
+import { percentageToValue, valueToPercentage } from "../../utils/conversion";
 
-export default function Slider(props) {
+export default function PlaybackProgressSlider() {
   const trackRef = React.useRef(null);
   const numberFormatter = useNumberFormatter({});
-  const state = useSliderState({ ...props, numberFormatter });
+  const trackPosition = useTrackPosition();
+  const state = useSliderState({
+    isDisabled: trackPosition.current === 0 && trackPosition.total === 0,
+    value: [trackPosition.current],
+    minValue: 0,
+    maxValue: trackPosition.total,
+    numberFormatter,
+    step: 0,
+  });
+
   const { groupProps, trackProps, outputProps } = useSlider(
-    props,
+    { "aria-label": "playback progress" },
     state,
     trackRef
   );
 
   const trackCurrentStyle = {
     width: `${state.getThumbPercent(0) * 100}%`,
+    maxWidth: "100%",
   };
 
   return (
     <div {...groupProps} className={cls["container"]}>
       <output {...outputProps} className={cls["output"]}>
-        {props.formatter(state.getThumbValue(0))}
+        {secondsToAudioDuration(state.getThumbValue(0))}
       </output>
       <div
         {...trackProps}
+        onClick={(event) => {
+          if (state.isThumbEditable(0)) {
+            const { width, x } = trackRef.current.getBoundingClientRect();
+            const relX = event.nativeEvent.x - x;
+
+            const percentage = valueToPercentage(relX, width);
+            console.log(percentageToValue(percentage, trackPosition.total));
+
+            grass.setTrackPosition(
+              percentageToValue(percentage, trackPosition.total)
+            );
+            state.setThumbValue(
+              0,
+              percentageToValue(percentage, trackPosition.total)
+            );
+          }
+        }}
         ref={trackRef}
         className={cls["thumb-and-track-wrapper"]}
       >
@@ -43,7 +75,7 @@ export default function Slider(props) {
         <Thumb index={0} state={state} trackRef={trackRef} />
       </div>
       <output {...outputProps} className={cls["output"]}>
-        {props.formatter(props.maxValue)}
+        {secondsToAudioDuration(trackPosition.total)}
       </output>
     </div>
   );
@@ -57,8 +89,10 @@ function Thumb({ state, trackRef, index }) {
   );
   const { focusProps } = useFocusRing();
 
+  const thumbPercent = state.getThumbPercent(index);
+
   const thumbStyle = {
-    left: `${state.getThumbPercent(index) * 100}%`,
+    left: `${thumbPercent <= 1 ? thumbPercent * 100 : 100}%`,
   };
 
   return (
@@ -74,20 +108,4 @@ Thumb.propTypes = {
   trackRef: PropTypes.any.isRequired,
   index: PropTypes.number.isRequired,
   state: PropTypes.any.isRequired,
-};
-
-Slider.propTypes = {
-  isDisabled: PropTypes.bool,
-  minValue: PropTypes.number,
-  maxValue: PropTypes.number,
-  step: PropTypes.number,
-  formatter: PropTypes.func,
-};
-
-Slider.defaultProps = {
-  isDisabled: false,
-  minValue: 0,
-  maxValue: 100,
-  step: 1,
-  formatter: identity,
 };

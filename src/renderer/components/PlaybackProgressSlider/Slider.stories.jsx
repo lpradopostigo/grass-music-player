@@ -1,14 +1,14 @@
 import React from "react";
-import Slider from "./Slider";
+import PlaybackProgressSlider from "./PlaybackProgressSlider";
 
 export default {
   title: "Slider",
-  component: Slider,
+  component: PlaybackProgressSlider,
 };
 
 export function Normal(args) {
   return (
-    <Slider
+    <PlaybackProgressSlider
       maxValue={120}
       step={0.5}
       formatter={(value) => `output ${value}`}

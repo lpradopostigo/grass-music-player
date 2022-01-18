@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
 
 import { useLocation } from "react-router-dom";
-import { map, groupBy, prop, values, compose, head, sortBy } from "ramda";
+import {
+  map,
+  groupBy,
+  prop,
+  values,
+  compose,
+  head,
+  sortBy,
+  addIndex,
+  partial,
+} from "ramda";
 import TrackList from "../../components/TrackList";
 import Track from "../../components/Track";
-import { library } from "../../services/api";
+import { library, grass } from "../../services/api";
 import cls from "./styles.module.css";
 import ReleasePicture from "../../components/ReleasePicture";
 
@@ -18,6 +28,13 @@ export default function ReleaseView() {
     })();
   }, []);
 
+  const playTrack = async (index) => {
+    await grass.setPlaylist(tracks);
+    await grass.skipToTrack(index);
+    await grass.play();
+  };
+
+  const mapIndexed = addIndex(map);
   const sortByTrackNumber = sortBy(prop("trackNumber"));
   const showDiscNumber = releaseData.numberOfDiscs > 1;
   const groupByDiscNumber = groupBy(prop("discNumber"));
@@ -27,9 +44,13 @@ export default function ReleaseView() {
       showDiscNumber={showDiscNumber}
       discNumber={head(dataArr)?.discNumber}
     >
-      {map(
-        (data) => (
-          <Track key={data.id} data={data} onClick={() => {}} />
+      {mapIndexed(
+        (data, index) => (
+          <Track
+            key={data.id}
+            data={data}
+            onClick={partial(playTrack, [index])}
+          />
         ),
         dataArr
       )}

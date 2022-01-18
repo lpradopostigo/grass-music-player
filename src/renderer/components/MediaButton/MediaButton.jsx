@@ -4,12 +4,13 @@ import { Switch, Case } from "react-if";
 import clsx from "clsx";
 import cls from "./styles.module.css";
 
-export default function MediaButton({ variant, size }) {
+export default function MediaButton({ variant, size, onClick }) {
   const className = clsx(cls["container"], cls[size]);
   return (
     <Switch>
       <Case condition={variant === "play"}>
         <svg
+          onClick={onClick}
           className={className}
           width="400"
           height="400"
@@ -23,6 +24,7 @@ export default function MediaButton({ variant, size }) {
 
       <Case condition={variant === "pause"}>
         <svg
+          onClick={onClick}
           className={className}
           width="400"
           height="400"
@@ -40,6 +42,7 @@ export default function MediaButton({ variant, size }) {
 
       <Case condition={variant === "next"}>
         <svg
+          onClick={onClick}
           className={className}
           width="400"
           height="400"
@@ -53,6 +56,7 @@ export default function MediaButton({ variant, size }) {
 
       <Case condition={variant === "previous"}>
         <svg
+          onClick={onClick}
           className={className}
           width="400"
           height="400"
@@ -70,6 +74,7 @@ export default function MediaButton({ variant, size }) {
 MediaButton.propTypes = {
   variant: PropTypes.oneOf(["play", "next", "previous", "pause"]),
   size: PropTypes.oneOf(["normal", "small"]),
+  onClick: PropTypes.func.isRequired,
 };
 
 MediaButton.defaultProps = {

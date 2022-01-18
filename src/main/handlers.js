@@ -6,12 +6,23 @@ const Database = require("./services/Database");
 
 const grass = new GrassAudio();
 
+let playlist = [];
+
 ipcMain.handle("library:getReleases", async () => {
   const database = new Database();
   await database.open();
   const releases = await database.getReleases();
   await database.close();
   return releases;
+});
+
+ipcMain.handle("library:getRelease", async (event, releaseId) => {
+  const database = new Database();
+  await database.open();
+  const release = await database.getRelease(releaseId);
+  console.log(release)
+  await database.close();
+  return release;
 });
 
 ipcMain.handle("library:getTracks", async (event, releaseId) => {
@@ -24,6 +35,7 @@ ipcMain.handle("library:getTracks", async (event, releaseId) => {
 
 ipcMain.handle("grass:setPlaylist", async (event, tracks) => {
   const paths = map((track) => track.filePath, tracks);
+  playlist = tracks;
   grass.setFiles(paths);
 });
 
@@ -47,17 +59,18 @@ ipcMain.handle("grass:skipToTrack", async (event, index) => {
   grass.skipToFile(index);
 });
 
-ipcMain.handle("grass:getTrackPosition", async () => {
-  return {
-    current: grass.getPosition(),
-    total: grass.getLength(),
-  };
-});
+ipcMain.handle("grass:getTrackPosition", async () => ({
+  current: grass.getPosition(),
+  total: grass.getLength(),
+}));
 
-ipcMain.handle("grass:getPlaybackState", async () => {
-  return grass.getStatus();
-});
+ipcMain.handle("grass:getPlaybackState", async () => grass.getStatus());
 
 ipcMain.handle("grass:setTrackPosition", async (event, position) => {
-  return grass.setPosition(position);
+  grass.setPosition(position);
 });
+
+ipcMain.handle(
+  "grass:getCurrentTrack",
+  async () => playlist[grass.getCurrentFileIndex()]
+);

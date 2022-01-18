@@ -68,5 +68,3 @@ export default function SideBarButton({ variant }) {
 SideBarButton.propTypes = {
   variant: PropTypes.oneOf(["library", "settings"]).isRequired,
 };
-
-SideBarButton.defaultProps = {};

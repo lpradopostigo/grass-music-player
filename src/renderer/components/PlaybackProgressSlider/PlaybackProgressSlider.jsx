@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useSliderState } from "react-stately";
 import {
-  usePress,
   useSlider,
   useSliderThumb,
   useFocusRing,
@@ -12,20 +11,18 @@ import {
   useMove,
 } from "react-aria";
 import cls from "./styles.module.css";
-import useTrackPosition from "../../hooks/useTrackPosition";
 import { secondsToAudioDuration } from "../../utils/format/format";
 import { grass } from "../../services/api";
 import { percentageToValue, valueToPercentage } from "../../utils/conversion";
 
-export default function PlaybackProgressSlider() {
+export default function PlaybackProgressSlider({ current, total, isDisabled }) {
   const trackRef = React.useRef(null);
   const numberFormatter = useNumberFormatter({});
-  const trackPosition = useTrackPosition();
   const state = useSliderState({
-    isDisabled: trackPosition.current === 0 && trackPosition.total === 0,
-    value: [trackPosition.current],
+    isDisabled,
+    value: [current],
     minValue: 0,
-    maxValue: trackPosition.total,
+    maxValue: total,
     numberFormatter,
     step: 0,
   });
@@ -54,15 +51,8 @@ export default function PlaybackProgressSlider() {
             const relX = event.nativeEvent.x - x;
 
             const percentage = valueToPercentage(relX, width);
-            console.log(percentageToValue(percentage, trackPosition.total));
 
-            grass.setTrackPosition(
-              percentageToValue(percentage, trackPosition.total)
-            );
-            state.setThumbValue(
-              0,
-              percentageToValue(percentage, trackPosition.total)
-            );
+            grass.setTrackPosition(percentageToValue(percentage, total));
           }
         }}
         ref={trackRef}
@@ -75,7 +65,7 @@ export default function PlaybackProgressSlider() {
         <Thumb index={0} state={state} trackRef={trackRef} />
       </div>
       <output {...outputProps} className={cls["output"]}>
-        {secondsToAudioDuration(trackPosition.total)}
+        {secondsToAudioDuration(total)}
       </output>
     </div>
   );
@@ -108,4 +98,14 @@ Thumb.propTypes = {
   trackRef: PropTypes.any.isRequired,
   index: PropTypes.number.isRequired,
   state: PropTypes.any.isRequired,
+};
+
+PlaybackProgressSlider.propTypes = {
+  current: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
+  isDisabled: PropTypes.bool,
+};
+
+PlaybackProgressSlider.defaultProps = {
+  isDisabled: false,
 };

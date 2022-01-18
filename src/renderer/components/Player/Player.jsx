@@ -1,16 +1,17 @@
 import React from "react";
-import PropTypes from "prop-types";
 import MediaButton from "../MediaButton";
 import ReleasePicture from "../ReleasePicture";
 import styles from "./styles.module.css";
 import PlaybackProgressSlider from "../PlaybackProgressSlider";
-import { secondsToAudioDuration } from "../../utils/format/format";
 import { grass } from "../../services/api";
 import usePlaybackState, { PlaybackState } from "../../hooks/usePlaybackState";
 import useTrackPosition from "../../hooks/useTrackPosition";
+import useCurrentTrack from "../../hooks/useCurrentTrack";
 
-export default function Player({ data }) {
+export default function Player() {
   const playbackState = usePlaybackState();
+  const currentTrack = useCurrentTrack();
+  const trackPosition = useTrackPosition();
 
   return (
     <div className={styles["container"]}>
@@ -27,35 +28,29 @@ export default function Player({ data }) {
 
       <div className={styles["rest__wrapper"]}>
         <div className={styles["track-info"]}>
-          <ReleasePicture data={{ title: "", artist: "" }} variant="small" />
+          <ReleasePicture
+            data={{ title: "", artist: "", picture: currentTrack?.picture }}
+            variant="small"
+          />
 
           <div className={styles["track-info__text"]}>
-            <span className={styles["track-info__title"]}>{data.title}</span>
-            <span className={styles["track-info__artist"]}>{data.artist}</span>
+            <span className={styles["track-info__title"]}>
+              {currentTrack?.title}
+            </span>
+            <span className={styles["track-info__artist"]}>
+              {currentTrack?.artist}
+            </span>
             <span className={styles["track-info__release"]}>
-              {data.releaseTitle}
+              {currentTrack?.releaseTitle}
             </span>
           </div>
         </div>
 
-        <PlaybackProgressSlider />
+        <PlaybackProgressSlider
+          current={trackPosition.current}
+          total={trackPosition.total}
+        />
       </div>
     </div>
   );
 }
-
-Player.propTypes = {
-  data: PropTypes.shape({
-    title: PropTypes.string,
-    artist: PropTypes.string,
-    releaseTitle: PropTypes.string,
-  }),
-};
-
-Player.defaultProps = {
-  data: {
-    title: "",
-    artist: "",
-    releaseTitle: "",
-  },
-};

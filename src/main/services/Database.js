@@ -65,6 +65,19 @@ class Database {
     });
   }
 
+  getRelease(id) {
+    return new Promise((resolve, reject) => {
+      this.#database?.get(
+        `SELECT * FROM "${Database.#Table.RELEASE}" WHERE id = ?`,
+        [id],
+        (error, result) => {
+          if (error != null) reject(error);
+          resolve(result);
+        }
+      );
+    });
+  }
+
   getTracks(releaseId) {
     return new Promise((resolve, reject) => {
       this.#database?.all(

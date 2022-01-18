@@ -34,15 +34,23 @@ export const grass = {
   },
 
   setTrackPosition(position) {
-    return api.invoke("grass:setTrackPosition",position);
+    return api.invoke("grass:setTrackPosition", position);
+  },
 
-  }
+  getCurrentTrack() {
+    return api.invoke("grass:getCurrentTrack");
+  },
 };
 
 export const library = {
   /** @return {Promise<any[]>} */
   getReleases() {
     return api.invoke("library:getReleases");
+  },
+
+  /** @return {Promise<any>} */
+  getRelease(releaseId) {
+    return api.invoke("library:getRelease", releaseId);
   },
 
   /** @param {number} releaseId

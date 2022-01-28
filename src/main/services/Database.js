@@ -13,6 +13,8 @@ class Database {
 
   #database = null;
 
+  /** Construct a valid instance of Database
+   * @return Database */
   static async construct() {
     const instance = new Database();
     const databaseExists = await pathExist(databasePath);
@@ -24,11 +26,15 @@ class Database {
     return instance;
   }
 
+  /** Create the tables on the database, useful on rescan or first launch
+   * @return {Promise<void>} */
   async createTables() {
     await this.#createTable(Database.#Table.RELEASE);
     await this.#createTable(Database.#Table.TRACK);
   }
 
+  /** Open a database connection, it does nothing if one already exists
+   *  @return {Promise<void>} */
   open() {
     return new Promise((resolve, reject) => {
       this.#database = new sqlite3.Database(databasePath, (error) => {
@@ -38,6 +44,9 @@ class Database {
     });
   }
 
+  /** Populate the database tables given an array of release
+   * @param {any[]} releases
+   *  @return {Promise<void[]>} */
   async insertLibrary(releases) {
     await this.#insertReleases(releases).catch(log.warn);
 
@@ -53,6 +62,8 @@ class Database {
     );
   }
 
+  /** Get all the releases on the database
+   * @return {Promise<any[]>} */
   getReleases() {
     return new Promise((resolve, reject) => {
       this.#database?.all(
@@ -65,6 +76,9 @@ class Database {
     });
   }
 
+  /** Get the corresponding release given the id
+   * @param {number} id
+   * @return {Promise<any>} */
   getRelease(id) {
     return new Promise((resolve, reject) => {
       this.#database?.get(
@@ -78,6 +92,9 @@ class Database {
     });
   }
 
+  /** Get all tracks associated to a given release
+   * @param {number} releaseId
+   * @return {Promise<any[]>} */
   getTracks(releaseId) {
     return new Promise((resolve, reject) => {
       this.#database?.all(
@@ -91,6 +108,8 @@ class Database {
     });
   }
 
+  /** Close the database connection, it does nothing if there is no connection
+   * @return {Promise<void>} */
   close() {
     return new Promise((resolve, reject) => {
       this.#database?.close((error) => {
@@ -100,12 +119,18 @@ class Database {
     });
   }
 
+  /** Insert an array of releases on the database
+   * @param {any[]} releases
+   * @return {Promise<any[]>} */
   #insertReleases(releases) {
     return Promise.all(
       map((release) => this.#insertOneRelease(release), releases)
     );
   }
 
+  /** Create a table given a valid table name
+   * @param {string} table
+   * @return {Promise<void>} */
   #createTable(table) {
     const Query = {
       [Database.#Table.RELEASE]: `CREATE TABLE "${Database.#Table.RELEASE}" (
@@ -141,6 +166,10 @@ class Database {
     });
   }
 
+  /** Insert a track into the database, given some release information
+   * @param {any} track
+   * @param {{title: string, artist: string}} releaseInfo
+   * @return {Promise<void>} */
   #insertOneTrack(track, releaseInfo) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
@@ -168,12 +197,19 @@ class Database {
     });
   }
 
+  /** Insert an array of tracks into the database, given some release information
+   *  @param {any[]} tracks
+   *  @param {{title: string, artist: string}} releaseInfo
+   *  @return {Promise<void[]>} */
   #insertTracks(tracks, releaseInfo) {
     return Promise.all(
       map((track) => this.#insertOneTrack(track, releaseInfo), tracks)
     );
   }
 
+  /** Insert a release into the database
+   *  @param {any} release
+   *  @return {Promise<void>} */
   #insertOneRelease(release) {
     return new Promise((resolve, reject) => {
       this.#database?.run(

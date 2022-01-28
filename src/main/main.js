@@ -1,6 +1,8 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
-require("./handlers");
+require("./handlers/library");
+require("./handlers/grass");
 const log = require("loglevel");
 const Controller = require("./services/Controller");
 

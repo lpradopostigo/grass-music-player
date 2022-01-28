@@ -24,7 +24,7 @@ export default function ReleaseView() {
 
   useEffect(() => {
     (async () => {
-      setTracks(await library.getTracks(releaseData.id));
+      setTracks(await library.getReleaseTracks(releaseData.id));
     })();
   }, []);
 

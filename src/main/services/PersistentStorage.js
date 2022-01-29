@@ -15,13 +15,21 @@ class PersistentStorage {
 
   #store = new ElectronStore({ schema: PersistentStorage.#schema });
 
-  get(key, defaultValue = undefined) {
+  /** get the value of a valid key
+   * @param {string} key
+   * @param {any} [defaultValue]
+   * @return {any} */
+  get(key, defaultValue) {
     if (includes(key, values(PersistentStorage.Keys))) {
       return this.#store.get(key, defaultValue);
     }
     throw Error("invalid key");
   }
 
+  /** set the value of a valid key
+   * @param {string} key
+   * @param {any} value a valid json value
+   * @return {void} */
   set(key, value) {
     if (includes(key, values(PersistentStorage.Keys))) {
       this.#store.set(key, value);

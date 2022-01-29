@@ -6,7 +6,7 @@ const sqlite3 = require("sqlite3");
 const { map } = require("ramda");
 const log = require("loglevel");
 const { pathExist } = require("../utils/file");
-const { databasePath } = require("./constants");
+const { DATABASE_PATH } = require("./constants");
 const { terminateApp } = require("../utils/error");
 
 class Database {
@@ -21,7 +21,7 @@ class Database {
    * @return {Database} */
   static async construct() {
     const instance = new Database();
-    const databaseExists = await pathExist(databasePath);
+    const databaseExists = await pathExist(DATABASE_PATH);
     if (!databaseExists) {
       await instance.open().catch(terminateApp);
       await instance.createTables().catch(terminateApp);
@@ -41,7 +41,7 @@ class Database {
    *  @return {Promise<void>} */
   open() {
     return new Promise((resolve, reject) => {
-      this.#database = new sqlite3.Database(databasePath, (error) => {
+      this.#database = new sqlite3.Database(DATABASE_PATH, (error) => {
         if (error != null) reject(error);
         resolve();
       });

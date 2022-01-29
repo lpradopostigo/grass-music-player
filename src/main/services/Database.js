@@ -52,7 +52,7 @@ class Database {
    * Populate the database tables given an array of release
    * @param {ScannerRelease[]} releases
    *  @return {Promise<void[]>} */
-  async insertLibrary(releases) {
+  async insertReleases(releases) {
     await this.#insertReleases(releases).catch(log.warn);
 
     return Promise.all(
@@ -129,7 +129,7 @@ class Database {
    * @return {Promise<void[]>} */
   #insertReleases(releases) {
     return Promise.all(
-      map((release) => this.#insertOneRelease(release), releases)
+      map((release) => this.#insertRelease(release), releases)
     );
   }
 
@@ -175,7 +175,7 @@ class Database {
    * @param {ScannerTrack} track
    * @param {{title: string, artist: string}} releaseInfo
    * @return {Promise<void>} */
-  #insertOneTrack(track, releaseInfo) {
+  #insertTrack(track, releaseInfo) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
         `INSERT INTO "${Database.#Table.TRACK}" 
@@ -208,14 +208,14 @@ class Database {
    *  @return {Promise<void[]>} */
   #insertTracks(tracks, releaseInfo) {
     return Promise.all(
-      map((track) => this.#insertOneTrack(track, releaseInfo), tracks)
+      map((track) => this.#insertTrack(track, releaseInfo), tracks)
     );
   }
 
   /** Insert a release into the database
    *  @param {ScannerRelease} release
    *  @return {Promise<void>} */
-  #insertOneRelease(release) {
+  #insertRelease(release) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
         `INSERT INTO "${Database.#Table.RELEASE}"

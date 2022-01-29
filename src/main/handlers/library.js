@@ -2,11 +2,11 @@
 const { ipcMain } = require("electron");
 const {
   getRelease,
-  getAllReleases,
+  getReleases,
   getReleaseTracks,
 } = require("../services/store");
 
-ipcMain.handle("library:getAllReleases", () => getAllReleases());
+ipcMain.handle("library:getReleases", () => getReleases());
 
 ipcMain.handle("library:getRelease", (event, releaseId) =>
   getRelease(releaseId)

@@ -8,7 +8,6 @@ import {
   VisuallyHidden,
   mergeProps,
   useNumberFormatter,
-  useMove,
 } from "react-aria";
 import cls from "./styles.module.css";
 import { secondsToAudioDuration } from "../../utils/format/format";

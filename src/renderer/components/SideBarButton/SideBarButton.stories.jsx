@@ -7,5 +7,5 @@ export default {
 };
 
 export function Normal(args) {
-  return <SideBarButton variant={"library"} {...args} />;
+  return <SideBarButton variant="library" {...args} />;
 }

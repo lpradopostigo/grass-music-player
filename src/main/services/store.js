@@ -9,7 +9,7 @@ async function getRelease(id) {
   return release;
 }
 
-async function getAllReleases() {
+async function getReleases() {
   const database = new Database();
   await database.open();
   const releases = await database.getReleases();
@@ -27,6 +27,6 @@ async function getReleaseTracks(releaseId) {
 
 module.exports = {
   getRelease: memoize(getRelease, { promise: true }),
-  getAllReleases: memoize(getAllReleases, { promise: true }),
+  getReleases: memoize(getReleases, { promise: true }),
   getReleaseTracks: memoize(getReleaseTracks, { promise: true }),
 };

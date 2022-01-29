@@ -6,4 +6,6 @@ export default {
   component: SideBar
 };
 
-export const Normal = (args) => (<SideBar {...args}/>);
+export function Normal(args) {
+  return <SideBar {...args}/>
+}

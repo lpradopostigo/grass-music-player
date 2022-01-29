@@ -12,9 +12,9 @@ export default function usePlaybackState() {
 
   useEffect(() => {
     (async () => {
-      setPlaybackState(await grass.getPlaybackState());
+      setPlaybackState(await grass.getPlaybackStatus());
       setInterval(async () => {
-        setPlaybackState(await grass.getPlaybackState());
+        setPlaybackState(await grass.getPlaybackStatus());
       }, 100);
     })();
   }, []);

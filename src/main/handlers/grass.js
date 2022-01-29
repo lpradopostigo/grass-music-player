@@ -38,11 +38,11 @@ ipcMain.handle("grass:getTrackPosition", () => ({
   total: grass.getLength(),
 }));
 
-ipcMain.handle("grass:getPlaybackState", () => grass.getStatus());
-
 ipcMain.handle("grass:setTrackPosition", (event, position) => {
   grass.setPosition(position);
 });
+
+ipcMain.handle("grass:getPlaybackStatus", () => grass.getStatus());
 
 ipcMain.handle(
   "grass:getCurrentTrack",

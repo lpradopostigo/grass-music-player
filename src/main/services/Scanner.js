@@ -1,3 +1,6 @@
+/** @typedef {import('../../shared/types').ScannerParsedFile} ScannerParsedFile */
+/** @typedef {import('../../shared/types').ScannerTrack} ScannerTrack */
+/** @typedef {import('../../shared/types').ScannerRelease} ScannerRelease */
 const { parseFile } = require("music-metadata");
 const { compose, groupBy, head, map, prop, values } = require("ramda");
 const log = require("loglevel");
@@ -7,7 +10,10 @@ const PersistentStorage = require("./PersistentStorage");
 class Scanner {
   #store = new PersistentStorage();
 
-  static async parseAudioFiles(path) {
+  /** Parse recursively the audio files in the given path
+   * @param {string} path
+   * @return {Promise<ScannerParsedFile[]>} */
+  static async parsePath(path) {
     const parsedFiles = [];
     for await (const filePath of getFiles(path)) {
       if (isAudioPath(filePath)) {
@@ -27,7 +33,7 @@ class Scanner {
             releaseTitle: common.album,
             releaseArtist: common.albumartist,
             year: common.year,
-            picture: common.picture?.[0].data,
+            picture: common.picture?.[0]?.data,
             duration: format.duration,
           });
         }
@@ -36,12 +42,14 @@ class Scanner {
     return parsedFiles;
   }
 
+  /** Get the library, specified in the LIBRARY_PATH
+   * @return {Promise<ScannerTrack[]>} */
   async getLibrary() {
-    const parsedAudioFiles = await Scanner.parseAudioFiles(
+    const parsedAudioFiles = await Scanner.parsePath(
       this.#store.get(PersistentStorage.Keys.LIBRARY_PATH)
     );
     const groupByReleaseTitle = compose(values, groupBy(prop("releaseTitle")));
-    const toParsedTrack = (obj) => ({
+    const toTrack = (obj) => ({
       title: obj.title,
       artist: obj.artist,
       trackNumber: obj.trackNumber,
@@ -50,7 +58,7 @@ class Scanner {
       filePath: obj.filePath,
     });
 
-    const toParsedRelease = (tracks) => {
+    const toRelease = (tracks) => {
       const first = head(tracks);
       return {
         year: first.year,
@@ -59,11 +67,11 @@ class Scanner {
         artist: first.releaseArtist,
         numberOfTracks: first.numberOfTracks,
         numberOfDiscs: first.numberOfDiscs,
-        tracks: map(toParsedTrack, tracks),
+        tracks: map(toTrack, tracks),
       };
     };
 
-    return compose(map(toParsedRelease), groupByReleaseTitle)(parsedAudioFiles);
+    return compose(map(toRelease), groupByReleaseTitle)(parsedAudioFiles);
   }
 }
 

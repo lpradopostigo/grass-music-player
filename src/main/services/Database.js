@@ -1,3 +1,7 @@
+/** @typedef {import('../../shared/types').DatabaseTrack} DatabaseTrack */
+/** @typedef {import('../../shared/types').DatabaseRelease} DatabaseRelease */
+/** @typedef {import('../../shared/types').ScannerTrack} ScannerTrack */
+/** @typedef {import('../../shared/types').ScannerRelease} ScannerRelease */
 const sqlite3 = require("sqlite3");
 const { map } = require("ramda");
 const log = require("loglevel");
@@ -14,7 +18,7 @@ class Database {
   #database = null;
 
   /** Construct a valid instance of Database
-   * @return Database */
+   * @return {Database} */
   static async construct() {
     const instance = new Database();
     const databaseExists = await pathExist(databasePath);
@@ -44,8 +48,9 @@ class Database {
     });
   }
 
-  /** Populate the database tables given an array of release
-   * @param {any[]} releases
+  /**
+   * Populate the database tables given an array of release
+   * @param {ScannerRelease[]} releases
    *  @return {Promise<void[]>} */
   async insertLibrary(releases) {
     await this.#insertReleases(releases).catch(log.warn);
@@ -63,7 +68,7 @@ class Database {
   }
 
   /** Get all the releases on the database
-   * @return {Promise<any[]>} */
+   * @return {Promise<DatabaseRelease[]>} */
   getReleases() {
     return new Promise((resolve, reject) => {
       this.#database?.all(
@@ -78,7 +83,7 @@ class Database {
 
   /** Get the corresponding release given the id
    * @param {number} id
-   * @return {Promise<any>} */
+   * @return {Promise<DatabaseRelease>} */
   getRelease(id) {
     return new Promise((resolve, reject) => {
       this.#database?.get(
@@ -94,7 +99,7 @@ class Database {
 
   /** Get all tracks associated to a given release
    * @param {number} releaseId
-   * @return {Promise<any[]>} */
+   * @return {Promise<DatabaseTrack[]>} */
   getTracks(releaseId) {
     return new Promise((resolve, reject) => {
       this.#database?.all(
@@ -120,8 +125,8 @@ class Database {
   }
 
   /** Insert an array of releases on the database
-   * @param {any[]} releases
-   * @return {Promise<any[]>} */
+   * @param {ScannerRelease[]} releases
+   * @return {Promise<void[]>} */
   #insertReleases(releases) {
     return Promise.all(
       map((release) => this.#insertOneRelease(release), releases)
@@ -167,7 +172,7 @@ class Database {
   }
 
   /** Insert a track into the database, given some release information
-   * @param {any} track
+   * @param {ScannerTrack} track
    * @param {{title: string, artist: string}} releaseInfo
    * @return {Promise<void>} */
   #insertOneTrack(track, releaseInfo) {
@@ -198,7 +203,7 @@ class Database {
   }
 
   /** Insert an array of tracks into the database, given some release information
-   *  @param {any[]} tracks
+   *  @param {ScannerTrack[]} tracks
    *  @param {{title: string, artist: string}} releaseInfo
    *  @return {Promise<void[]>} */
   #insertTracks(tracks, releaseInfo) {
@@ -208,7 +213,7 @@ class Database {
   }
 
   /** Insert a release into the database
-   *  @param {any} release
+   *  @param {ScannerRelease} release
    *  @return {Promise<void>} */
   #insertOneRelease(release) {
     return new Promise((resolve, reject) => {

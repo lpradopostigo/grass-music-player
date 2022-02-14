@@ -1,6 +1,21 @@
+/** @typedef {import('../../shared/types').DatabaseTrack} DatabaseTrack */
+/** @typedef {import('../../shared/types').DatabaseRelease} DatabaseRelease */
 const memoize = require("memoizee");
 const Database = require("./Database");
+const {withDeepCopyReturn} = require("../utils/inmutable/inmutable");
 
+/** @param {number} id
+ * @return {Promise<DatabaseTrack>} */
+async function getTrack(id) {
+  const database = new Database();
+  await database.open();
+  const track = await database.getTrack(id);
+  await database.close();
+  return track;
+}
+
+/** @param {number} id
+ * @return {Promise<DatabaseRelease>} */
 async function getRelease(id) {
   const database = new Database();
   await database.open();
@@ -9,6 +24,7 @@ async function getRelease(id) {
   return release;
 }
 
+/** @return {Promise<DatabaseRelease[]>} */
 async function getReleases() {
   const database = new Database();
   await database.open();
@@ -17,6 +33,8 @@ async function getReleases() {
   return releases;
 }
 
+/** @param {number} releaseId
+ * @return {Promise<DatabaseTrack[]>} */
 async function getReleaseTracks(releaseId) {
   const database = new Database();
   await database.open();
@@ -26,7 +44,20 @@ async function getReleaseTracks(releaseId) {
 }
 
 module.exports = {
-  getRelease: memoize(getRelease, { promise: true }),
-  getReleases: memoize(getReleases, { promise: true }),
-  getReleaseTracks: memoize(getReleaseTracks, { promise: true }),
+  /** @param {number} id
+   * @return {Promise<DatabaseTrack>} */
+  getTrack: memoize(getTrack, {promise: true}),
+
+  /** @param {number} id
+   * @return {Promise<DatabaseRelease>} */
+  getRelease: memoize(getRelease, {promise: true}),
+
+  /** @return {Promise<DatabaseRelease[]>} */
+  getReleases: memoize(getReleases, {promise: true}),
+
+  /** @param {number} releaseId
+   * @return {Promise<DatabaseTrack[]>} */
+  getReleaseTracks: withDeepCopyReturn(
+    memoize(getReleaseTracks, {promise: true})
+  ),
 };

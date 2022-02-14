@@ -19,6 +19,10 @@ export interface DatabaseRelease {
   picture: Uint8Array | null;
 }
 
+export interface ApiTrack extends Omit<DatabaseTrack, "filePath"> {}
+
+export interface ApiRelease extends DatabaseRelease {}
+
 export interface ScannerParsedFile {
   filePath: string;
   title?: string;

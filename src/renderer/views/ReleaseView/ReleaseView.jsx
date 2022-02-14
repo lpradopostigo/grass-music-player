@@ -28,6 +28,7 @@ export default function ReleaseView() {
     })();
   }, []);
 
+  console.log(tracks)
   const playTrack = async (index) => {
     await grass.setPlaylist(tracks);
     await grass.skipToTrack(index);

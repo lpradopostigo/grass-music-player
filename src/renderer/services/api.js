@@ -1,5 +1,5 @@
-/** @typedef {import('../../shared/types').DatabaseTrack} DatabaseTrack */
-/** @typedef {import('../../shared/types').DatabaseRelease} DatabaseRelease */
+/** @typedef {import('../../shared/types').ApiTrack} ApiTrack */
+/** @typedef {import('../../shared/types').ApiRelease} ApiRelease */
 const { api } = window;
 
 export const grass = {
@@ -60,26 +60,26 @@ export const grass = {
   },
 
   /** Get the current track in the player
-   * @return {Promise<DatabaseTrack>} */
+   * @return {Promise<ApiTrack>} */
   getCurrentTrack() {
     return api.invoke("grass:getCurrentTrack");
   },
 };
 
 export const library = {
-  /** @return {Promise<DatabaseRelease[]>} */
+  /** @return {Promise<ApiRelease[]>} */
   getReleases() {
     return api.invoke("library:getReleases");
   },
 
-  /** @return {Promise<DatabaseRelease>} */
+  /** @return {Promise<ApiRelease>} */
   getRelease(releaseId) {
     return api.invoke("library:getRelease", releaseId);
   },
 
   /** Get the associated tracks of the given release
    * @param {number} releaseId
-   * @return {Promise<DatabaseTrack[]>} */
+   * @return {Promise<ApiTrack[]>} */
   getReleaseTracks(releaseId) {
     return api.invoke("library:getReleaseTracks", releaseId);
   },

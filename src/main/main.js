@@ -4,11 +4,10 @@ const path = require("path");
 require("./handlers/library");
 require("./handlers/grass");
 const log = require("loglevel");
-const Controller = require("./services/Controller");
+const controller = require("./services/controller");
 
 log.setLevel("info");
 
-const controller = new Controller();
 controller.doStartup().then(() => {
   log.info("startup complete");
 });

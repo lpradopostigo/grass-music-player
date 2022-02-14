@@ -3,7 +3,7 @@
 /** @typedef {import('../../shared/types').ScannerTrack} ScannerTrack */
 /** @typedef {import('../../shared/types').ScannerRelease} ScannerRelease */
 const sqlite3 = require("sqlite3");
-const { map } = require("ramda");
+const { map, head } = require("ramda");
 const log = require("loglevel");
 const { pathExist } = require("../utils/file");
 const { DATABASE_PATH } = require("./constants");
@@ -92,6 +92,22 @@ class Database {
         (error, result) => {
           if (error != null) reject(error);
           resolve(result);
+        }
+      );
+    });
+  }
+
+  /** Get a track given an id
+   * @param {number} id
+   * @return {Promise<DatabaseTrack>} */
+  getTrack(id) {
+    return new Promise((resolve, reject) => {
+      this.#database?.all(
+        `SELECT * FROM "${Database.#Table.TRACK}" WHERE id = ?`,
+        [id],
+        (error, result) => {
+          if (error != null) reject(error);
+          resolve(head(result));
         }
       );
     });

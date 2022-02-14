@@ -1,16 +1,20 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { ipcMain } = require("electron");
-const { map } = require("ramda");
+const { map, prop } = require("ramda");
 const GrassAudio = require("grass-audio");
+const { getTrack } = require("../services/store");
 
 const grass = new GrassAudio();
 
 let playlist = [];
 
-ipcMain.handle("grass:setPlaylist", (event, tracks) => {
-  const paths = map((track) => track.filePath, tracks);
-  playlist = tracks;
-  grass.setFiles(paths);
+ipcMain.handle("grass:setPlaylist", async (event, tracks) => {
+  const tracksWithFilePath = await Promise.all(
+    map(({ id }) => getTrack(id), tracks)
+  );
+  playlist = tracksWithFilePath;
+  const filePaths = map(prop("filePath"));
+  grass.setFiles(filePaths(tracksWithFilePath));
 });
 
 ipcMain.handle("grass:play", () => {
@@ -44,7 +48,8 @@ ipcMain.handle("grass:setTrackPosition", (event, position) => {
 
 ipcMain.handle("grass:getPlaybackStatus", () => grass.getStatus());
 
-ipcMain.handle(
-  "grass:getCurrentTrack",
-  () => playlist[grass.getCurrentFileIndex()]
-);
+ipcMain.handle("grass:getCurrentTrack", () => {
+  const track = { ...playlist[grass.getCurrentFileIndex()] };
+  delete track.filePath;
+  return track;
+});

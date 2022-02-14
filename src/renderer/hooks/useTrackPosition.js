@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
-import { grass } from "../services/api";
+import {useEffect, useState} from "react";
+import {grass} from "../services/api";
 
 export default function useTrackPosition() {
-  const [position, updatePosition] = useState({ current: 0, total: 0 });
+  const [position, updatePosition] = useState({current: 0, total: 0});
 
   useEffect(() => {
-    setInterval(async () => {
-      updatePosition(await grass.getTrackPosition());
-    }, 1 / 60);
+    const handle =
+      setInterval(async () => {
+        updatePosition(await grass.getTrackPosition());
+      }, 100);
+
+    return () => clearInterval(handle)
   }, []);
 
   return position;

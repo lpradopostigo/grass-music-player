@@ -60,7 +60,7 @@ export const grass = {
   },
 
   /** Get the current track in the player
-   * @return {Promise<ApiTrack>} */
+   * @return {Promise<ApiTrack| undefined>} */
   getCurrentTrack() {
     return api.invoke("grass:getCurrentTrack");
   },

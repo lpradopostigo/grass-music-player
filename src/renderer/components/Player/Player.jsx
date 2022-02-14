@@ -4,12 +4,12 @@ import ReleasePicture from "../ReleasePicture";
 import styles from "./styles.module.css";
 import PlaybackProgressSlider from "../PlaybackProgressSlider";
 import { grass } from "../../services/api";
-import usePlaybackState, { PlaybackState } from "../../hooks/usePlaybackState";
+import usePlaybackStatus, { PlaybackStatus } from "../../hooks/usePlaybackStatus";
 import useTrackPosition from "../../hooks/useTrackPosition";
 import useCurrentTrack from "../../hooks/useCurrentTrack";
 
 export default function Player() {
-  const playbackState = usePlaybackState();
+  const playbackState = usePlaybackStatus();
   const currentTrack = useCurrentTrack();
   const trackPosition = useTrackPosition();
 
@@ -19,9 +19,9 @@ export default function Player() {
         <MediaButton onClick={grass.previous} variant="previous" size="small" />
         <MediaButton
           onClick={
-            playbackState === PlaybackState.PLAYING ? grass.pause : grass.play
+            playbackState === PlaybackStatus.PLAYING ? grass.pause : grass.play
           }
-          variant={playbackState === PlaybackState.PLAYING ? "pause" : "play"}
+          variant={playbackState === PlaybackStatus.PLAYING ? "pause" : "play"}
         />
         <MediaButton onClick={grass.next} variant="next" size="small" />
       </div>

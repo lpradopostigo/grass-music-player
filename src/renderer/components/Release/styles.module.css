@@ -9,14 +9,14 @@
 }
 
 .title {
-  font-weight: var(--ga-font-weight__medium);
-  margin-top: var(--ga-spacing__2--5);
+  font-weight: var(--font__weight--medium);
+  margin-top: var(--spacing--2--5);
 }
 
 .artist {
-  font-size: var(--ga-font-size__sm);
-  margin-top: var(--ga-spacing__1);
-  color: var(--ga-text__color--secondary);
+  font-size: var(--font__size--sm);
+  margin-top: var(--spacing--1);
+  color: var(--color--text--secondary);
 }
 
 a {

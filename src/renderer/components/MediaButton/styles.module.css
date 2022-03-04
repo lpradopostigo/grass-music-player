@@ -1,13 +1,13 @@
 .container {
-  filter: var(--ga-drop-shadow__rg);
+  filter: var(--drop-shadow);
 }
 
-.container > circle{
-  fill: var(--ga-color__white)
+.container > circle {
+  fill: var(--color--white);
 }
 
-.container > path{
-  fill: var(--ga-accent-color--primary);
+.container > path {
+  fill: var(--color--accent--primary);
 }
 
 .normal {

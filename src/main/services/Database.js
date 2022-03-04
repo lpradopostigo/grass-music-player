@@ -18,7 +18,7 @@ class Database {
   #database = null;
 
   /** Construct a valid instance of Database
-   * @return {Database} */
+   * @return {Promise<Database>} */
   static async construct() {
     const instance = new Database();
     const databaseExists = await pathExist(DATABASE_PATH);
@@ -194,7 +194,7 @@ class Database {
   #insertTrack(track, releaseInfo) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
-        `INSERT INTO "${Database.#Table.TRACK}" 
+        `INSERT INTO "${Database.#Table.TRACK}"
           (title, artist, trackNumber, discNumber, duration, filePath,releaseId)
           values (?,?,?,
             ?,?,?,

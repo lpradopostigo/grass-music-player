@@ -1,0 +1,4 @@
+.container {
+  filter: var(--drop-shadow);
+  color: var(--text__color--lightest);
+}

@@ -4,11 +4,11 @@ const scanner = require("./scanner");
 
 async function doStartup() {
   const database = await Database.construct();
-  const parsedLibrary = await scanner.getLibrary();
-  log.info("parsedLibrary", parsedLibrary);
-  await database.open();
-  await database.insertReleases(parsedLibrary);
-  await database.close();
+  // const parsedLibrary = await scanner.getLibrary();
+  // log.info("parsedLibrary", parsedLibrary);
+  // await database.open();
+  // await database.insertReleases(parsedLibrary);
+  // await database.close();
 }
 
 

@@ -6,6 +6,7 @@ import ReleaseCollectionView from "./views/ReleaseCollectionView";
 import ReleaseView from "./views/ReleaseView";
 import Player from "./components/Player";
 import SideBar from "./views/SideBar";
+import SettingsView from "./views/SettingsView";
 
 export default function App() {
   return (
@@ -40,6 +41,8 @@ export default function App() {
             />
 
             <Route path="/ReleaseView" element={<ReleaseView />} />
+
+            <Route path="/SettingsView" element={<SettingsView />} />
           </Routes>
         </div>
 

@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing--10);
+  gap: var(--spacing--10);
+  flex: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.heading {
+  font-size: var(--font__size--2xl);
+  font-weight: var(--font__weight--bold);
+}

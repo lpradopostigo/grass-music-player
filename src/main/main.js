@@ -3,6 +3,7 @@ const { app, BrowserWindow } = require("electron");
 const path = require("path");
 require("./handlers/library");
 require("./handlers/grass");
+require("./handlers/settings");
 const log = require("loglevel");
 const controller = require("./services/controller");
 

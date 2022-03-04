@@ -2,10 +2,10 @@
   object-fit: contain;
   object-position: center;
   overflow: hidden;
-  border-radius: var(--ga-radius__lg);
+  border-radius: var(--radius--lg);
   flex-shrink: 0;
-  box-shadow: var(--ga-box-shadow__rg);
-  fill: var(--ga-accent-color--primary);
+  box-shadow: var(--box-shadow);
+  fill: var(--color--accent--primary);
 }
 
 .big {

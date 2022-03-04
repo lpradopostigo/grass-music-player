@@ -1,9 +1,9 @@
 const ElectronStore = require("electron-store");
-const {includes, values} = require("ramda");
+const { includes, values } = require("ramda");
 
 const Keys = {
   LIBRARY_PATH: "libraryPath",
-}
+};
 
 const schema = {
   [Keys.LIBRARY_PATH]: {
@@ -12,7 +12,7 @@ const schema = {
   },
 };
 
-const store = new ElectronStore({schema});
+const store = new ElectronStore({ schema });
 
 /** get the value of a valid key
  * @param {string} key
@@ -32,8 +32,9 @@ function getValue(key, defaultValue) {
 function setValue(key, value) {
   if (includes(key, values(Keys))) {
     store.set(key, value);
+    return;
   }
   throw Error("invalid key");
 }
 
-module.exports = {getValue, setValue, Keys};
+module.exports = { getValue, setValue, Keys };

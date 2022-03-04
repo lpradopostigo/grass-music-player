@@ -12,17 +12,18 @@ export default function Player() {
   const playbackState = usePlaybackStatus();
   const currentTrack = useCurrentTrack();
   const trackPosition = useTrackPosition();
-
   return (
     <div className={styles["container"]}>
       <div className={styles["media-button__wrapper"]}>
         <MediaButton onClick={grass.previous} variant="previous" size="small" />
+
         <MediaButton
           onClick={
             playbackState === PlaybackStatus.PLAYING ? grass.pause : grass.play
           }
           variant={playbackState === PlaybackStatus.PLAYING ? "pause" : "play"}
         />
+
         <MediaButton onClick={grass.next} variant="next" size="small" />
       </div>
 
@@ -37,9 +38,11 @@ export default function Player() {
             <span className={styles["track-info__title"]}>
               {currentTrack?.title}
             </span>
+
             <span className={styles["track-info__artist"]}>
               {currentTrack?.artist}
             </span>
+
             <span className={styles["track-info__release"]}>
               {currentTrack?.releaseTitle}
             </span>

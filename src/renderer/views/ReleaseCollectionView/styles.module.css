@@ -1,8 +1,8 @@
 .container {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ga-spacing__6);
-  padding: var(--ga-spacing__6);
+  gap: var(--spacing--6);
+  padding: var(--spacing--6);
   overflow-y: scroll;
   flex: 1;
   overflow-x: hidden;

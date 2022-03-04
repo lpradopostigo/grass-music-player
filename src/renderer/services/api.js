@@ -2,6 +2,20 @@
 /** @typedef {import('../../shared/types').ApiRelease} ApiRelease */
 const { api } = window;
 
+export const settings = {
+  getValue(key, defaultValue) {
+    return api.invoke("settings:getValue", key, defaultValue);
+  },
+
+  setValue(key, value) {
+    return api.invoke("settings:setValue", key, value);
+  },
+
+  openPathSelector() {
+    return api.invoke("settings:openPathSelector");
+  },
+};
+
 export const grass = {
   /** Get the current position of the current track
    * @return {Promise<{current: number, total: number}>} */

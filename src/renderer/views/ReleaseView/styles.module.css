@@ -1,8 +1,8 @@
 .container {
   display: flex;
   flex-direction: column;
-  padding: var(--ga-spacing__10);
-  gap: var(--ga-spacing__10);
+  padding: var(--spacing--10);
+  gap: var(--spacing--10);
   flex: 1;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -11,12 +11,12 @@
 .track-list__wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--ga-spacing__8);
+  gap: var(--spacing--8);
 }
 
 .header__container {
   display: flex;
-  gap: var(--ga-spacing__6);
+  gap: var(--spacing--6);
 }
 
 .header__info__wrapper {
@@ -26,19 +26,19 @@
 }
 
 .header__info__title {
-  font-size: var(--ga-font-size__xl);
-  font-weight: var(--ga-font-weight__semi-bold);
+  font-size: var(--font__size--xl);
+  font-weight: var(--font__weight--semi-bold);
 }
 
 .header__info__artist {
-  margin-top: var(--ga-spacing__3--5);
-  margin-bottom: var(--ga-spacing__1);
-  font-weight: var(--ga-font-weight__medium);
-  color: var(--ga-text__color--secondary);
+  margin-top: var(--spacing--3--5);
+  margin-bottom: var(--spacing--1);
+  font-weight: var(--font__weight--medium);
+  color: var(--color--text--secondary);
 }
 
 .header__info__year {
-  font-size: var(--ga-font-size__sm);
-  font-weight: var(--ga-font-weight__medium);
-  color: var(--ga-text__color--secondary);
+  font-size: var(--font__size--sm);
+  font-weight: var(--font__weight--medium);
+  color: var(--color--text--secondary);
 }

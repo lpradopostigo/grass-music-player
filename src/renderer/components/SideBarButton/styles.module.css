@@ -1,5 +1,5 @@
 svg > path {
-  stroke: var(--ga-accent-color--primary);
+  stroke: var(--color--accent--primary);
 }
 
 svg {

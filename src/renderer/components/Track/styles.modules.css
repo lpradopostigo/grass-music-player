@@ -3,27 +3,27 @@
   width: 100%;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ga-spacing__4);
-  padding: var(--ga-spacing__4);
+  gap: var(--spacing--4);
+  padding: var(--spacing--4);
 }
 
 .container--playing {
-  background-color: var(--ga-background__color--secondary);
-  border-radius: var(--ga-radius__sm);
+  background-color: var(--color--background--1);
+  border-radius: var(--radius--sm);
 }
 
 .track-number {
-  font-size: var(--ga-font-size__sm);
+  font-size: var(--font__size--sm);
   text-align: left;
   width: 2ch;
-  color: var(--ga-text__color--tertiary);
+  color: var(--color--text--tertiary);
 }
 
 .track-number-and-title-wrapper {
   display: flex;
   width: 50%;
   align-items: center;
-  gap: var(--ga-spacing__4);
+  gap: var(--spacing--4);
 }
 
 .artist-and-duration-wrapper {
@@ -34,20 +34,20 @@
 }
 
 .title {
-  font-weight: var(--ga-font-weight__medium);
+  font-weight: var(--font__weight--medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--ga-text__color--primary);
+  color: var(--color--text--primary);
 }
 
 .artist {
-  font-size: var(--ga-font-size__sm);
+  font-size: var(--font__size--sm);
   flex: 1;
-  color: var(--ga-text__color--tertiary);
+  color: var(--color--text--tertiary);
 }
 
 .duration {
-  font-size: var(--ga-font-size__sm);
-  color: var(--ga-text__color--tertiary);
+  font-size: var(--font__size--sm);
+  color: var(--color--text--tertiary);
 }

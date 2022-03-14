@@ -1,55 +1,57 @@
 import React from "react";
 
 import PropTypes from "prop-types";
-import base64js from "base64-js";
-import clsx from "clsx";
-import { If, Then, Else } from "react-if";
+import { Image, createStyles } from "@mantine/core";
+import { BsMusicNoteBeamed } from "react-icons/bs";
+import parsePictureSrc from "../../utils/parsePictureSrc";
+import View from "../layout/View";
 
-import cls from "./styles.module.css";
+export default function ReleasePicture({ data, size, className }) {
+  const { classes, cx } = useStyles({ size });
 
-export default function ReleasePicture({ data, variant }) {
   const pictureAlt = `${data.title} - ${data.artist} release picture`;
   const pictureSrc = parsePictureSrc(data.picture);
-  const className = clsx(cls["container"], cls[variant]);
 
   return (
-    <If condition={data.picture}>
-      <Then>
-        <img className={className} src={pictureSrc} alt={pictureAlt} />
-      </Then>
-      <Else>
-        <svg
-          className={className}
-          viewBox="0 0 200 200"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect width="200" height="200" />
-          <path
-            d="M89.5833 137.5C99.9386 137.5 108.333 129.105 108.333 118.75C108.333 108.395 99.9386 100 89.5833 100C79.2279 100 70.8333 108.395 70.8333 118.75C70.8333 129.105 79.2279 137.5 89.5833 137.5Z"
-            fill="white"
-          />
-          <path
-            d="M100 62.5V118.75H108.333V79.1667L131.25 85.4167V70.8333L100 62.5Z"
-            fill="white"
-          />
-        </svg>
-      </Else>
-    </If>
+    <Image
+      fit="contain"
+      src={pictureSrc}
+      alt={pictureAlt}
+      classNames={{
+        root: cx(classes.container, className),
+        placeholder: classes.placeholder,
+      }}
+      withPlaceholder
+      placeholder={
+        <View align="center" justify="center" className={classes.placeholder}>
+          <BsMusicNoteBeamed />
+        </View>
+      }
+    />
   );
 }
 
-function parsePictureSrc(picture) {
-  if (!picture) return undefined;
-  return typeof picture === "string"
-    ? picture
-    : `data:image/png;base64,${base64js.fromByteArray(picture)}`;
-}
+const sizes = {
+  sm: {
+    width: 64,
+    height: 64,
+  },
+  md: {
+    width: 92,
+    height: 92,
+  },
+  lg: {
+    width: 160,
+    height: 160,
+  },
+};
 
 ReleasePicture.defaultProps = {
   data: {
     picture: undefined,
   },
-  variant: "big",
+  size: "md",
+  className: undefined,
 };
 
 ReleasePicture.propTypes = {
@@ -62,5 +64,29 @@ ReleasePicture.propTypes = {
     ]),
   }),
 
-  variant: PropTypes.oneOf(["big", "medium", "small"]),
+  size: PropTypes.oneOf(["lg", "md", "sm"]),
+  className: PropTypes.string,
 };
+
+const useStyles = createStyles((theme, { size }) => {
+  const { width, height } = sizes[size];
+
+  return {
+    container: {
+      overflow: "hidden",
+      boxShadow: theme.shadows.md,
+      borderRadius: theme.radius.md,
+      width,
+      height,
+      maxWidth: width,
+      maxHeight: height,
+      minHeight: height,
+      minWidth: width,
+    },
+
+    placeholder: {
+      height,
+      width,
+    },
+  };
+});

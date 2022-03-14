@@ -1,59 +1,98 @@
 import React from "react";
-import MediaButton from "../MediaButton";
+import { createStyles, Grid, Text } from "@mantine/core";
+import { FiSkipForward, FiSkipBack, FiPlay, FiPause } from "react-icons/fi";
+import { Else, If, Then } from "react-if";
 import ReleasePicture from "../ReleasePicture";
-import styles from "./styles.module.css";
-import PlaybackProgressSlider from "../PlaybackProgressSlider";
+import PlaybackProgress from "../PlaybackProgress";
 import { grass } from "../../services/api";
-import usePlaybackStatus, { PlaybackStatus } from "../../hooks/usePlaybackStatus";
+import usePlaybackStatus, {
+  PlaybackStatus,
+} from "../../hooks/usePlaybackStatus";
 import useTrackPosition from "../../hooks/useTrackPosition";
 import useCurrentTrack from "../../hooks/useCurrentTrack";
+import View from "../layout/View";
 
 export default function Player() {
   const playbackState = usePlaybackStatus();
-  const currentTrack = useCurrentTrack();
-  const trackPosition = useTrackPosition();
+  const [currentTrack] = useCurrentTrack();
+  const [trackPosition, setTrackPosition] = useTrackPosition();
+
+  const { classes, theme } = useStyles();
   return (
-    <div className={styles["container"]}>
-      <div className={styles["media-button__wrapper"]}>
-        <MediaButton onClick={grass.previous} variant="previous" size="small" />
-
-        <MediaButton
-          onClick={
-            playbackState === PlaybackStatus.PLAYING ? grass.pause : grass.play
-          }
-          variant={playbackState === PlaybackStatus.PLAYING ? "pause" : "play"}
-        />
-
-        <MediaButton onClick={grass.next} variant="next" size="small" />
-      </div>
-
-      <div className={styles["rest__wrapper"]}>
-        <div className={styles["track-info"]}>
-          <ReleasePicture
-            data={{ title: "", artist: "", picture: currentTrack?.picture }}
-            variant="small"
+    <Grid columns={4} align="center" className={classes.container}>
+      <Grid.Col span={1}>
+        <View
+          align="center"
+          justify="center"
+          direction="row"
+          spacing={theme.spacing.md}
+        >
+          <FiSkipBack
+            className={classes.playerControlIcon}
+            onClick={grass.previous}
           />
 
-          <div className={styles["track-info__text"]}>
-            <span className={styles["track-info__title"]}>
+          <If condition={playbackState === PlaybackStatus.PLAYING}>
+            <Then>
+              <FiPause
+                className={classes.playerControlIcon}
+                onClick={grass.pause}
+              />
+            </Then>
+
+            <Else>
+              <FiPlay
+                className={classes.playerControlIcon}
+                onClick={grass.play}
+              />
+            </Else>
+          </If>
+
+          <FiSkipForward
+            className={classes.playerControlIcon}
+            onClick={grass.next}
+          />
+        </View>
+      </Grid.Col>
+
+      <Grid.Col span={1}>
+        <View direction="row" spacing={theme.spacing.md}>
+          <ReleasePicture
+            data={{ title: "", artist: "", picture: currentTrack?.picture }}
+            size="sm"
+          />
+
+          <View align="flex-start">
+            <Text weight={500} lineClamp={1}>
               {currentTrack?.title}
-            </span>
+            </Text>
 
-            <span className={styles["track-info__artist"]}>
-              {currentTrack?.artist}
-            </span>
+            <Text size="sm">{currentTrack?.artist}</Text>
 
-            <span className={styles["track-info__release"]}>
-              {currentTrack?.releaseTitle}
-            </span>
-          </div>
-        </div>
-
-        <PlaybackProgressSlider
+            <Text size="xs">{currentTrack?.releaseTitle}</Text>
+          </View>
+        </View>
+      </Grid.Col>
+      <Grid.Col span={2}>
+        <PlaybackProgress
           current={trackPosition.current}
           total={trackPosition.total}
+          onTrackClick={(position) => {
+            setTrackPosition(position);
+          }}
         />
-      </div>
-    </div>
+      </Grid.Col>
+    </Grid>
   );
 }
+
+const useStyles = createStyles((theme) => ({
+  container: {
+    margin: 0,
+  },
+
+  playerControlIcon: {
+    height: theme.fontSizes.xl,
+    width: theme.fontSizes.xl,
+  },
+}));

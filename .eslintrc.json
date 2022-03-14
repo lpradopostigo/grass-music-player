@@ -19,7 +19,9 @@
     "react/jsx-props-no-spreading": "off",
     "react/destructuring-assignment": "off",
     "react/forbid-prop-types": "off",
-    "dot-notation": "off"
+    "react/no-unused-prop-types": "off",
+    "dot-notation": "off",
+    "no-shadow": "off"
   },
   "parser": "@babel/eslint-parser",
   "parserOptions": {

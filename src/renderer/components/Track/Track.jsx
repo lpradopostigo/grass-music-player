@@ -1,35 +1,74 @@
 import React from "react";
+import { Text, createStyles } from "@mantine/core";
 import PropTypes from "prop-types";
-import clsx from "clsx";
-import cls from "./styles.modules.css";
 import { secondsToAudioDuration } from "../../utils/format/format";
 
-export default function Track({ data, playing, onClick }) {
+export default function Track(props) {
+  const { data, onClick } = props;
+  const { classes, theme } = useStyles(props);
+
   return (
-    <div
-      className={clsx(cls["container"], {
-        [cls["container--playing"]]: playing,
-      })}
-      onClick={onClick}
-    >
-      <div className={cls["track-number-and-title-wrapper"]}>
-        <span className={cls["track-number"]}>{data.trackNumber}</span>
-        <span className={cls["title"]}>{data.title}</span>
+    <div onClick={onClick} className={classes.container}>
+      <div className={classes.trackAndTitleWrapper}>
+        <Text align="right" size="sm" className={classes.text}>
+          {data.trackNumber}
+        </Text>
+
+        <Text
+          size="md"
+          weight="500"
+          lineClamp={1}
+          className={classes.text}
+          ml={theme.spacing.md}
+        >
+          {data.title}
+        </Text>
       </div>
 
-      <div className={cls["artist-and-duration-wrapper"]}>
-        <span className={cls["artist"]}>{data.artist}</span>
+      <div className={classes.artistAndDurationWrapper}>
+        <Text lineClamp={1} size="sm" className={classes.text}>
+          {data.artist}
+        </Text>
 
-        <span className={cls["duration"]}>
+        <Text size="sm" align="right" className={classes.text}>
           {secondsToAudioDuration(data.duration)}
-        </span>
+        </Text>
       </div>
     </div>
   );
 }
 
+const useStyles = createStyles((theme, { active }) => ({
+  text: {
+    lineHeight: "normal",
+  },
+
+  container: {
+    backgroundColor: active ? theme.colors.gray[1] : "transparent",
+    borderRadius: active ? theme.radius.md : 0,
+    padding: theme.spacing.xs,
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing.md,
+  },
+
+  trackAndTitleWrapper: {
+    display: "flex",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  artistAndDurationWrapper: {
+    display: "flex",
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "space-between",
+  },
+}));
+
 Track.defaultProps = {
-  playing: false,
+  active: false,
+  className: undefined,
 };
 
 Track.propTypes = {
@@ -40,6 +79,7 @@ Track.propTypes = {
     artist: PropTypes.string.isRequired,
     duration: PropTypes.number.isRequired,
   }).isRequired,
-  playing: PropTypes.bool,
+  active: PropTypes.bool,
   onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
 };

@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import App from "./App";
+import Main from "./Main";
 
 ReactDOM.render(
-  React.createElement(App, null, null),
+  React.createElement(Main, null, null),
   document.getElementById("root")
 );

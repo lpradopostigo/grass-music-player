@@ -1,9 +1,0 @@
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing--6);
-  padding: var(--spacing--6);
-  overflow-y: scroll;
-  flex: 1;
-  overflow-x: hidden;
-}

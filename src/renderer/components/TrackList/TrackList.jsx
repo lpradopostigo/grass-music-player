@@ -1,13 +1,22 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { When } from "react-if";
-import cls from "./styles.modules.css";
+import { createStyles, Text } from "@mantine/core";
 
-export default function TrackList({ discNumber, showDiscNumber, children }) {
+export default function TrackList({
+  discNumber,
+  showDiscNumber,
+  children,
+  className,
+}) {
+  const { classes, theme, cx } = useStyles();
+
   return (
-    <div className={cls["container"]}>
+    <div className={cx(classes.container, className)}>
       <When condition={showDiscNumber}>
-        <span className={cls["disc"]}>Disc {discNumber}</span>
+        <Text color={theme.colors.gray[7]} size="xs" mb="xs">
+          Disc {discNumber}
+        </Text>
       </When>
 
       {children}
@@ -18,6 +27,7 @@ export default function TrackList({ discNumber, showDiscNumber, children }) {
 TrackList.defaultProps = {
   showDiscNumber: false,
   discNumber: 1,
+  className: undefined,
 };
 
 TrackList.propTypes = {
@@ -27,4 +37,12 @@ TrackList.propTypes = {
   ]).isRequired,
   discNumber: PropTypes.number,
   showDiscNumber: PropTypes.bool,
+  className: PropTypes.string,
 };
+
+const useStyles = createStyles(() => ({
+  container: {
+    display: "flex",
+    flexDirection: "column",
+  },
+}));

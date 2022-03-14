@@ -1,22 +1,28 @@
 import React from "react";
-
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-
-import cls from "./styles.module.css";
-import ReleasePicture from "../ReleasePicture/ReleasePicture";
+import { Text, Group, useMantineTheme } from "@mantine/core";
+import ReleasePicture from "../ReleasePicture";
+import View from "../layout/View";
 
 export default function Release({ data }) {
-  return (
-    <Link to="/ReleaseView" state={data}>
-      <div className={cls["container"]}>
-        <ReleasePicture data={data} />
+  const { title, artist } = data;
+  const theme = useMantineTheme();
 
-        <div className={cls["text__wrapper"]}>
-          <span className={cls["title"]}>{data.title}</span>
-          <span className={cls["artist"]}>{data.artist}</span>
-        </div>
-      </div>
+  return (
+    <Link to="/Release" state={data}>
+      <View spacing={theme.spacing.xs}>
+        <ReleasePicture data={data} size="lg" />
+
+        <View>
+          <Text size="md" weight="500">
+            {title}
+          </Text>
+          <Text size="sm" weight="400" color={theme.colors.gray[6]}>
+            {artist}
+          </Text>
+        </View>
+      </View>
     </Link>
   );
 }
@@ -25,6 +31,7 @@ Release.defaultProps = {
   data: {
     picture: null,
   },
+  className: undefined,
 };
 
 Release.propTypes = {
@@ -33,4 +40,6 @@ Release.propTypes = {
     artist: PropTypes.string.isRequired,
     picture: PropTypes.instanceOf(Uint8Array),
   }),
+
+  className: PropTypes.string,
 };

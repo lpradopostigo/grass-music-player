@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import { useLocation } from "react-router-dom";
 import {
   map,
@@ -15,17 +14,17 @@ import {
 import { createStyles, Text, ScrollArea } from "@mantine/core";
 import TrackList from "../../components/TrackList";
 import Track from "../../components/Track";
-import { library, grass } from "../../services/api";
+import { library } from "../../services/api";
 import ReleasePicture from "../../components/ReleasePicture";
-import useCurrentTrack from "../../hooks/useCurrentTrack";
 import parsePictureSrc from "../../utils/parsePictureSrc";
 import View from "../../components/layout/View";
+import usePlayerControls from "../../hooks/usePlayerControls";
 
 export default function Release() {
   const { state: releaseData } = useLocation();
   const [tracks, setTracks] = useState([]);
   const { classes, theme } = useStyles();
-  const [currentTrack] = useCurrentTrack();
+  const { play, skipToIndex, setPlaylist } = usePlayerControls();
 
   useEffect(() => {
     (async () => {
@@ -34,9 +33,9 @@ export default function Release() {
   }, []);
 
   const playTrack = async (index) => {
-    await grass.setPlaylist(tracks);
-    await grass.skipToTrack(index);
-    await grass.play();
+    await setPlaylist(tracks);
+    await skipToIndex(index);
+    await play();
   };
 
   const mapIndexed = addIndex(map);

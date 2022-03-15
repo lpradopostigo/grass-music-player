@@ -1,21 +1,54 @@
+/** @typedef {import('../../shared/types').DatabaseTrack} */
+/** @typedef {import('../../shared/types').PlayerTrack} */
+
 // eslint-disable-next-line import/no-extraneous-dependencies
-const {ipcMain} = require("electron");
-const {map, prop} = require("ramda");
-const {isEmpty} = require("lodash");
+const { ipcMain } = require("electron");
 const GrassAudio = require("grass-audio");
-const {getTrack} = require("../services/store");
+const { getTrack, getRelease } = require("../services/store");
 
 const grass = new GrassAudio();
-
 let playlist = [];
 
-ipcMain.handle("grass:setPlaylist", async (event, tracks) => {
+ipcMain.handle("grass:set-playlist", async (event, tracks) => {
   const tracksWithFilePath = await Promise.all(
-    map(({id}) => getTrack(id), tracks)
+    tracks.map(({ id }) => getTrack(id))
   );
+  const filePaths = tracksWithFilePath.map((track) => track.filePath);
   playlist = tracksWithFilePath;
-  const filePaths = map(prop("filePath"));
-  grass.setFiles(filePaths(tracksWithFilePath));
+  grass.setFiles(filePaths);
+});
+
+ipcMain.handle("grass:get-playlist", () => playlist);
+
+ipcMain.handle("grass:get-track", async () => {
+  const playlistTrack = playlist[grass.getCurrentFileIndex()];
+  if (!playlistTrack) return null;
+
+  const release = await getRelease(playlistTrack.releaseId);
+
+  const track = {
+    ...playlistTrack,
+    position: grass.getPosition(),
+    releaseTitle: release.title,
+    releaseArtist: release.artist,
+    year: release.year,
+    picture: release.picture,
+  };
+
+  // don't want to expose the filepath
+  delete track.filePath;
+
+  return track;
+});
+
+ipcMain.handle("grass:get-playback-status", () => grass.getStatus());
+
+ipcMain.handle("grass:previous", () => {
+  grass.previous();
+});
+
+ipcMain.handle("grass:skip-to-index", (event, index) => {
+  grass.skipToFile(index);
 });
 
 ipcMain.handle("grass:play", () => {
@@ -30,31 +63,6 @@ ipcMain.handle("grass:next", () => {
   grass.next();
 });
 
-ipcMain.handle("grass:previous", () => {
-  grass.previous();
-});
-
-ipcMain.handle("grass:skipToTrack", (event, index) => {
-  grass.skipToFile(index);
-});
-
-ipcMain.handle("grass:getTrackPosition", () => ({
-  current: grass.getPosition(),
-  total: grass.getLength(),
-}));
-
-ipcMain.handle("grass:setTrackPosition", (event, position) => {
+ipcMain.handle("grass:seek", (event, position) => {
   grass.setPosition(position);
-});
-
-ipcMain.handle("grass:getPlaybackStatus", () => grass.getStatus());
-
-ipcMain.handle("grass:getCurrentTrack", () => {
-  const track = {...playlist[grass.getCurrentFileIndex()]};
-  if (isEmpty(track)) {
-    return undefined;
-  }
-
-  delete track.filePath;
-  return track;
 });

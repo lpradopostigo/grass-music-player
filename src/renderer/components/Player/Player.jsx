@@ -4,20 +4,14 @@ import { FiSkipForward, FiSkipBack, FiPlay, FiPause } from "react-icons/fi";
 import { Else, If, Then } from "react-if";
 import ReleasePicture from "../ReleasePicture";
 import PlaybackProgress from "../PlaybackProgress";
-import { grass } from "../../services/api";
-import usePlaybackStatus, {
-  PlaybackStatus,
-} from "../../hooks/usePlaybackStatus";
-import useTrackPosition from "../../hooks/useTrackPosition";
-import useCurrentTrack from "../../hooks/useCurrentTrack";
 import View from "../layout/View";
+import usePlayer from "../../hooks/usePlayer";
+import { PlaybackState } from "../../hooks/usePlayerPlaybackState";
 
 export default function Player() {
-  const playbackState = usePlaybackStatus();
-  const [currentTrack] = useCurrentTrack();
-  const [trackPosition, setTrackPosition] = useTrackPosition();
-
+  const { state, controls } = usePlayer();
   const { classes, theme } = useStyles();
+
   return (
     <Grid columns={4} align="center" className={classes.container}>
       <Grid.Col span={1}>
@@ -29,28 +23,28 @@ export default function Player() {
         >
           <FiSkipBack
             className={classes.playerControlIcon}
-            onClick={grass.previous}
+            onClick={controls.previous}
           />
 
-          <If condition={playbackState === PlaybackStatus.PLAYING}>
+          <If condition={state.playbackState === PlaybackState.PLAYING}>
             <Then>
               <FiPause
                 className={classes.playerControlIcon}
-                onClick={grass.pause}
+                onClick={controls.pause}
               />
             </Then>
 
             <Else>
               <FiPlay
                 className={classes.playerControlIcon}
-                onClick={grass.play}
+                onClick={controls.play}
               />
             </Else>
           </If>
 
           <FiSkipForward
             className={classes.playerControlIcon}
-            onClick={grass.next}
+            onClick={controls.next}
           />
         </View>
       </Grid.Col>
@@ -58,28 +52,30 @@ export default function Player() {
       <Grid.Col span={1}>
         <View direction="row" spacing={theme.spacing.md}>
           <ReleasePicture
-            data={{ title: "", artist: "", picture: currentTrack?.picture }}
+            data={{
+              title: state.track.releaseTitle,
+              artist: state.track.releaseArtist,
+              picture: state.track.picture,
+            }}
             size="sm"
           />
 
           <View align="flex-start">
             <Text weight={500} lineClamp={1}>
-              {currentTrack?.title}
+              {state.track.title}
             </Text>
 
-            <Text size="sm">{currentTrack?.artist}</Text>
+            <Text size="sm">{state.track.artist}</Text>
 
-            <Text size="xs">{currentTrack?.releaseTitle}</Text>
+            <Text size="xs">{state.track.releaseTitle}</Text>
           </View>
         </View>
       </Grid.Col>
       <Grid.Col span={2}>
         <PlaybackProgress
-          current={trackPosition.current}
-          total={trackPosition.total}
-          onTrackClick={(position) => {
-            setTrackPosition(position);
-          }}
+          current={state.track.position}
+          total={state.track.duration}
+          onTrackClick={controls.seek}
         />
       </Grid.Col>
     </Grid>

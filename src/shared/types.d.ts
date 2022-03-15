@@ -56,3 +56,11 @@ export interface ScannerRelease {
   picture?: Buffer;
   tracks: ScannerTrack[];
 }
+
+export interface PlayerTrack extends Omit<DatabaseTrack, "filePath"> {
+  position: number | null;
+  releaseTitle: string | null;
+  releaseArtist: string | null;
+  year: number | null;
+  picture: Uint8Array | null;
+}

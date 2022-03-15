@@ -64,12 +64,14 @@ const useStyles = createStyles((theme) => ({
 }));
 
 PlaybackProgress.propTypes = {
-  current: PropTypes.number.isRequired,
-  total: PropTypes.number.isRequired,
+  current: PropTypes.number,
+  total: PropTypes.number,
   isDisabled: PropTypes.bool,
   onTrackClick: PropTypes.func.isRequired,
 };
 
 PlaybackProgress.defaultProps = {
   isDisabled: false,
+  current: 0,
+  total: 0,
 };

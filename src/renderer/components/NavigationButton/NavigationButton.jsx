@@ -24,7 +24,7 @@ NavigationButton.defaultProps = {
 NavigationButton.propTypes = {
   active: PropTypes.bool,
   icon: PropTypes.element,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.node.isRequired,
 };
 
 const useStyles = createStyles((theme, { active }) => ({

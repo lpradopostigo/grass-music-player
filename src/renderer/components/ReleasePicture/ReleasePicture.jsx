@@ -49,6 +49,8 @@ const sizes = {
 ReleasePicture.defaultProps = {
   data: {
     picture: undefined,
+    title: "",
+    artist: "",
   },
   size: "md",
   className: undefined,
@@ -56,8 +58,8 @@ ReleasePicture.defaultProps = {
 
 ReleasePicture.propTypes = {
   data: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    artist: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    artist: PropTypes.string,
     picture: PropTypes.oneOfType([
       PropTypes.instanceOf(Uint8Array),
       PropTypes.string,

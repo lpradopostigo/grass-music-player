@@ -1,5 +1,7 @@
 /** @typedef {import('../../shared/types').ApiTrack} ApiTrack */
 /** @typedef {import('../../shared/types').ApiRelease} ApiRelease */
+/** @typedef {import('../../shared/types').PlayerTrack} PlayerTrack */
+
 const { api } = window;
 
 export const settings = {
@@ -17,33 +19,29 @@ export const settings = {
 };
 
 export const grass = {
-  /** Get the current position of the current track
-   * @return {Promise<{current: number, total: number}>} */
-  getTrackPosition() {
-    return api.invoke("grass:getTrackPosition");
-  },
-
-  /** @param {number} position
-   * @return {Promise<void>} */
-  setTrackPosition(position) {
-    return api.invoke("grass:setTrackPosition", position);
+  /** @return {Promise<PlayerTrack>} */
+  getTrack() {
+    return api.invoke("grass:get-track");
   },
 
   /** Set a playlist on the player, this will stop the playback
    * @param {DatabaseTrack[]} tracks
    * @return {Promise<void>} */
   setPlaylist(tracks) {
-    return api.invoke("grass:setPlaylist", tracks);
+    return api.invoke("grass:set-playlist", tracks);
   },
 
-  /** Start or resume the playback, does nothing if there is nothing to play or resume
-   * @return {Promise<void>} */
+  /** @return {Promise<DatabaseTrack[]>} */
+  getPlaylist() {
+    return api.invoke("grass:get-playlist");
+  },
+
+  /** @return {Promise<void>} */
   play() {
     return api.invoke("grass:play");
   },
 
-  /** Pause the playback, does nothing if there is nothing to pause
-   * @return {Promise<void>} */
+  /** @return {Promise<void>} */
   pause() {
     return api.invoke("grass:pause");
   },
@@ -60,23 +58,23 @@ export const grass = {
     return api.invoke("grass:previous");
   },
 
+  /** @param {number} position
+   * @return {Promise<void>} */
+  seek(position) {
+    return api.invoke("grass:seek", position);
+  },
+
   /** Change the current track to the track with the specified index
    * @param {number} index
    * @return {Promise<void>} */
-  skipToTrack(index) {
-    return api.invoke("grass:skipToTrack", index);
+  skipToIndex(index) {
+    return api.invoke("grass:skip-to-index", index);
   },
 
   /** It will return STOPPED if there is nothing set in the player
    * @return {Promise<("STOPPED | PAUSED | PLAYING")>} */
   getPlaybackStatus() {
-    return api.invoke("grass:getPlaybackStatus");
-  },
-
-  /** Get the current track in the player
-   * @return {Promise<ApiTrack| undefined>} */
-  getCurrentTrack() {
-    return api.invoke("grass:getCurrentTrack");
+    return api.invoke("grass:get-playback-status");
   },
 };
 

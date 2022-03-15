@@ -34,6 +34,8 @@ const useStyles = createStyles((theme) => ({
     height: "100vh",
     display: "flex",
     flexDirection: "column",
+    width: "100vw",
+    maxWidth: "100vw",
   },
 
   contentAndNavigationWrapper: {
@@ -44,6 +46,7 @@ const useStyles = createStyles((theme) => ({
 
   contentContainer: {
     flex: 1,
+    overflow: "hidden",
   },
 
   navigationContainer: {

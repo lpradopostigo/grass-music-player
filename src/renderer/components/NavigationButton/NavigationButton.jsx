@@ -1,18 +1,21 @@
 import React from "react";
 import { createStyles, Text } from "@mantine/core";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 export default function NavigationButton(props) {
-  const { active, icon, children } = props;
+  const { active, icon, children, to } = props;
   const { classes } = useStyles({ active });
 
   return (
-    <div className={classes.container}>
-      {icon}
-      <Text size="sm" inline weight={500}>
-        {children}
-      </Text>
-    </div>
+    <Link to={to} className={classes.wrapper}>
+      <div className={classes.container}>
+        {icon}
+        <Text size="sm" inline weight={500}>
+          {children}
+        </Text>
+      </div>
+    </Link>
   );
 }
 
@@ -25,9 +28,13 @@ NavigationButton.propTypes = {
   active: PropTypes.bool,
   icon: PropTypes.element,
   children: PropTypes.node.isRequired,
+  to: PropTypes.string.isRequired,
 };
 
 const useStyles = createStyles((theme, { active }) => ({
+  wrapper: {
+    width: "100%",
+  },
   container: {
     display: "flex",
     gap: theme.spacing.sm,

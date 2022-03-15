@@ -81,18 +81,18 @@ export const grass = {
 export const library = {
   /** @return {Promise<ApiRelease[]>} */
   getReleases() {
-    return api.invoke("library:getReleases");
+    return api.invoke("library:get-releases");
   },
 
   /** @return {Promise<ApiRelease>} */
   getRelease(releaseId) {
-    return api.invoke("library:getRelease", releaseId);
+    return api.invoke("library:get-release", releaseId);
   },
 
   /** Get the associated tracks of the given release
    * @param {number} releaseId
    * @return {Promise<ApiTrack[]>} */
   getReleaseTracks(releaseId) {
-    return api.invoke("library:getReleaseTracks", releaseId);
+    return api.invoke("library:get-release-tracks", releaseId);
   },
 };

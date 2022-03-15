@@ -5,14 +5,16 @@
 const { ipcMain } = require("electron");
 const GrassAudio = require("grass-audio");
 const { getTrack, getRelease } = require("../services/store");
+const { map } = require("ramda");
 
 const grass = new GrassAudio();
 let playlist = [];
 
 ipcMain.handle("grass:set-playlist", async (event, tracks) => {
   const tracksWithFilePath = await Promise.all(
-    tracks.map(({ id }) => getTrack(id))
+    map(({ id }) => getTrack(id))(tracks)
   );
+
   const filePaths = tracksWithFilePath.map((track) => track.filePath);
   playlist = tracksWithFilePath;
   grass.setFiles(filePaths);

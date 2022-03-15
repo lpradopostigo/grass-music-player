@@ -44,7 +44,7 @@ const useStyles = createStyles((theme, { active }) => ({
   },
 
   container: {
-    backgroundColor: active ? theme.colors.gray[1] : "transparent",
+    backgroundColor: active ? theme.colors.gray[0] : "transparent",
     borderRadius: active ? theme.radius.md : 0,
     padding: theme.spacing.xs,
     display: "flex",

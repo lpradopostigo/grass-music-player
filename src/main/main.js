@@ -9,9 +9,9 @@ const controller = require("./services/controller");
 
 log.setLevel("info");
 
-controller.doStartup().then(() => {
-  log.info("startup complete");
-});
+// controller.doStartup().then(() => {
+//   log.info("startup complete");
+// });
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {

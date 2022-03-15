@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Text, Group, useMantineTheme } from "@mantine/core";
+import { Text, useMantineTheme } from "@mantine/core";
 import ReleasePicture from "../ReleasePicture";
 import View from "../layout/View";
 

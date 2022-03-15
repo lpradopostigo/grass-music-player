@@ -15,11 +15,15 @@ export default function Navigation() {
       <NavigationButton
         active
         icon={<FiDisc color={theme.other.accentColor} />}
+        to={"/Library"}
       >
         Library
       </NavigationButton>
 
-      <NavigationButton icon={<FiSettings color={theme.other.accentColor} />}>
+      <NavigationButton
+        icon={<FiSettings color={theme.other.accentColor} />}
+        to={"/Library"}
+      >
         Preferences
       </NavigationButton>
     </View>

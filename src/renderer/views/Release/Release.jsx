@@ -5,11 +5,16 @@ import {
   groupBy,
   prop,
   values,
-  compose,
   head,
   sortBy,
   addIndex,
   partial,
+  pipe,
+  flatten,
+  sortWith,
+  ascend,
+  findIndex,
+  propEq,
 } from "ramda";
 import { createStyles, Text, ScrollArea } from "@mantine/core";
 import TrackList from "../../components/TrackList";
@@ -19,16 +24,26 @@ import ReleasePicture from "../../components/ReleasePicture";
 import parsePictureSrc from "../../utils/parsePictureSrc";
 import View from "../../components/layout/View";
 import usePlayerControls from "../../hooks/usePlayerControls";
+import usePlayerTrack from "../../hooks/usePlayerTrack";
 
 export default function Release() {
   const { state: releaseData } = useLocation();
   const [tracks, setTracks] = useState([]);
   const { classes, theme } = useStyles();
   const { play, skipToIndex, setPlaylist } = usePlayerControls();
+  const [track] = usePlayerTrack();
+
+  const showDiscNumber = releaseData.numberOfDiscs > 1;
+  const groupByDiscNumber = groupBy(prop("discNumber"));
+  const sortTracks = sortWith([
+    ascend(prop("discNumber")),
+    ascend(prop("trackNumber")),
+  ]);
 
   useEffect(() => {
     (async () => {
-      setTracks(await library.getReleaseTracks(releaseData.id));
+      const tracks = await library.getReleaseTracks(releaseData.id);
+      setTracks(sortTracks(tracks));
     })();
   }, []);
 
@@ -39,9 +54,6 @@ export default function Release() {
   };
 
   const mapIndexed = addIndex(map);
-  const sortByTrackNumber = sortBy(prop("trackNumber"));
-  const showDiscNumber = releaseData.numberOfDiscs > 1;
-  const groupByDiscNumber = groupBy(prop("discNumber"));
   const renderTrackList = (dataArr) => (
     <TrackList
       key={head(dataArr)?.discNumber}
@@ -49,23 +61,18 @@ export default function Release() {
       discNumber={head(dataArr)?.discNumber}
       className={classes.trackList}
     >
-      {mapIndexed(
-        (data, index) => (
+      {mapIndexed((data) => {
+        const index = findIndex(propEq("id", data.id))(tracks);
+        return (
           <Track
+            active={track.id === data.id}
             key={data.id}
             data={data}
             onClick={partial(playTrack, [index])}
           />
-        ),
-        dataArr
-      )}
+        );
+      }, dataArr)}
     </TrackList>
-  );
-  const process = compose(
-    map(renderTrackList),
-    map(sortByTrackNumber),
-    values,
-    groupByDiscNumber
   );
 
   return (
@@ -97,7 +104,7 @@ export default function Release() {
         </View>
       </View>
       <ScrollArea classNames={{ root: classes.scrollArea }}>
-        {process(tracks)}
+        {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
       </ScrollArea>
     </View>
   );

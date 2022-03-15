@@ -1,19 +1,19 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { ipcMain } = require("electron");
-const { map, omit } = require("ramda");
 const {
   getRelease,
   getReleases,
   getReleaseTracks,
 } = require("../services/store");
 
-ipcMain.handle("library:getReleases", () => getReleases());
+ipcMain.handle("library:get-releases", () => getReleases());
 
-ipcMain.handle("library:getRelease", (event, releaseId) =>
-  getRelease(releaseId)
-);
+ipcMain.handle("library:get-release", (_, releaseId) => getRelease(releaseId));
 
-ipcMain.handle("library:getReleaseTracks", async (event, releaseId) => {
+ipcMain.handle("library:get-release-tracks", async (_, releaseId) => {
   const tracks = await getReleaseTracks(releaseId);
-  return map(omit(["filePath"]), tracks);
+  return tracks.map((track) => {
+    const { filePath, ...rest } = track;
+    return rest;
+  });
 });

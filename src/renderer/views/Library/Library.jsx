@@ -31,6 +31,7 @@ const useStyles = createStyles((theme) => ({
   container: {
     display: "flex",
     height: "100%",
+    flexWrap: "wrap",
     overflowY: "scroll",
     overflowX: "hidden",
     gap: theme.spacing.md,

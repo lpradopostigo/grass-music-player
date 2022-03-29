@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useLocation } from "react-router-dom";
 import {
   map,
@@ -6,32 +6,32 @@ import {
   prop,
   values,
   head,
-  sortBy,
   addIndex,
   partial,
   pipe,
-  flatten,
   sortWith,
   ascend,
   findIndex,
   propEq,
 } from "ramda";
-import { createStyles, Text, ScrollArea } from "@mantine/core";
+import { createStyles, Text, ScrollArea, Button, Title } from "@mantine/core";
+import { IoPlayCircle } from "react-icons/io5";
 import TrackList from "../../components/TrackList";
 import Track from "../../components/Track";
-import { library } from "../../services/api";
+import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
 import ReleasePicture from "../../components/ReleasePicture";
 import parsePictureSrc from "../../utils/parsePictureSrc";
 import View from "../../components/layout/View";
-import usePlayerControls from "../../hooks/usePlayerControls";
-import usePlayerTrack from "../../hooks/usePlayerTrack";
+import usePlayer from "../../hooks/usePlayer";
 
 export default function Release() {
   const { state: releaseData } = useLocation();
-  const [tracks, setTracks] = useState([]);
+  const { data: tracks = [] } = useGetReleaseTracksQuery(releaseData.id);
   const { classes, theme } = useStyles();
-  const { play, skipToIndex, setPlaylist } = usePlayerControls();
-  const [track] = usePlayerTrack();
+  const {
+    controls: { play, skipToIndex, setPlaylist },
+    state: { track },
+  } = usePlayer();
 
   const showDiscNumber = releaseData.numberOfDiscs > 1;
   const groupByDiscNumber = groupBy(prop("discNumber"));
@@ -39,13 +39,6 @@ export default function Release() {
     ascend(prop("discNumber")),
     ascend(prop("trackNumber")),
   ]);
-
-  useEffect(() => {
-    (async () => {
-      const tracks = await library.getReleaseTracks(releaseData.id);
-      setTracks(sortTracks(tracks));
-    })();
-  }, []);
 
   const playTrack = async (index) => {
     await setPlaylist(tracks);
@@ -81,28 +74,31 @@ export default function Release() {
         <img
           src={parsePictureSrc(releaseData.picture)}
           alt=""
-          style={{
-            position: "absolute",
-            filter: "brightness(50%)",
-            top: 0,
-            left: 0,
-            objectFit: "cover",
-            objectPosition: "center",
-            width: "100%",
-            height: 400,
-            zIndex: -1,
-          }}
+          className={classes.headerBackground}
         />
         <ReleasePicture data={releaseData} size="lg" />
+        <View spacing={theme.spacing.md}>
+          <View spacing={theme.spacing.xs / 2}>
+            <Title order={1}>{releaseData.title}</Title>
 
-        <View spacing={theme.spacing.xs / 2}>
-          <Text size="lg" weight="500">
-            {releaseData.title}
-          </Text>
-          <Text size="md">{releaseData.artist}</Text>
-          <Text size="sm">{releaseData.year}</Text>
+            <Text size="md" weight="500">
+              {releaseData.artist}
+            </Text>
+            <Text size="sm" weight="500">
+              {releaseData.year}
+            </Text>
+          </View>
+
+          <Button
+            onClick={partial(playTrack, [0])}
+            color={theme.other.accentColor}
+            leftIcon={<IoPlayCircle size={theme.fontSizes.lg} />}
+          >
+            Play
+          </Button>
         </View>
       </View>
+
       <ScrollArea classNames={{ root: classes.scrollArea }}>
         {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
       </ScrollArea>
@@ -114,6 +110,7 @@ const useStyles = createStyles((theme) => ({
   container: {
     height: "100%",
     overflow: "hidden",
+    width: "100%",
   },
 
   header: {
@@ -126,6 +123,19 @@ const useStyles = createStyles((theme) => ({
     color: theme.white,
     overflow: "hidden",
     flexShrink: 0,
+    width: "100%",
+  },
+
+  headerBackground: {
+    position: "absolute",
+    filter: "brightness(50%)",
+    top: 0,
+    left: 0,
+    objectFit: "cover",
+    objectPosition: "center",
+    width: "100%",
+    height: 400,
+    zIndex: -1,
   },
 
   trackList: {

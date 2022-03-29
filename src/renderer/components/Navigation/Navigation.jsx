@@ -1,8 +1,8 @@
 import React from "react";
 import { createStyles } from "@mantine/core";
-import { FiDisc, FiSettings } from "react-icons/fi";
 import NavigationButton from "../NavigationButton";
 import View from "../layout/View";
+import { IoDisc, IoSettings } from "react-icons/io5";
 
 export default function Navigation() {
   const { classes, theme } = useStyles();
@@ -10,20 +10,13 @@ export default function Navigation() {
     <View
       className={classes.container}
       height="100%"
-      spacing={theme.spacing.xs / 2}
+      spacing={theme.spacing.xs}
     >
-      <NavigationButton
-        active
-        icon={<FiDisc color={theme.other.accentColor} />}
-        to={"/Library"}
-      >
+      <NavigationButton active icon={<IoDisc />} to={"/Library"}>
         Library
       </NavigationButton>
 
-      <NavigationButton
-        icon={<FiSettings color={theme.other.accentColor} />}
-        to={"/Library"}
-      >
+      <NavigationButton icon={<IoSettings />} to={"/Library"}>
         Preferences
       </NavigationButton>
     </View>
@@ -32,8 +25,8 @@ export default function Navigation() {
 
 const useStyles = createStyles((theme) => ({
   container: {
-    padding: theme.spacing.md,
-    width: 200,
+    padding: `${theme.spacing.md}px 0`,
+    width: 160,
   },
 }));
 

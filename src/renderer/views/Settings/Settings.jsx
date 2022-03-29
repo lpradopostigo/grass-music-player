@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@mantine/core";
 import cls from "./styles.module.css";
 import useSettings from "../../hooks/useSettings";
-import { settings as apiSettings } from "../../services/api";
+import { settings as apiSettings } from "../../services/api/api";
 
 export default function Settings() {
   const [settings, setSettings] = useSettings();

@@ -3,8 +3,17 @@ import { createStyles } from "@mantine/core";
 import PropTypes from "prop-types";
 
 export default function View(props) {
-  const { className, direction, align, justify, height, spacing, ...other } =
-    props;
+  const {
+    className,
+    direction,
+    align,
+    justify,
+    height,
+    spacing,
+    width,
+    style,
+    ...other
+  } = props;
   const { classes, cx } = useStyles({
     direction,
     align,
@@ -12,7 +21,13 @@ export default function View(props) {
     height,
     spacing,
   });
-  return <div className={cx(classes.container, className)} {...other} />;
+  return (
+    <div
+      style={style}
+      className={cx(classes.container, className)}
+      {...other}
+    />
+  );
 }
 
 View.defaultProps = {
@@ -21,11 +36,14 @@ View.defaultProps = {
   justify: "flex-start",
   className: undefined,
   height: undefined,
+  width: undefined,
   spacing: undefined,
+  style: undefined,
 };
 
 View.propTypes = {
   height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   className: PropTypes.string,
   align: PropTypes.oneOf(["center", "flex-start", "flex-end", "stretch"]),
   justify: PropTypes.oneOf([
@@ -39,18 +57,19 @@ View.propTypes = {
   ]),
   direction: PropTypes.oneOf(["column", "row"]),
   spacing: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  style: PropTypes.object,
 };
 
 const useStyles = createStyles(
-  (theme, { direction, align, justify, height, spacing }) => ({
+  (theme, { direction, align, justify, height, spacing, width }) => ({
     container: {
       display: "flex",
       alignItems: align,
       justifyContent: justify,
       flexDirection: direction,
       height,
+      width,
       gap: spacing,
-      width: "100%",
     },
   })
 );

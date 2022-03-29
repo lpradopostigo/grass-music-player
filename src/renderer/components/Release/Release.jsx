@@ -1,25 +1,27 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Text, useMantineTheme } from "@mantine/core";
+import { createStyles, Text, useMantineTheme } from "@mantine/core";
 import ReleasePicture from "../ReleasePicture";
 import View from "../layout/View";
 
-export default function Release({ data }) {
-  const { title, artist } = data;
+export default function Release(props) {
+  const { size, data } = props;
+
   const theme = useMantineTheme();
+  const { classes } = useStyles();
 
   return (
-    <Link to="/Release" state={data}>
-      <View spacing={theme.spacing.xs}>
-        <ReleasePicture data={data} size="lg" />
+    <Link to="/Release" state={data} className={classes.wrapper}>
+      <View className={classes.container} spacing={theme.spacing.xs}>
+        <ReleasePicture data={data} size={size} />
 
         <View>
           <Text size="md" weight="500">
-            {title}
+            {data.title}
           </Text>
           <Text size="sm" weight="400" color={theme.colors.gray[6]}>
-            {artist}
+            {data.artist}
           </Text>
         </View>
       </View>
@@ -32,6 +34,7 @@ Release.defaultProps = {
     picture: null,
   },
   className: undefined,
+  size: "md",
 };
 
 Release.propTypes = {
@@ -41,5 +44,18 @@ Release.propTypes = {
     picture: PropTypes.instanceOf(Uint8Array),
   }),
 
+  size: PropTypes.oneOf(["sm", "md", "lg"]),
   className: PropTypes.string,
 };
+
+const useStyles = createStyles(() => ({
+  container: {
+    width: "min-content",
+    height: "min-content",
+  },
+
+  wrapper: {
+    width: "min-content",
+    height: "min-content",
+  },
+}));

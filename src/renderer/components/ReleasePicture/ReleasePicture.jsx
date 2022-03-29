@@ -37,12 +37,12 @@ const sizes = {
     height: 64,
   },
   md: {
-    width: 92,
-    height: 92,
-  },
-  lg: {
     width: 160,
     height: 160,
+  },
+  lg: {
+    width: 192,
+    height: 192,
   },
 };
 

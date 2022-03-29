@@ -2,7 +2,7 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 require("./handlers/library");
-require("./handlers/grass");
+require("./handlers/player");
 require("./handlers/settings");
 const log = require("loglevel");
 const controller = require("./services/controller");
@@ -22,7 +22,7 @@ const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1000,
-    height: 600,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },

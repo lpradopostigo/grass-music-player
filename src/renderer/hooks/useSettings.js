@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { settings as apiSettings } from "../services/api";
+import { settings as apiSettings } from "../services/api/api";
 
 export default function useSettings() {
   const [settings, setSettings] = useState({

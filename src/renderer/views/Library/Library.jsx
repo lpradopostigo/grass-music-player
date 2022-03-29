@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { map } from "ramda";
 import { createStyles } from "@mantine/core";
-import { library } from "../../services/api";
+import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../../components/Release/Release";
 
 export default function Library() {
-  const [releases, setReleases] = useState([]);
+  const { data: releases = [] } = useGetReleasesQuery();
   const { classes } = useStyles();
-
-  useEffect(() => {
-    (async () => {
-      setReleases(await library.getReleases());
-    })();
-  }, []);
 
   return (
     <div className={classes.container}>

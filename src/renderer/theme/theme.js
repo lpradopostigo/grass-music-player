@@ -29,12 +29,26 @@ const black = "#1C1C1E";
 const white = "#fff";
 const primaryColor = "blue";
 
+const fontFamily = "Inter";
+
 const fontSizes = {
   xs: 9.72,
   sm: 11.67,
   md: 14,
   lg: 16.8,
   xl: 20.16,
+};
+
+const headings = {
+  fontFamily,
+  sizes: {
+    h1: { fontSize: 32.84 },
+    h2: { fontSize: 29.03 },
+    h3: { fontSize: 24.19 },
+    h4: { fontSize: fontSizes.xl },
+    h5: { fontSize: fontSizes.lg },
+    h6: { fontSize: fontSizes.md },
+  },
 };
 
 const radius = {
@@ -45,11 +59,9 @@ const radius = {
   xl: 16,
 };
 
-const fontFamily = "Inter";
-
 const theme = {
   fontFamily,
-  headings: { fontFamily },
+  headings,
   fontSizes,
   colors,
   primaryColor,
@@ -58,10 +70,12 @@ const theme = {
   radius,
   other: {
     borderSize: 1,
-    borderColor: colors.gray[1],
+    borderColor: colors.gray[0],
     accentColor: colors[primaryColor][6],
     textSecondary: colors.gray[6],
   },
 };
+
+export const styles = { Title: { root: { color: "inherit" } } };
 
 export default theme;

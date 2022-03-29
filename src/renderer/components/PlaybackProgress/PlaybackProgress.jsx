@@ -4,11 +4,12 @@ import { createStyles, Group, Progress, Text } from "@mantine/core";
 import { secondsToAudioDuration } from "../../utils/format/format";
 import { percentageToValue, valueToPercentage } from "../../utils/conversion";
 import useDimensions from "../../hooks/useDimensions";
+import View from "../layout/View";
 
 export default function PlaybackProgress(props) {
-  const { current, total, onTrackClick } = props;
+  const { current, total, onTrackClick, style, className } = props;
   const [progressWrapperRef, { width }] = useDimensions();
-  const { classes, theme } = useStyles();
+  const { classes, theme, cx } = useStyles();
 
   const handleClick = (event) => {
     const rect = event.target.getBoundingClientRect();
@@ -17,7 +18,7 @@ export default function PlaybackProgress(props) {
   };
 
   return (
-    <Group className={classes.container}>
+    <View className={cx(classes.container, className)} style={style}>
       <Text className={classes.text} size="sm">
         {secondsToAudioDuration(current)}
       </Text>
@@ -27,6 +28,7 @@ export default function PlaybackProgress(props) {
         onClick={handleClick}
       >
         <Progress
+          size="xs"
           color={theme.other.accentColor}
           className={classes.progress}
           value={valueToPercentage(current, total)}
@@ -36,21 +38,23 @@ export default function PlaybackProgress(props) {
       <Text className={classes.text} size="sm">
         {secondsToAudioDuration(total)}
       </Text>
-    </Group>
+    </View>
   );
 }
 
 const useStyles = createStyles((theme) => ({
   container: {
+    gap: theme.spacing.md,
+    flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    width: "100%",
   },
 
   progressWrapper: {
     flex: 1,
-    paddingTop: theme.spacing.xs,
-    paddingBottom: theme.spacing.xs,
+    paddingTop: theme.spacing.sm,
+    paddingBottom: theme.spacing.sm,
+    cursor: "pointer",
   },
 
   progress: {
@@ -68,10 +72,14 @@ PlaybackProgress.propTypes = {
   total: PropTypes.number,
   isDisabled: PropTypes.bool,
   onTrackClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  style: PropTypes.object,
 };
 
 PlaybackProgress.defaultProps = {
   isDisabled: false,
   current: 0,
   total: 0,
+  className: undefined,
+  style: undefined,
 };

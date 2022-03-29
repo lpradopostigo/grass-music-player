@@ -57,10 +57,22 @@ export interface ScannerRelease {
   tracks: ScannerTrack[];
 }
 
-export interface PlayerTrack extends Omit<DatabaseTrack, "filePath"> {
-  position: number | null;
-  releaseTitle: string | null;
-  releaseArtist: string | null;
-  year: number | null;
-  picture: Uint8Array | null;
+export interface PlayerState {
+  track: {
+    id: number;
+    releaseId: number;
+    title: string | null;
+    artist: string | null;
+    trackNumber: number | null;
+    discNumber: number | null;
+    duration: number | null;
+    position: number | null;
+    releaseTitle: string | null;
+    releaseArtist: string | null;
+    releaseYear: number | null;
+    releasePicture: Uint8Array | null;
+    playlistIndex: number;
+  };
+  playbackState: "stopped" | "playing" | "paused";
+  playlist: Omit<DatabaseTrack, "filePath">[];
 }

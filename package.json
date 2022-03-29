@@ -55,6 +55,7 @@
     "@mantine/hooks": "^3.6.14",
     "@mantine/modals": "^3.6.14",
     "@mantine/notifications": "^3.6.14",
+    "@reduxjs/toolkit": "^1.8.0",
     "base64-js": "^1.5.1",
     "clsx": "^1.1.1",
     "color-contrast-checker": "^2.1.0",
@@ -62,7 +63,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
     "eslint-config-airbnb": "^19.0.4",
-    "grass-audio": "file:D:\\Documents\\projects\\grass-audio\\grass-audio-0.4.1.tgz",
+    "grass-audio": "file:D:\\Documents\\projects\\grass-audio\\grass-audio-0.5.0.tgz",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.0",
     "memoizee": "^0.4.15",
@@ -75,6 +76,7 @@
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-if": "^4.1.1",
+    "react-redux": "^7.2.6",
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",
     "react-stately": "^3.11.0",
@@ -86,7 +88,7 @@
     "@babel/core": "^7.17.7",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/preset-react": "^7.16.7",
-    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "^6.0.0-beta.61",
     "@electron-forge/maker-rpm": "^6.0.0-beta.61",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
@@ -120,7 +122,7 @@
   "keywords": [],
   "license": "MIT",
   "main": ".webpack/main",
-  "name": "grass-music-playe",
+  "name": "grass-music-player",
   "productName": "grass-music-player",
   "scripts": {
     "start": "electron-forge start",
@@ -132,7 +134,7 @@
     "storybook": "start-storybook -p 6006 --ci",
     "build-storybook": "build-storybook",
     "clean": "rm -recurse -force node_modules .webpack",
-    "rebuild": "rm -rf .webpack && electron-rebuild"
+    "rebuild": "rm -recurse -force .webpack && electron-rebuild"
   },
   "version": "0.0.1",
   "jest": {

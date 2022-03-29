@@ -57,6 +57,7 @@ const useStyles = createStyles((theme, { active }) => ({
   wrapper: {
     width: "100%",
   },
+
   container: {
     display: "flex",
     flexDirection: "row",
@@ -68,8 +69,8 @@ const useStyles = createStyles((theme, { active }) => ({
     alignItems: "center",
     flexDirection: "row",
     lineHeight: "normal",
-    width: 100,
+    width: 150,
     color: active ? theme.black : theme.other.textSecondary,
-    padding: theme.spacing.xs / 4,
+    padding: `${theme.spacing.xs / 2}px ${theme.spacing.sm}px`,
   },
 }));

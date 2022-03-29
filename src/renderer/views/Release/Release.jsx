@@ -35,10 +35,6 @@ export default function Release() {
 
   const showDiscNumber = releaseData.numberOfDiscs > 1;
   const groupByDiscNumber = groupBy(prop("discNumber"));
-  const sortTracks = sortWith([
-    ascend(prop("discNumber")),
-    ascend(prop("trackNumber")),
-  ]);
 
   const playTrack = async (index) => {
     await setPlaylist(tracks);

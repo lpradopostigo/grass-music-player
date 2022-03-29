@@ -36,6 +36,7 @@ const useStyles = createStyles((theme) => ({
     flexDirection: "column",
     width: "100vw",
     maxWidth: "100vw",
+    overflow: "hidden",
   },
 
   contentAndNavigationWrapper: {

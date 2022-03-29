@@ -70,7 +70,7 @@ const theme = {
   radius,
   other: {
     borderSize: 1,
-    borderColor: colors.gray[0],
+    borderColor: colors.gray[1],
     accentColor: colors[primaryColor][6],
     textSecondary: colors.gray[6],
   },

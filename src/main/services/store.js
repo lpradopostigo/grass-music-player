@@ -1,6 +1,7 @@
 /** @typedef {import('../../shared/types').DatabaseTrack} DatabaseTrack */
 /** @typedef {import('../../shared/types').DatabaseRelease} DatabaseRelease */
 const memoize = require("memoizee");
+const { sortWith, ascend, prop } = require("ramda");
 const Database = require("./Database");
 const { withDeepCopyReturn } = require("../utils/inmutable/inmutable");
 
@@ -42,7 +43,11 @@ async function getReleaseTracks(releaseId) {
   await database.open();
   const tracks = await database.getTracks(releaseId);
   await database.close();
-  return tracks;
+  const sortTracks = sortWith([
+    ascend(prop("discNumber")),
+    ascend(prop("trackNumber")),
+  ]);
+  return sortTracks(tracks);
 }
 
 module.exports = {

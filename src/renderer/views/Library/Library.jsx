@@ -1,7 +1,7 @@
 import React from "react";
 
 import { map } from "ramda";
-import { createStyles } from "@mantine/core";
+import { createStyles, ScrollArea } from "@mantine/core";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../../components/Release/Release";
 
@@ -10,25 +10,34 @@ export default function Library() {
   const { classes } = useStyles();
 
   return (
-    <div className={classes.container}>
-      {map(
-        (release) => (
-          <Release data={release} key={release.id} />
-        ),
-        releases
-      )}
-    </div>
+    <ScrollArea
+      classNames={{
+        root: classes.container,
+      }}
+    >
+      <div className={classes.contentContainer}>
+        {map(
+          (release) => (
+            <Release data={release} key={release.id} />
+          ),
+          releases
+        )}
+      </div>
+    </ScrollArea>
   );
 }
 
 const useStyles = createStyles((theme) => ({
   container: {
-    display: "flex",
     height: "100%",
-    flexWrap: "wrap",
-    overflowY: "scroll",
-    overflowX: "hidden",
+    width: "100%",
+  },
+
+  contentContainer: {
+    display: "flex",
+    flexDirection: "row",
     gap: theme.spacing.md,
     padding: theme.spacing.xl,
+    flexWrap: "wrap",
   },
 }));

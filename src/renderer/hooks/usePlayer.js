@@ -1,12 +1,37 @@
-import usePlayerState from "./usePlayerState";
-import usePlayerControls from "./usePlayerControls";
+import {
+  useGetStateQuery,
+  usePlayMutation,
+  usePauseMutation,
+  useNextMutation,
+  usePreviousMutation,
+  useSeekMutation,
+  useSkipToIndexMutation,
+  useSetPlaylistMutation,
+} from "../services/api/playerApi";
 
 export default function usePlayer() {
-  const state = usePlayerState();
-  const controls = usePlayerControls();
+  const {
+    data: state = { track: {}, playbackState: undefined, playlist: [] },
+  } = useGetStateQuery();
+
+  const [play] = usePlayMutation();
+  const [pause] = usePauseMutation();
+  const [next] = useNextMutation();
+  const [previous] = usePreviousMutation();
+  const [seek] = useSeekMutation();
+  const [skipToIndex] = useSkipToIndexMutation();
+  const [setPlaylist] = useSetPlaylistMutation();
 
   return {
     state,
-    controls,
+    controls: {
+      play,
+      pause,
+      next,
+      previous,
+      seek,
+      skipToIndex,
+      setPlaylist,
+    },
   };
 }

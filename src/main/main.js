@@ -3,7 +3,8 @@ const { app, BrowserWindow } = require("electron");
 const path = require("path");
 require("./handlers/library");
 require("./handlers/player");
-require("./handlers/settings");
+require("./handlers/window");
+require("./handlers/preferences");
 const log = require("loglevel");
 const controller = require("./services/controller");
 
@@ -27,7 +28,7 @@ const createWindow = () => {
       preload: path.join(__dirname, "preload.js"),
     },
     autoHideMenuBar: true,
-    // titleBarStyle: "hidden",
+    titleBarStyle: "hidden",
   });
 
   // and load the index.html of the app.

@@ -1,4 +1,4 @@
-const colors = {
+const baseColors = {
   blue: [
     "#D2E1F1",
     "#B0CCEB",
@@ -25,29 +25,49 @@ const colors = {
     "#2C2C2E",
   ],
 };
+
 const black = "#1C1C1E";
 const white = "#fff";
 const primaryColor = "blue";
 
+const colors = {
+  accent: baseColors[primaryColor][6],
+  border: baseColors.gray[1],
+  accentSecondary: baseColors.gray[0],
+};
+
+const baseSpacing = {
+  xs: 2,
+  sm: 4,
+  md: 8,
+  lg: 16,
+  xl: 24,
+};
+
+const spacing = {
+  view: baseSpacing.md * 6,
+};
+
 const fontFamily = "Inter";
 
 const fontSizes = {
-  xs: 9.72,
-  sm: 11.67,
+  xs: 12.3,
+  sm: 13.12,
   md: 14,
-  lg: 16.8,
-  xl: 20.16,
+  lg: 17.5,
+  xl: 21.88,
 };
 
 const headings = {
   fontFamily,
   sizes: {
-    h1: { fontSize: 32.84 },
-    h2: { fontSize: 29.03 },
-    h3: { fontSize: 24.19 },
-    h4: { fontSize: fontSizes.xl },
-    h5: { fontSize: fontSizes.lg },
-    h6: { fontSize: fontSizes.md },
+    h1: { fontSize: 27.34 },
+    h2: { fontSize: fontSizes.xl },
+    h3: { fontSize: fontSizes.lg },
+
+    h4: { fontSize: fontSizes.md },
+    h5: { fontSize: fontSizes.sm },
+    h6: { fontSize: fontSizes.xs },
   },
 };
 
@@ -55,24 +75,27 @@ const radius = {
   xs: 2,
   sm: 3,
   md: 4,
-  lg: 8,
-  xl: 16,
+  lg: 6,
+  xl: 12,
 };
 
 const theme = {
   fontFamily,
   headings,
   fontSizes,
-  colors,
+  colors: baseColors,
   primaryColor,
   black,
   white,
   radius,
+  spacing: baseSpacing,
   other: {
     borderSize: 1,
-    borderColor: colors.gray[1],
-    accentColor: colors[primaryColor][6],
-    textSecondary: colors.gray[6],
+    borderColor: baseColors.gray[1],
+    accentColor: baseColors[primaryColor][6],
+    textSecondary: baseColors.gray[6],
+    colors,
+    spacing,
   },
 };
 

@@ -3,14 +3,15 @@ import { ActionIcon, createStyles, Text } from "@mantine/core";
 import {
   IoPlayCircle,
   IoPauseCircle,
-  IoPlaySkipBack,
-  IoPlaySkipForward,
+  IoPlaySkipForwardCircle,
+  IoPlaySkipBackCircle,
 } from "react-icons/io5";
 import { Else, If, Then } from "react-if";
 import ReleasePicture from "../ReleasePicture";
 import PlaybackProgress from "../PlaybackProgress";
 import View from "../layout/View";
 import usePlayer from "../../hooks/usePlayer";
+import { navigationWidth } from "../../services/constants";
 
 export default function Player() {
   const { state, controls } = usePlayer();
@@ -18,67 +19,57 @@ export default function Player() {
 
   return (
     <View className={classes.container}>
-      <View
-        style={{ flexBasis: "25%", flexShrink: 0, flexGrow: 0 }}
-        align="center"
-        direction="row"
-        spacing={theme.spacing.md}
-      >
-        <ReleasePicture
-          data={{
-            title: state?.track.releaseTitle,
-            artist: state?.track.releaseArtist,
-            picture: state?.track.picture,
-          }}
-          size="sm"
-        />
-
-        <View>
-          <Text weight={500} lineClamp={1}>
-            {state?.track.title}
-          </Text>
-
-          <Text size="sm">{state?.track.artist}</Text>
-
-          <Text size="xs">{state?.track.releaseTitle}</Text>
-        </View>
-      </View>
-      <View
-        direction="row"
-        align="center"
-        justify="center"
-        style={{ padding: `0 ${theme.spacing.xl}px` }}
-        spacing={theme.spacing.md}
-      >
+      <View className={classes.playerControls} spacing={theme.spacing.md}>
         <ActionIcon onClick={controls.previous}>
-          <IoPlaySkipBack />
+          <IoPlaySkipBackCircle size={40} color={theme.other.accentColor} />
         </ActionIcon>
 
         <If condition={state.playbackState === "playing"}>
           <Then>
-            <ActionIcon size={40} onClick={controls.pause}>
-              <IoPauseCircle color={theme.other.accentColor} size={40} />
+            <ActionIcon size={48} onClick={controls.pause}>
+              <IoPauseCircle color={theme.other.accentColor} size={48} />
             </ActionIcon>
           </Then>
 
           <Else>
-            <ActionIcon size={40} onClick={controls.play}>
-              <IoPlayCircle color={theme.other.accentColor} size={40} />
+            <ActionIcon size={48} onClick={controls.play}>
+              <IoPlayCircle color={theme.other.accentColor} size={48} />
             </ActionIcon>
           </Else>
         </If>
 
         <ActionIcon onClick={controls.next}>
-          <IoPlaySkipForward />
+          <IoPlaySkipForwardCircle size={40} color={theme.other.accentColor} />
         </ActionIcon>
       </View>
 
-      <PlaybackProgress
-        style={{ flexGrow: 1 }}
-        current={state?.track.position}
-        total={state?.track.duration}
-        onTrackClick={controls.seek}
-      />
+      <View
+        direction="row"
+        align="center"
+        grow
+        spacing={theme.spacing.md}
+        style={{ padding: theme.spacing.lg }}
+      >
+        <ReleasePicture
+          data={{
+            title: state.track.releaseTitle,
+            artist: state.track.releaseArtist,
+            picture: state.track.picture,
+          }}
+          size="sm"
+        />
+
+        <PlaybackProgress
+          data={{
+            title: state.track.title,
+            artist: state.track.artist,
+            position: state.track.position || 0,
+            duration: state.track.duration || 0,
+          }}
+          onTrackClick={controls.seek}
+          style={{ flexGrow: 1, flexShrink: 0 }}
+        />
+      </View>
     </View>
   );
 }
@@ -87,11 +78,16 @@ const useStyles = createStyles((theme) => ({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    padding: theme.spacing.md,
   },
 
-  playerControlIcon: {
-    height: theme.fontSizes.xl,
-    width: theme.fontSizes.xl,
+  playerControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flexBasis: navigationWidth,
+    flexGrow: 0,
+    flexShrink: 0,
+    alignSelf: "stretch",
+    backgroundColor: theme.other.colors.accentSecondary,
   },
 }));

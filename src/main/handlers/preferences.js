@@ -2,15 +2,15 @@
 const { ipcMain, dialog } = require("electron");
 const persistentStorage = require("../services/persistentStorage");
 
-ipcMain.handle("settings:getValue", (_, key, defaultValue) =>
+ipcMain.handle("preferences:get-value", (_, key, defaultValue) =>
   persistentStorage.getValue(key, defaultValue)
 );
 
-ipcMain.handle("settings:setValue", (_, key, value) =>
+ipcMain.handle("preferences:set-value", (_, key, value) =>
   persistentStorage.setValue(key, value)
 );
 
-ipcMain.handle("settings:openPathSelector", async () => {
+ipcMain.handle("preferences:open-path-selector", async () => {
   const paths = await dialog.showOpenDialog({
     properties: ["openDirectory", "createDirectory"],
   });

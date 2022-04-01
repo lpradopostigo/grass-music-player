@@ -2,7 +2,7 @@ import React from "react";
 import { createStyles, Text } from "@mantine/core";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { When } from "react-if";
+import View from "../layout/View";
 
 export default function NavigationButton(props) {
   const { active, icon, children, to } = props;
@@ -10,21 +10,12 @@ export default function NavigationButton(props) {
 
   return (
     <Link to={to} className={classes.wrapper}>
-      <div className={classes.container}>
-        <div className={classes.spaceFiller}>
-          <When condition={active}>
-            <div className={classes.activeIndicator} />
-          </When>
-        </div>
-
-        <div className={classes.contentContainer}>
-          {icon}
-          <Text size="sm" weight={500} ml={theme.spacing.sm}>
-            {children}
-          </Text>
-        </div>
-        <div className={classes.spaceFiller} />
-      </div>
+      <View className={classes.contentContainer}>
+        {icon}
+        <Text size="xs" weight={active ? 600 : 500} ml={theme.spacing.md}>
+          {children}
+        </Text>
+      </View>
     </Link>
   );
 }
@@ -65,12 +56,8 @@ const useStyles = createStyles((theme, { active }) => ({
   },
 
   contentContainer: {
-    display: "flex",
     alignItems: "center",
     flexDirection: "row",
-    lineHeight: "normal",
-    width: 150,
     color: active ? theme.black : theme.other.textSecondary,
-    padding: `${theme.spacing.xs / 2}px ${theme.spacing.sm}px`,
   },
 }));

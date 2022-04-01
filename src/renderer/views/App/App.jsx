@@ -1,12 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { createStyles } from "@mantine/core";
+import { useLocation } from "react-router-dom";
+import TitleBar from "../../components/TitleBar";
 
 export default function App(props) {
   const { children, navigation, player } = props;
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
+  const { pathname } = useLocation();
+
   return (
     <div className={classes.container}>
+      <TitleBar color={pathname === "/Release" ? theme.white : theme.black} />
       <div className={classes.contentAndNavigationWrapper}>
         <div className={classes.navigationContainer}>{navigation}</div>
         <main className={classes.contentContainer}>{children}</main>
@@ -27,7 +32,7 @@ App.defaultProps = {
   player: undefined,
 };
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
   container: {
     minHeight: "100vh",
     maxHeight: "100vh",
@@ -48,13 +53,5 @@ const useStyles = createStyles((theme) => ({
   contentContainer: {
     flex: 1,
     overflow: "hidden",
-  },
-
-  navigationContainer: {
-    borderRight: `${theme.other.borderSize}px solid ${theme.other.borderColor}`,
-  },
-
-  playerContainer: {
-    borderTop: `${theme.other.borderSize}px solid ${theme.other.borderColor}`,
   },
 }));

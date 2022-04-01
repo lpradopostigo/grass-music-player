@@ -9,12 +9,12 @@ export default function TrackList({
   children,
   className,
 }) {
-  const { classes, theme, cx } = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
     <div className={cx(classes.container, className)}>
       <When condition={showDiscNumber}>
-        <Text color={theme.colors.gray[7]} size="xs" mb="xs">
+        <Text ml="sm" mb="xs" weight={600} size="sm" color="dimmed">
           Disc {discNumber}
         </Text>
       </When>
@@ -40,9 +40,10 @@ TrackList.propTypes = {
   className: PropTypes.string,
 };
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles((theme) => ({
   container: {
     display: "flex",
     flexDirection: "column",
+    gap: theme.spacing.md,
   },
 }));

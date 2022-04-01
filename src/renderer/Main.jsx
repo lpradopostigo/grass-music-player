@@ -8,7 +8,7 @@ import Library from "./views/Library";
 import Release from "./views/Release";
 import Player from "./components/Player";
 import Navigation from "./components/Navigation";
-// import Settings from "./views/Settings";
+import Preferences from "./views/Preferences";
 import theme, { styles } from "./theme";
 import App from "./views/App";
 import store from "./services/store";
@@ -31,7 +31,7 @@ export default function Main() {
               <Route exact path="/" element={<Navigate to="/Library" />} />
               <Route path="/Library" element={<Library />} />
               <Route path="/Release" element={<Release />} />
-              {/* <Route path="/Settings" element={<Settings />} /> */}
+              <Route path="/Preferences" element={<Preferences />} />
             </Routes>
           </App>
         </MemoryRouter>

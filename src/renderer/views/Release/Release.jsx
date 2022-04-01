@@ -9,8 +9,6 @@ import {
   addIndex,
   partial,
   pipe,
-  sortWith,
-  ascend,
   findIndex,
   propEq,
 } from "ramda";
@@ -73,19 +71,20 @@ export default function Release() {
           className={classes.headerBackground}
         />
         <ReleasePicture data={releaseData} size="lg" />
-        <View spacing={theme.spacing.md}>
-          <View spacing={theme.spacing.xs / 2}>
+        <View spacing={theme.spacing.lg}>
+          <View>
             <Title order={1}>{releaseData.title}</Title>
 
-            <Text size="md" weight="500">
-              {releaseData.artist}
-            </Text>
-            <Text size="sm" weight="500">
-              {releaseData.year}
-            </Text>
+            <View direction="row" align="center" spacing={theme.spacing.md}>
+              <Text weight={500}>{releaseData.year}</Text>
+              <Text weight={600} size="lg">
+                {releaseData.artist}
+              </Text>
+            </View>
           </View>
 
           <Button
+            compact
             onClick={partial(playTrack, [0])}
             color={theme.other.accentColor}
             leftIcon={<IoPlayCircle size={theme.fontSizes.lg} />}
@@ -96,7 +95,9 @@ export default function Release() {
       </View>
 
       <ScrollArea classNames={{ root: classes.scrollArea }}>
-        {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
+        <View spacing={theme.spacing.md}>
+          {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
+        </View>
       </ScrollArea>
     </View>
   );
@@ -111,9 +112,9 @@ const useStyles = createStyles((theme) => ({
 
   header: {
     position: "relative",
-    padding: `${theme.spacing.xl}px`,
+    padding: theme.spacing.xl,
     backgroundColor: "transparent",
-    gap: theme.spacing.md,
+    gap: theme.spacing.xl,
     alignItems: "center",
     boxShadow: theme.shadows.sm,
     color: theme.white,
@@ -134,11 +135,12 @@ const useStyles = createStyles((theme) => ({
     zIndex: -1,
   },
 
-  trackList: {
-    padding: theme.spacing.xl,
-  },
-
   scrollArea: {
     width: "100%",
+  },
+
+  trackList: {
+    width: "100%",
+    padding: theme.spacing.xl,
   },
 }));

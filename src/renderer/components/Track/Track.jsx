@@ -2,67 +2,51 @@ import React from "react";
 import { Text, createStyles } from "@mantine/core";
 import PropTypes from "prop-types";
 import { secondsToAudioDuration } from "../../utils/format/format";
+import View from "../layout/View";
 
 export default function Track(props) {
-  const { data, onClick } = props;
-  const { classes, theme } = useStyles(props);
+  const { data, onClick, active } = props;
+  const { classes, theme } = useStyles({ active });
 
   return (
-    <div onClick={onClick} className={classes.container}>
-      <div className={classes.trackAndTitleWrapper}>
-        <Text align="right" size="sm" className={classes.text}>
+    <View onClick={onClick} className={classes.container}>
+      <View className={classes.wrapper} spacing={theme.spacing.lg}>
+        <Text size="xs" color="dimmed">
           {data.trackNumber}
         </Text>
 
-        <Text
-          size="md"
-          weight="500"
-          lineClamp={1}
-          className={classes.text}
-          ml={theme.spacing.md}
-        >
-          {data.title}
-        </Text>
-      </div>
+        <View>
+          <Text size="sm" weight={600} lineClamp={1}>
+            {data.title}
+          </Text>
+          <Text color="dimmed" lineClamp={1} size="xs">
+            {data.artist}
+          </Text>
+        </View>
+      </View>
 
-      <div className={classes.artistAndDurationWrapper}>
-        <Text lineClamp={1} size="sm" className={classes.text}>
-          {data.artist}
-        </Text>
-
-        <Text size="sm" align="right" className={classes.text}>
-          {secondsToAudioDuration(data.duration)}
-        </Text>
-      </div>
-    </div>
+      <Text size="xs" align="right" color="dimmed">
+        {secondsToAudioDuration(data.duration)}
+      </Text>
+    </View>
   );
 }
 
 const useStyles = createStyles((theme, { active }) => ({
-  text: {
-    lineHeight: "normal",
-  },
-
   container: {
     backgroundColor: active ? theme.colors.gray[0] : "transparent",
     borderRadius: active ? theme.radius.md : 0,
-    padding: theme.spacing.xs,
+    padding: theme.spacing.md,
     display: "flex",
     alignItems: "center",
+    flexDirection: "row",
     gap: theme.spacing.md,
   },
-
-  trackAndTitleWrapper: {
+  wrapper: {
     display: "flex",
     alignItems: "center",
+    flexDirection: "row",
     flex: 1,
-  },
-
-  artistAndDurationWrapper: {
-    display: "flex",
-    alignItems: "center",
-    flex: 1,
-    justifyContent: "space-between",
   },
 }));
 

@@ -2,7 +2,7 @@ import React from "react";
 
 import PropTypes from "prop-types";
 import { Image, createStyles } from "@mantine/core";
-import { BsMusicNoteBeamed } from "react-icons/bs";
+import { IoMusicalNotes } from "react-icons/io5";
 import parsePictureSrc from "../../utils/parsePictureSrc";
 import View from "../layout/View";
 
@@ -24,7 +24,7 @@ export default function ReleasePicture({ data, size, className }) {
       withPlaceholder
       placeholder={
         <View align="center" justify="center" className={classes.placeholder}>
-          <BsMusicNoteBeamed />
+          <IoMusicalNotes />
         </View>
       }
     />
@@ -33,16 +33,16 @@ export default function ReleasePicture({ data, size, className }) {
 
 const sizes = {
   sm: {
-    width: 64,
-    height: 64,
+    width: 56,
+    height: 56,
   },
   md: {
-    width: 160,
-    height: 160,
+    width: 144,
+    height: 144,
   },
   lg: {
-    width: 192,
-    height: 192,
+    width: 176,
+    height: 176,
   },
 };
 
@@ -76,8 +76,7 @@ const useStyles = createStyles((theme, { size }) => {
   return {
     container: {
       overflow: "hidden",
-      boxShadow: theme.shadows.md,
-      borderRadius: theme.radius.md,
+      borderRadius: theme.radius[size],
       width,
       height,
       maxWidth: width,

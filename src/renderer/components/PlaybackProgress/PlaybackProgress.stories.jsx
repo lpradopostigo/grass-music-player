@@ -13,8 +13,8 @@ export function Normal() {
       onTrackClick={(position) => {
         setTrackPosition(position);
       }}
-      total={112}
-      current={trackPosition}
+      duration={112}
+      position={trackPosition}
     />
   );
 }

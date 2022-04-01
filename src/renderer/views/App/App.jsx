@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { createStyles } from "@mantine/core";
 import { useLocation } from "react-router-dom";
 import TitleBar from "../../components/TitleBar";
+import backgroundSrc from "../../../../assets/img/navigation-bg.jpg";
 
 export default function App(props) {
   const { children, navigation, player } = props;
@@ -32,7 +33,7 @@ App.defaultProps = {
   player: undefined,
 };
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles((theme) => ({
   container: {
     minHeight: "100vh",
     maxHeight: "100vh",
@@ -42,6 +43,9 @@ const useStyles = createStyles(() => ({
     width: "100vw",
     maxWidth: "100vw",
     overflow: "hidden",
+    backgroundImage: `url(${backgroundSrc})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
   },
 
   contentAndNavigationWrapper: {
@@ -53,5 +57,10 @@ const useStyles = createStyles(() => ({
   contentContainer: {
     flex: 1,
     overflow: "hidden",
+  },
+
+  navigationContainer: {},
+  playerContainer: {
+    filter: `drop-shadow(0px 12px 8px ${theme.black})`,
   },
 }));

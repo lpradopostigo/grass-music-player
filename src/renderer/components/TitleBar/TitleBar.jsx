@@ -6,7 +6,7 @@ import {
 } from "react-icons/vsc";
 import { createStyles } from "@mantine/core";
 import PropTypes from "prop-types";
-import { titleBarSize } from "../../services/constants";
+import { titleBarButtonSize } from "../../services/constants";
 import { useCloseMutation } from "../../services/api/windowApi";
 
 export default function TitleBar(props) {
@@ -23,13 +23,7 @@ export default function TitleBar(props) {
         <VscChromeMaximize color={color} size={16} />
       </div>
 
-      <div
-        onClick={() => {
-          console.log(close);
-          close();
-        }}
-        className={classes.iconWrapper}
-      >
+      <div onClick={close} className={classes.iconWrapper}>
         <VscChromeClose color={color} size={16} />
       </div>
     </div>
@@ -48,8 +42,8 @@ const useStyles = createStyles(() => ({
     zIndex: 10,
   },
   iconWrapper: {
-    height: titleBarSize.height,
-    width: titleBarSize.width,
+    height: titleBarButtonSize.height,
+    width: titleBarButtonSize.width,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",

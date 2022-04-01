@@ -71,7 +71,7 @@ export default function Release() {
           className={classes.headerBackground}
         />
         <ReleasePicture data={releaseData} size="lg" />
-        <View spacing={theme.spacing.lg}>
+        <View spacing={theme.spacing.lg} style={{ zIndex: 1 }}>
           <View>
             <Title order={1}>{releaseData.title}</Title>
 
@@ -112,8 +112,7 @@ const useStyles = createStyles((theme) => ({
 
   header: {
     position: "relative",
-    padding: theme.spacing.xl,
-    backgroundColor: "transparent",
+    padding: theme.other.spacing.safeView,
     gap: theme.spacing.xl,
     alignItems: "center",
     boxShadow: theme.shadows.sm,
@@ -132,11 +131,11 @@ const useStyles = createStyles((theme) => ({
     objectPosition: "center",
     width: "100%",
     height: 400,
-    zIndex: -1,
   },
 
   scrollArea: {
     width: "100%",
+    backgroundColor: theme.white,
   },
 
   trackList: {

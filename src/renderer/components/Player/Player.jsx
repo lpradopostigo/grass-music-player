@@ -48,7 +48,7 @@ export default function Player() {
         align="center"
         grow
         spacing={theme.spacing.md}
-        style={{ padding: theme.spacing.lg }}
+        className={classes.playerInfo}
       >
         <ReleasePicture
           data={{
@@ -80,6 +80,11 @@ const useStyles = createStyles((theme) => ({
     alignItems: "center",
   },
 
+  playerInfo: {
+    padding: theme.spacing.lg,
+    backgroundColor: theme.white,
+  },
+
   playerControls: {
     flexDirection: "row",
     alignItems: "center",
@@ -88,6 +93,7 @@ const useStyles = createStyles((theme) => ({
     flexGrow: 0,
     flexShrink: 0,
     alignSelf: "stretch",
-    backgroundColor: theme.other.colors.accentSecondary,
+    backgroundColor: "rgba(255,255,255,0.875)",
+    backdropFilter: "blur(24px)",
   },
 }));

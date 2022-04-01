@@ -1,3 +1,5 @@
+import { titleBarButtonSize } from "../services/constants";
+
 const baseColors = {
   blue: [
     "#D2E1F1",
@@ -33,7 +35,7 @@ const primaryColor = "blue";
 const colors = {
   accent: baseColors[primaryColor][6],
   border: baseColors.gray[1],
-  accentSecondary: baseColors.gray[0],
+  accentSecondary: baseColors[primaryColor][0],
 };
 
 const baseSpacing = {
@@ -45,7 +47,10 @@ const baseSpacing = {
 };
 
 const spacing = {
-  view: baseSpacing.md * 6,
+  view: 32,
+  safeView: `${
+    baseSpacing.lg + titleBarButtonSize.height
+  }px ${32}px ${32}px ${32}px`,
 };
 
 const fontFamily = "Inter";
@@ -73,9 +78,9 @@ const headings = {
 
 const radius = {
   xs: 2,
-  sm: 3,
-  md: 4,
-  lg: 6,
+  sm: 4,
+  md: 6,
+  lg: 8,
   xl: 12,
 };
 

@@ -4,7 +4,7 @@ import { map } from "ramda";
 import { createStyles, ScrollArea } from "@mantine/core";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../../components/Release/Release";
-import { titleBarSize } from "../../services/constants";
+import { titleBarButtonSize } from "../../services/constants";
 
 export default function Library() {
   const { data: releases = [] } = useGetReleasesQuery();
@@ -32,13 +32,14 @@ const useStyles = createStyles((theme) => ({
   container: {
     height: "100%",
     width: "100%",
+    backgroundColor: theme.white,
   },
 
   contentContainer: {
     display: "flex",
     flexDirection: "row",
     gap: theme.spacing.xl,
-    padding: theme.other.spacing.view,
+    padding: theme.other.spacing.safeView,
     flexWrap: "wrap",
   },
 }));

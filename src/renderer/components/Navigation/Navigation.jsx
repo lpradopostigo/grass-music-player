@@ -32,10 +32,12 @@ export default function Navigation() {
 
 const useStyles = createStyles((theme) => ({
   container: {
-    padding: theme.other.spacing.view,
+    padding: theme.other.spacing.safeView,
     width: navigationWidth,
-    backgroundColor: theme.other.colors.accentSecondary,
     gap: theme.spacing.xl,
+    backgroundColor: "rgb(255,255,255, 0.625)",
+    backdropFilter: "blur(24px)",
+    height: "100%",
   },
 }));
 

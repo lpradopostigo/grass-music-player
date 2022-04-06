@@ -12,14 +12,21 @@ import {
   findIndex,
   propEq,
 } from "ramda";
-import { createStyles, Text, ScrollArea, Button, Title } from "@mantine/core";
+import {
+  createStyles,
+  Text,
+  ScrollArea,
+  Button,
+  Title,
+  Group,
+  Stack,
+} from "@mantine/core";
 import { IoPlayCircle } from "react-icons/io5";
 import TrackList from "../../components/TrackList";
 import Track from "../../components/Track";
 import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
 import ReleasePicture from "../../components/ReleasePicture";
 import parsePictureSrc from "../../utils/parsePictureSrc";
-import View from "../../components/layout/View";
 import usePlayer from "../../hooks/usePlayer";
 
 export default function Release() {
@@ -63,25 +70,30 @@ export default function Release() {
   );
 
   return (
-    <View className={classes.container}>
-      <View className={classes.header} direction="row">
+    <div className={classes.container}>
+      <div className={classes.header}>
         <img
           src={parsePictureSrc(releaseData.picture)}
-          alt=""
+          alt="release"
           className={classes.headerBackground}
         />
+
         <ReleasePicture data={releaseData} size="lg" />
-        <View spacing={theme.spacing.lg} style={{ zIndex: 1 }}>
-          <View>
+
+        <Stack spacing={theme.spacing.xl} sx={{ zIndex: 1 }} align="flex-start">
+          <Stack spacing={theme.spacing.xs}>
             <Title order={1}>{releaseData.title}</Title>
 
-            <View direction="row" align="center" spacing={theme.spacing.md}>
-              <Text weight={500}>{releaseData.year}</Text>
-              <Text weight={600} size="lg">
+            <Group align="center" spacing="xs">
+              <Text inline weight={500}>
+                {releaseData.year}
+              </Text>
+
+              <Text inline weight={600} size="lg">
                 {releaseData.artist}
               </Text>
-            </View>
-          </View>
+            </Group>
+          </Stack>
 
           <Button
             compact
@@ -91,26 +103,29 @@ export default function Release() {
           >
             Play
           </Button>
-        </View>
-      </View>
+        </Stack>
+      </div>
 
       <ScrollArea classNames={{ root: classes.scrollArea }}>
-        <View spacing={theme.spacing.md}>
+        <div className={classes.trackLists}>
           {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
-        </View>
+        </div>
       </ScrollArea>
-    </View>
+    </div>
   );
 }
 
 const useStyles = createStyles((theme) => ({
   container: {
+    display: "flex",
+    flexDirection: "column",
     height: "100%",
     overflow: "hidden",
     width: "100%",
   },
 
   header: {
+    display: "flex",
     position: "relative",
     padding: theme.other.spacing.safeView,
     gap: theme.spacing.xl,
@@ -141,5 +156,11 @@ const useStyles = createStyles((theme) => ({
   trackList: {
     width: "100%",
     padding: theme.spacing.xl,
+  },
+
+  trackLists: {
+    display: "flex",
+    gap: theme.spacing.md,
+    flexDirection: "column",
   },
 }));

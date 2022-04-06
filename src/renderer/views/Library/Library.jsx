@@ -1,45 +1,37 @@
 import React from "react";
 
 import { map } from "ramda";
-import { createStyles, ScrollArea } from "@mantine/core";
+import { createStyles, Group, ScrollArea } from "@mantine/core";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../../components/Release/Release";
-import { titleBarButtonSize } from "../../services/constants";
 
 export default function Library() {
   const { data: releases = [] } = useGetReleasesQuery();
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
 
   return (
-    <ScrollArea
-      classNames={{
-        root: classes.container,
-      }}
-    >
-      <div className={classes.contentContainer}>
+    <ScrollArea className={classes.container}>
+      <Group
+        className={classes.contentContainer}
+        spacing={theme.spacing.xl}
+        p={theme.other.spacing.safeView}
+        align="flex-start"
+      >
         {map(
           (release) => (
             <Release data={release} key={release.id} />
           ),
           releases
         )}
-      </div>
+      </Group>
     </ScrollArea>
   );
 }
 
 const useStyles = createStyles((theme) => ({
   container: {
-    height: "100%",
-    width: "100%",
+    alignSelf: "stretch",
+    flexGrow: 1,
     backgroundColor: theme.white,
-  },
-
-  contentContainer: {
-    display: "flex",
-    flexDirection: "row",
-    gap: theme.spacing.xl,
-    padding: theme.other.spacing.safeView,
-    flexWrap: "wrap",
   },
 }));

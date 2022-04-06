@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/prefer-default-export
 export function secondsToAudioDuration(seconds) {
+  if (typeof seconds !== "number") return "";
+
   const fullDuration = new Date(seconds * 1000).toISOString().substr(11, 8);
   const separator = ":";
   const [hours, ...rest] = fullDuration.split(separator);

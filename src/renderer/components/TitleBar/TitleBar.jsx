@@ -4,35 +4,49 @@ import {
   VscChromeMaximize,
   VscChromeMinimize,
 } from "react-icons/vsc";
-import { createStyles } from "@mantine/core";
+import { Center, createStyles, Group, UnstyledButton } from "@mantine/core";
 import PropTypes from "prop-types";
 import { titleBarButtonSize } from "../../services/constants";
 import { useCloseMutation } from "../../services/api/windowApi";
 
+const ICON_SIZE = 16;
+
 export default function TitleBar(props) {
   const { color } = props;
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles({ color });
   const [close] = useCloseMutation();
   return (
-    <div className={classes.container}>
-      <div className={classes.iconWrapper}>
-        <VscChromeMinimize color={color} size={16} />
-      </div>
+    <Group className={classes.container} spacing={0}>
+      <UnstyledButton className={classes.button}>
+        <Center>
+          <VscChromeMinimize size={ICON_SIZE} />
+        </Center>
+      </UnstyledButton>
 
-      <div className={classes.iconWrapper}>
-        <VscChromeMaximize color={color} size={16} />
-      </div>
+      <UnstyledButton className={classes.button}>
+        <Center>
+          <VscChromeMaximize size={ICON_SIZE} />
+        </Center>
+      </UnstyledButton>
 
-      <div onClick={close} className={classes.iconWrapper}>
-        <VscChromeClose color={color} size={16} />
-      </div>
-    </div>
+      <UnstyledButton
+        onClick={close}
+        className={cx(classes.button, classes.buttonClose)}
+      >
+        <Center>
+          <VscChromeClose size={ICON_SIZE} />
+        </Center>
+      </UnstyledButton>
+    </Group>
   );
 }
 
-const useStyles = createStyles(() => ({
+TitleBar.propTypes = {
+  color: PropTypes.string.isRequired,
+};
+
+const useStyles = createStyles((theme, { color }) => ({
   container: {
-    display: "flex",
     justifyContent: "flex-end",
     position: "absolute",
     top: 0,
@@ -41,16 +55,22 @@ const useStyles = createStyles(() => ({
     WebkitAppRegion: "drag",
     zIndex: 10,
   },
-  iconWrapper: {
+
+  button: {
+    ":hover": {
+      backgroundColor: theme.other.colors.accentSecondary,
+      color: theme.black,
+    },
     height: titleBarButtonSize.height,
     width: titleBarButtonSize.width,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
     WebkitAppRegion: "no-drag",
+    color,
+  },
+
+  buttonClose: {
+    ":hover": {
+      backgroundColor: theme.colors.red[6],
+      color: theme.white,
+    },
   },
 }));
-
-TitleBar.propTypes = {
-  color: PropTypes.string.isRequired,
-};

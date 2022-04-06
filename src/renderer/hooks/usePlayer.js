@@ -10,9 +10,7 @@ import {
 } from "../services/api/playerApi";
 
 export default function usePlayer() {
-  const {
-    data: state = { track: {}, playbackState: undefined, playlist: [] },
-  } = useGetStateQuery();
+  const { data, isLoading } = useGetStateQuery();
 
   const [play] = usePlayMutation();
   const [pause] = usePauseMutation();
@@ -23,7 +21,7 @@ export default function usePlayer() {
   const [setPlaylist] = useSetPlaylistMutation();
 
   return {
-    state,
+    state: data,
     controls: {
       play,
       pause,
@@ -33,5 +31,6 @@ export default function usePlayer() {
       skipToIndex,
       setPlaylist,
     },
+    isLoading,
   };
 }

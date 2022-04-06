@@ -1,10 +1,8 @@
 import React from "react";
-
 import PropTypes from "prop-types";
-import { Image, createStyles } from "@mantine/core";
+import { Image, createStyles, Center } from "@mantine/core";
 import { IoMusicalNotes } from "react-icons/io5";
 import parsePictureSrc from "../../utils/parsePictureSrc";
-import View from "../layout/View";
 
 export default function ReleasePicture({ data, size, className }) {
   const { classes, cx } = useStyles({ size });
@@ -23,9 +21,9 @@ export default function ReleasePicture({ data, size, className }) {
       }}
       withPlaceholder
       placeholder={
-        <View align="center" justify="center" className={classes.placeholder}>
+        <Center>
           <IoMusicalNotes />
-        </View>
+        </Center>
       }
     />
   );

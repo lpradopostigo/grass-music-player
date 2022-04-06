@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { When } from "react-if";
-import { createStyles, Text } from "@mantine/core";
+import { Stack, Text } from "@mantine/core";
 
 export default function TrackList({
   discNumber,
@@ -9,18 +9,16 @@ export default function TrackList({
   children,
   className,
 }) {
-  const { classes, cx } = useStyles();
-
   return (
-    <div className={cx(classes.container, className)}>
+    <Stack spacing={0} className={className}>
       <When condition={showDiscNumber}>
-        <Text ml="sm" mb="xs" weight={600} size="sm" color="dimmed">
+        <Text ml="md" mb="xs" weight={600} size="xs" color="dimmed">
           Disc {discNumber}
         </Text>
       </When>
 
       {children}
-    </div>
+    </Stack>
   );
 }
 
@@ -39,11 +37,3 @@ TrackList.propTypes = {
   showDiscNumber: PropTypes.bool,
   className: PropTypes.string,
 };
-
-const useStyles = createStyles((theme) => ({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: theme.spacing.md,
-  },
-}));

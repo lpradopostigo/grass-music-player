@@ -1,21 +1,28 @@
 import React from "react";
-import { Button, createStyles, TextInput, Title } from "@mantine/core";
+import {
+  Button,
+  createStyles,
+  Group,
+  Select,
+  Stack,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import usePreferences from "../../hooks/usePreferences";
 import { useOpenPathSelectorMutation } from "../../services/api/preferencesApi";
-import View from "../../components/layout/View";
 
 export default function Preferences() {
   const { preferences, setPreference } = usePreferences();
   const [openPathSelector] = useOpenPathSelectorMutation();
   const { classes, theme } = useStyles();
   return (
-    <View className={classes.container}>
+    <Stack className={classes.container} p={theme.other.spacing.safeView}>
       <Title order={1}>Preferences</Title>
 
-      <View direction="row" spacing={theme.spacing.md} align="flex-end">
+      <Group spacing={theme.spacing.md} align="flex-end">
         <TextInput
           label="Library path"
-          value={preferences.libraryPath || ""}
+          value={preferences.libraryPath ?? ""}
           onChange={(event) =>
             setPreference({
               key: "libraryPath",
@@ -34,15 +41,21 @@ export default function Preferences() {
         >
           Browse folder
         </Button>
-      </View>
-    </View>
+      </Group>
+
+      <Select
+        label="Select theme"
+        data={["blue", "red", "green"]}
+        defaultValue="green"
+      />
+    </Stack>
   );
 }
 
 const useStyles = createStyles((theme) => ({
   container: {
-    padding: theme.spacing.xl,
-    gap: theme.spacing.md,
+    backgroundColor: theme.white,
+    flexGrow: 1,
   },
 }));
 

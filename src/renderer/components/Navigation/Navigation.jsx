@@ -1,16 +1,16 @@
 import React from "react";
-import { createStyles } from "@mantine/core";
+import { createStyles, Stack } from "@mantine/core";
 import { IoAlbums, IoSettings } from "react-icons/io5";
 import { useLocation } from "react-router-dom";
 import NavigationButton from "../NavigationButton";
-import View from "../layout/View";
 import { navigationWidth } from "../../services/constants";
 
 export default function Navigation() {
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
   const { pathname } = useLocation();
+
   return (
-    <View className={classes.container} height="100%">
+    <Stack className={classes.container} p={theme.other.spacing.safeView}>
       <NavigationButton
         active={pathname === "/Library"}
         icon={<IoAlbums />}
@@ -26,20 +26,15 @@ export default function Navigation() {
       >
         Preferences
       </NavigationButton>
-    </View>
+    </Stack>
   );
 }
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
   container: {
-    padding: theme.other.spacing.safeView,
     width: navigationWidth,
-    gap: theme.spacing.xl,
     backgroundColor: "rgb(255,255,255, 0.625)",
     backdropFilter: "blur(24px)",
     height: "100%",
   },
 }));
-
-Navigation.propTypes = {};
-Navigation.defaultProps = {};

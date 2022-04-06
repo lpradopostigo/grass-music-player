@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { createStyles } from "@mantine/core";
+import { createStyles, Group, Stack } from "@mantine/core";
 import { useLocation } from "react-router-dom";
 import TitleBar from "../../components/TitleBar";
 import backgroundSrc from "../../../../assets/img/navigation-bg.jpg";
@@ -11,14 +11,16 @@ export default function App(props) {
   const { pathname } = useLocation();
 
   return (
-    <div className={classes.container}>
+    <Stack className={classes.container} spacing={0}>
       <TitleBar color={pathname === "/Release" ? theme.white : theme.black} />
-      <div className={classes.contentAndNavigationWrapper}>
-        <div className={classes.navigationContainer}>{navigation}</div>
+
+      <Group className={classes.contentAndNavigationWrapper} spacing={0} noWrap>
+        <Stack className={classes.navigationContainer}>{navigation}</Stack>
         <main className={classes.contentContainer}>{children}</main>
-      </div>
-      <div className={classes.playerContainer}>{player}</div>
-    </div>
+      </Group>
+
+      <Stack className={classes.playerContainer}>{player}</Stack>
+    </Stack>
   );
 }
 
@@ -38,8 +40,6 @@ const useStyles = createStyles((theme) => ({
     minHeight: "100vh",
     maxHeight: "100vh",
     height: "100vh",
-    display: "flex",
-    flexDirection: "column",
     width: "100vw",
     maxWidth: "100vw",
     overflow: "hidden",
@@ -55,11 +55,16 @@ const useStyles = createStyles((theme) => ({
   },
 
   contentContainer: {
-    flex: 1,
+    display: "flex",
+    alignSelf: "stretch",
+    flexGrow: 1,
     overflow: "hidden",
   },
 
-  navigationContainer: {},
+  navigationContainer: {
+    alignSelf: "stretch",
+  },
+
   playerContainer: {
     filter: `drop-shadow(0px 12px 8px ${theme.black})`,
   },

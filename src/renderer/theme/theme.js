@@ -1,6 +1,33 @@
 import { titleBarButtonSize } from "../services/constants";
 
 const baseColors = {
+  red: [
+    "#FAEEED",
+    "#F4CAC8",
+    "#F1A7A3",
+    "#F1837D",
+    "#F66057",
+    "#FF3B30",
+    "#F3291E",
+    "#DE2217",
+    "#BF261E",
+    "#A52922",
+    "#8E2A25",
+    "#7B2A26",
+  ],
+
+  orange: [
+    "#F1E4D2",
+    "#EBD2B0",
+    "#E8C28E",
+    "#E8B46C",
+    "#ECA849",
+    "#F49E25",
+    "#FF9500",
+    "#DA840B",
+    "#BB7514",
+    "#A16819",
+  ],
   blue: [
     "#D2E1F1",
     "#B0CCEB",
@@ -26,6 +53,125 @@ const baseColors = {
     "#3A3A3C",
     "#2C2C2E",
   ],
+
+  yellow: [
+    "#F1EBD2",
+    "#EBDFB0",
+    "#E8D68E",
+    "#E8CF6C",
+    "#ECCB49",
+    "#F4CA25",
+    "#FFCC00",
+    "#DAB10B",
+    "#BB9914",
+    "#A18619",
+  ],
+
+  green: [
+    "#D4E8D9",
+    "#B8DCC1",
+    "#9CD3AA",
+    "#81CD94",
+    "#67C980",
+    "#4CC86B",
+    "#34C759",
+    "#35AC53",
+    "#35964E",
+    "#348348",
+  ],
+
+  mint: [
+    "#86DAD6",
+    "#68D8D3",
+    "#4AD9D3",
+    "#2BDED6",
+    "#17DAD1",
+    "#0BD0C7",
+    "#00C7BE",
+    "#09AAA3",
+    "#0F928C",
+    "#147D79",
+    "#166C68",
+  ],
+
+  teal: [
+    "#CFE3E7",
+    "#B3D5DB",
+    "#97CAD3",
+    "#7CC0CD",
+    "#61BACA",
+    "#46B5C9",
+    "#30B0C7",
+    "#329AAC",
+    "#328696",
+    "#327682",
+  ],
+
+  cyan: [
+    "#F5F9FB",
+    "#D4E6EF",
+    "#B3D6E7",
+    "#93C9E2",
+    "#73BDE0",
+    "#53B4E1",
+    "#32ADE6",
+    "#259FD7",
+    "#2A8CB9",
+    "#2C7BA0",
+  ],
+
+  indigo: [
+    "#EDEDF6",
+    "#CECDEA",
+    "#B0AFE0",
+    "#9291DA",
+    "#7574D6",
+    "#5856D6",
+    "#4745C9",
+    "#3F3EB5",
+    "#3E3D9E",
+    "#37366A",
+  ],
+
+  purple: [
+    "#F6F1F9",
+    "#E3D0ED",
+    "#D3B0E4",
+    "#C591DF",
+    "#B971DD",
+    "#AF52DE",
+    "#A141D1",
+    "#9137BF",
+    "#8138A6",
+    "#723790",
+  ],
+
+  pink: [
+    "#FAEAED",
+    "#F3C4CD",
+    "#F09FAF",
+    "#F17A91",
+    "#F65473",
+    "#FF2D55",
+    "#F31B44",
+    "#DC173D",
+    "#BD1E3C",
+    "#A3223A",
+  ],
+
+  brown: [
+    "#E7E3DF",
+    "#D6CFC6",
+    "#C7BDB0",
+    "#BBAC9A",
+    "#B19D85",
+    "#A89071",
+    "#A2845E",
+    "#8F7657",
+    "#7E6A51",
+    "#705F4B",
+    "#635645",
+  ],
 };
 
 const black = "#1C1C1E";
@@ -35,22 +181,24 @@ const primaryColor = "blue";
 const colors = {
   accent: baseColors[primaryColor][6],
   border: baseColors.gray[1],
-  accentSecondary: baseColors[primaryColor][0],
+  accentSecondary: baseColors["gray"][0],
 };
 
 const baseSpacing = {
-  xs: 2,
-  sm: 4,
-  md: 8,
-  lg: 16,
+  xs: 10,
+  sm: 12,
+  md: 16,
+  lg: 20,
   xl: 24,
 };
 
+const spacingView = baseSpacing.xl + 8;
+
 const spacing = {
-  view: 32,
+  view: spacingView,
   safeView: `${
-    baseSpacing.lg + titleBarButtonSize.height
-  }px ${32}px ${32}px ${32}px`,
+    spacingView / 2 + titleBarButtonSize.height
+  }px ${spacingView}px ${spacingView}px ${spacingView}px`,
 };
 
 const fontFamily = "Inter";
@@ -59,8 +207,8 @@ const fontSizes = {
   xs: 12.3,
   sm: 13.12,
   md: 14,
-  lg: 17.5,
-  xl: 21.88,
+  lg: 14.94,
+  xl: 15.94,
 };
 
 const headings = {
@@ -77,11 +225,11 @@ const headings = {
 };
 
 const radius = {
-  xs: 2,
+  xs: 3,
   sm: 4,
-  md: 6,
-  lg: 8,
-  xl: 12,
+  md: 5,
+  lg: 7,
+  xl: 9,
 };
 
 const theme = {

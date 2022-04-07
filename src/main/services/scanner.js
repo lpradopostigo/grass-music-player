@@ -1,20 +1,15 @@
-/** @typedef {import('../../shared/types').ScannerParsedFile} ScannerParsedFile */
-/** @typedef {import('../../shared/types').ScannerTrack} ScannerTrack */
-/** @typedef {import('../../shared/types').ScannerRelease} ScannerRelease */
-const {parseFile} = require("music-metadata");
-const {compose, groupBy, head, map, prop, values} = require("ramda");
+const { parseFile } = require("music-metadata");
+const { groupBy, head, map, prop, values, pipe, pick } = require("ramda");
 const log = require("loglevel");
-const {getFiles, isAudioPath} = require("../utils/file");
+const { renameKeys } = require("ramda-adjunct");
+const { getFiles, isAudioPath } = require("../utils/file");
 const persistentStorage = require("./persistentStorage");
 
-/** Parse recursively the audio files in the given path
- * @param {string} path
- * @return {Promise<ScannerParsedFile[]>} */
 async function parsePath(path) {
   const parsedFiles = [];
   for await (const filePath of getFiles(path)) {
     if (isAudioPath(filePath)) {
-      const {common, format} = await parseFile(filePath).catch(() =>
+      const { common, format } = await parseFile(filePath).catch(() =>
         log.warn(`could not parse ${filePath}`)
       );
 
@@ -30,7 +25,7 @@ async function parsePath(path) {
           releaseTitle: common.album,
           releaseArtist: common.albumartist,
           year: common.year,
-          picture: (common.picture)?.[0]?.data,
+          picture: common.picture?.[0]?.data,
           duration: format.duration,
         });
       }
@@ -39,38 +34,42 @@ async function parsePath(path) {
   return parsedFiles;
 }
 
-
-/** Get the library, specified in the LIBRARY_PATH
- * @return {Promise<ScannerRelease[]>} */
 async function getLibrary() {
   const parsedAudioFiles = await parsePath(
     persistentStorage.getValue(persistentStorage.Keys.LIBRARY_PATH)
   );
-  const groupByReleaseTitle = compose(values, groupBy(prop("releaseTitle")));
-  const toTrack = (obj) => ({
-    title: obj.title,
-    artist: obj.artist,
-    trackNumber: obj.trackNumber,
-    discNumber: obj.discNumber,
-    duration: obj.duration,
-    filePath: obj.filePath,
-  });
 
-  const toRelease = (tracks) => {
-    const first = head(tracks);
+  const groupByReleaseTitle = pipe(groupBy(prop("releaseTitle")), values);
+  const toNormalizedRelease = (tracks) => {
+    const firstTrack = head(tracks);
+    const toNormalizedTrack = pick([
+      "title",
+      "artist",
+      "trackNumber",
+      "discNumber",
+      "duration",
+      "filePath",
+    ]);
+    const pickReleaseKeys = pick([
+      "year",
+      "picture",
+      "releaseTitle",
+      "releaseArtist",
+      "numberOfDiscs",
+      "numberOfTracks",
+    ]);
+    const normalizeReleaseKeys = renameKeys({
+      releaseTitle: "title",
+      releaseArtist: "artist",
+    });
+
     return {
-      year: first.year,
-      picture: first.picture,
-      title: first.releaseTitle,
-      artist: first.releaseArtist,
-      numberOfTracks: first.numberOfTracks,
-      numberOfDiscs: first.numberOfDiscs,
-      tracks: map(toTrack, tracks),
+      ...pipe(pickReleaseKeys, normalizeReleaseKeys)(firstTrack),
+      tracks: map(toNormalizedTrack)(tracks),
     };
   };
 
-  return compose(map(toRelease), groupByReleaseTitle)(parsedAudioFiles);
+  return pipe(groupByReleaseTitle, map(toNormalizedRelease))(parsedAudioFiles);
 }
 
-
-module.exports = {parsePath, getLibrary};
+module.exports = { parsePath, getLibrary };

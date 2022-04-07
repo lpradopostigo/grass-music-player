@@ -75,6 +75,7 @@ const useStyles = createStyles((theme, { size }) => {
     container: {
       overflow: "hidden",
       borderRadius: theme.radius[size],
+      boxShadow: theme.shadows[size],
       width,
       height,
       maxWidth: width,
@@ -86,6 +87,7 @@ const useStyles = createStyles((theme, { size }) => {
     placeholder: {
       height,
       width,
+      boxShadow: theme.shadows[size],
     },
   };
 });

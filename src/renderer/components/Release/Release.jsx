@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { createStyles, Stack, Text } from "@mantine/core";
+import { Anchor, createStyles, Stack, Text } from "@mantine/core";
 import ReleasePicture from "../ReleasePicture";
 
 export default function Release(props) {
@@ -9,12 +9,18 @@ export default function Release(props) {
   const { classes, theme } = useStyles();
 
   return (
-    <Link to="/Release" state={data} className={classes.wrapper}>
+    <Anchor
+      underline={false}
+      component={Link}
+      to="/Release"
+      state={data}
+      className={classes.wrapper}
+    >
       <Stack spacing={theme.spacing.sm}>
         <ReleasePicture data={data} size={size} />
 
         <Stack spacing={0}>
-          <Text size="md" weight={600}>
+          <Text color={theme.black} size="md" weight={600}>
             {data.title}
           </Text>
           <Text size="xs" color="dimmed">
@@ -22,7 +28,7 @@ export default function Release(props) {
           </Text>
         </Stack>
       </Stack>
-    </Link>
+    </Anchor>
   );
 }
 

@@ -31,7 +31,9 @@ import usePlayer from "../../hooks/usePlayer";
 export default function Release() {
   const { state: releaseData } = useLocation();
   const { data: tracks = [] } = useGetReleaseTracksQuery(releaseData.id);
-  const { classes, theme } = useStyles();
+  const { classes, theme } = useStyles({
+    pictureSrc: parsePictureSrc(releaseData.picture),
+  });
   const {
     controls: { play, skipToIndex, setPlaylist },
     state: { track },
@@ -75,13 +77,7 @@ export default function Release() {
         align="flex-start"
         p={theme.other.spacing.safeView}
       >
-        <img
-          src={parsePictureSrc(releaseData.picture)}
-          alt="release"
-          className={classes.headerBackground}
-        />
-
-        <Stack sx={{ zIndex: 1 }}>
+        <Stack>
           <Title order={1}>{releaseData.title}</Title>
 
           <Group align="center" spacing="xs">
@@ -98,14 +94,13 @@ export default function Release() {
         <Button
           compact
           onClick={partial(playTrack, [0])}
-          color={theme.other.accentColor}
           leftIcon={<IoPlayCircle size={theme.fontSizes.lg} />}
         >
           Play
         </Button>
       </Stack>
 
-      <ScrollArea className={classes.scrollArea}>
+      <ScrollArea>
         <Stack p={theme.other.spacing.view} spacing={theme.other.spacing.view}>
           {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
         </Stack>
@@ -114,31 +109,21 @@ export default function Release() {
   );
 }
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles((theme, { pictureSrc }) => ({
   container: {
     overflow: "hidden",
     flexGrow: 1,
+    backgroundColor: theme.white,
   },
 
   header: {
-    position: "relative",
     color: theme.white,
     overflow: "hidden",
     flexShrink: 0,
-  },
-
-  headerBackground: {
-    position: "absolute",
-    filter: "brightness(50%)",
-    top: 0,
-    left: 0,
-    objectFit: "cover",
-    objectPosition: "center",
-    width: "100%",
-    height: 400,
-  },
-
-  scrollArea: {
-    backgroundColor: theme.white,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundImage: `url(${pictureSrc})`,
+    backgroundSize: "cover",
+    backgroundBlendMode: "overlay",
+    backgroundPosition: "center",
   },
 }));

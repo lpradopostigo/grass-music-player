@@ -10,23 +10,31 @@ export default function Library() {
   const { classes, theme } = useStyles();
 
   return (
-    <ScrollArea className={classes.container}>
-      <Stack p={theme.other.spacing.safeView} spacing={theme.other.spacing.view}>
-        <Title order={1}>Library</Title>
-        <Group
-          className={classes.contentContainer}
-          spacing={theme.spacing.xl}
-          align="flex-start"
+    <Stack className={classes.container} spacing={0}>
+      <Title p={theme.other.spacing.safeView} order={1}>
+        Library
+      </Title>
+      <ScrollArea>
+        <Stack
+          p={theme.other.spacing.view}
+          pt={0}
+          spacing={theme.other.spacing.view}
         >
-          {map(
-            (release) => (
-              <Release data={release} key={release.id} />
-            ),
-            releases
-          )}
-        </Group>
-      </Stack>
-    </ScrollArea>
+          <Group
+            className={classes.contentContainer}
+            spacing={theme.spacing.xl}
+            align="flex-start"
+          >
+            {map(
+              (release) => (
+                <Release data={release} key={release.id} />
+              ),
+              releases
+            )}
+          </Group>
+        </Stack>
+      </ScrollArea>
+    </Stack>
   );
 }
 

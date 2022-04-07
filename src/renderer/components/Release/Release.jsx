@@ -6,11 +6,11 @@ import ReleasePicture from "../ReleasePicture";
 
 export default function Release(props) {
   const { size, data } = props;
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
 
   return (
     <Link to="/Release" state={data} className={classes.wrapper}>
-      <Stack>
+      <Stack spacing={theme.spacing.sm}>
         <ReleasePicture data={data} size={size} />
 
         <Stack spacing={0}>

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { When } from "react-if";
-import { Stack, Text } from "@mantine/core";
+import { Stack, Text, useMantineTheme } from "@mantine/core";
 
 export default function TrackList({
   discNumber,
@@ -9,8 +9,9 @@ export default function TrackList({
   children,
   className,
 }) {
+  const theme = useMantineTheme();
   return (
-    <Stack spacing={0} className={className}>
+    <Stack spacing={theme.spacing.xs} className={className}>
       <When condition={showDiscNumber}>
         <Text ml="md" mb="xs" weight={600} size="xs" color="dimmed">
           Disc {discNumber}

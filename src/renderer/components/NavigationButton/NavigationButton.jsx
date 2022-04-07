@@ -1,5 +1,5 @@
 import React from "react";
-import { createStyles, Group, Text } from "@mantine/core";
+import { Anchor, createStyles, Group, Text } from "@mantine/core";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
@@ -8,14 +8,20 @@ export default function NavigationButton(props) {
   const { classes, theme } = useStyles({ active });
 
   return (
-    <Link to={to} className={classes.container}>
+    <Anchor
+      component={Link}
+      to={to}
+      className={classes.container}
+      p={theme.spacing.sm}
+      underline={false}
+    >
       <Group className={classes.contentContainer} spacing={theme.spacing.sm}>
         {icon}
-        <Text size="sm" weight={active ? 600 : 500} ml={theme.spacing.md}>
+        <Text size="sm" weight={active ? 600 : 500}>
           {children}
         </Text>
       </Group>
-    </Link>
+    </Anchor>
   );
 }
 

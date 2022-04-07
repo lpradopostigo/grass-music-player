@@ -10,7 +10,11 @@ export default function Navigation() {
   const { pathname } = useLocation();
 
   return (
-    <Stack className={classes.container} p={theme.other.spacing.safeView}>
+    <Stack
+      className={classes.container}
+      p={theme.other.spacing.safeView}
+      spacing={0}
+    >
       <NavigationButton
         active={pathname === "/Library"}
         icon={<IoAlbums />}

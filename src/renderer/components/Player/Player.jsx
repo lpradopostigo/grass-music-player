@@ -19,7 +19,6 @@ import ReleasePicture from "../ReleasePicture";
 import usePlayer from "../../hooks/usePlayer";
 import { navigationWidth } from "../../services/constants";
 import { secondsToAudioDuration } from "../../utils/format/format";
-import { valueToPercentage } from "../../utils/conversion";
 
 export default function Player() {
   const { state, controls, isLoading } = usePlayer();
@@ -29,7 +28,7 @@ export default function Player() {
 
   const { track } = state;
   const handleOnChangeEnd = (value) => {
-    controls.seek((track.duration * value) / 100);
+    controls.seek(value);
   };
 
   return (
@@ -73,7 +72,10 @@ export default function Player() {
           size="sm"
         />
 
-        <Stack spacing={0} className={classes.textAndSliderWrapper}>
+        <Stack
+          spacing={theme.spacing.xs / 2}
+          className={classes.textAndSliderWrapper}
+        >
           <Stack spacing={0}>
             <Text weight={600}>{track.title}</Text>
 
@@ -98,11 +100,14 @@ export default function Player() {
 
           <Slider
             size="xs"
+            disabled={state.playbackState === "stopped"}
             color={theme.other.accentColor}
-            step={1}
+            step={5}
             label={null}
-            onChangeEnd={handleOnChangeEnd}
-            value={valueToPercentage(track.position, track.duration)}
+            onChange={handleOnChangeEnd}
+            value={track.position}
+            max={track.duration}
+            min={0}
           />
         </Stack>
       </Group>

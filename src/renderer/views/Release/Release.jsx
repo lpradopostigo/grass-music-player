@@ -25,7 +25,6 @@ import { IoPlayCircle } from "react-icons/io5";
 import TrackList from "../../components/TrackList";
 import Track from "../../components/Track";
 import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
-import ReleasePicture from "../../components/ReleasePicture";
 import parsePictureSrc from "../../utils/parsePictureSrc";
 import usePlayer from "../../hooks/usePlayer";
 
@@ -69,71 +68,63 @@ export default function Release() {
   );
 
   return (
-    <div className={classes.container}>
-      <div className={classes.header}>
+    <Stack className={classes.container} spacing={0}>
+      <Stack
+        className={classes.header}
+        spacing={theme.other.spacing.view}
+        align="flex-start"
+        p={theme.other.spacing.safeView}
+      >
         <img
           src={parsePictureSrc(releaseData.picture)}
           alt="release"
           className={classes.headerBackground}
         />
 
-        <ReleasePicture data={releaseData} size="lg" />
+        <Stack sx={{ zIndex: 1 }}>
+          <Title order={1}>{releaseData.title}</Title>
 
-        <Stack spacing={theme.spacing.xl} sx={{ zIndex: 1 }} align="flex-start">
-          <Stack spacing={theme.spacing.xs}>
-            <Title order={1}>{releaseData.title}</Title>
+          <Group align="center" spacing="xs">
+            <Text inline weight={500}>
+              {releaseData.year}
+            </Text>
 
-            <Group align="center" spacing="xs">
-              <Text inline weight={500}>
-                {releaseData.year}
-              </Text>
-
-              <Text inline weight={600} size="lg">
-                {releaseData.artist}
-              </Text>
-            </Group>
-          </Stack>
-
-          <Button
-            compact
-            onClick={partial(playTrack, [0])}
-            color={theme.other.accentColor}
-            leftIcon={<IoPlayCircle size={theme.fontSizes.lg} />}
-          >
-            Play
-          </Button>
+            <Text inline weight={600} size="lg">
+              {releaseData.artist}
+            </Text>
+          </Group>
         </Stack>
-      </div>
+
+        <Button
+          compact
+          onClick={partial(playTrack, [0])}
+          color={theme.other.accentColor}
+          leftIcon={<IoPlayCircle size={theme.fontSizes.lg} />}
+        >
+          Play
+        </Button>
+      </Stack>
 
       <ScrollArea className={classes.scrollArea}>
         <Stack p={theme.other.spacing.view} spacing={theme.other.spacing.view}>
           {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
         </Stack>
       </ScrollArea>
-    </div>
+    </Stack>
   );
 }
 
 const useStyles = createStyles((theme) => ({
   container: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
     overflow: "hidden",
-    width: "100%",
+    flexGrow: 1,
   },
 
   header: {
-    display: "flex",
     position: "relative",
-    padding: theme.other.spacing.safeView,
-    gap: theme.spacing.xl,
-    alignItems: "center",
-    boxShadow: theme.shadows.sm,
     color: theme.white,
     overflow: "hidden",
     flexShrink: 0,
-    width: "100%",
   },
 
   headerBackground: {
@@ -148,12 +139,6 @@ const useStyles = createStyles((theme) => ({
   },
 
   scrollArea: {
-    width: "100%",
     backgroundColor: theme.white,
-  },
-
-  trackList: {
-    width: "100%",
-    padding: theme.spacing.xl,
   },
 }));

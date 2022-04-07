@@ -1,7 +1,7 @@
 import React from "react";
 
 import { map } from "ramda";
-import { createStyles, Group, ScrollArea } from "@mantine/core";
+import { createStyles, Group, ScrollArea, Stack, Title } from "@mantine/core";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../../components/Release/Release";
 
@@ -11,19 +11,21 @@ export default function Library() {
 
   return (
     <ScrollArea className={classes.container}>
-      <Group
-        className={classes.contentContainer}
-        spacing={theme.spacing.xl}
-        p={theme.other.spacing.safeView}
-        align="flex-start"
-      >
-        {map(
-          (release) => (
-            <Release data={release} key={release.id} />
-          ),
-          releases
-        )}
-      </Group>
+      <Stack p={theme.other.spacing.safeView} spacing={theme.other.spacing.view}>
+        <Title order={1}>Library</Title>
+        <Group
+          className={classes.contentContainer}
+          spacing={theme.spacing.xl}
+          align="flex-start"
+        >
+          {map(
+            (release) => (
+              <Release data={release} key={release.id} />
+            ),
+            releases
+          )}
+        </Group>
+      </Stack>
     </ScrollArea>
   );
 }

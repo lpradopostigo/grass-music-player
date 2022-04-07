@@ -8,13 +8,7 @@ export default function NavigationButton(props) {
   const { classes, theme } = useStyles({ active });
 
   return (
-    <Anchor
-      component={Link}
-      to={to}
-      className={classes.container}
-      p={theme.spacing.sm}
-      underline={false}
-    >
+    <Anchor component={Link} to={to} p={theme.spacing.xs} underline={false}>
       <Group className={classes.contentContainer} spacing={theme.spacing.sm}>
         {icon}
         <Text size="sm" weight={active ? 600 : 500}>
@@ -38,12 +32,8 @@ NavigationButton.propTypes = {
 };
 
 const useStyles = createStyles((theme, { active }) => ({
-  container: {
-    width: "100%",
-  },
-
   contentContainer: {
-    fontSize: theme.fontSizes.sm * 1.625,
+    fontSize: theme.fontSizes.sm * 1.5,
     color: active ? theme.black : theme.other.textSecondary,
   },
 }));

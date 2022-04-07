@@ -13,7 +13,7 @@ export default function TrackList({
   return (
     <Stack spacing={theme.spacing.xs} className={className}>
       <When condition={showDiscNumber}>
-        <Text ml="md" mb="xs" weight={600} size="xs" color="dimmed">
+        <Text ml="sm" weight={600} size="xs" color="dimmed">
           Disc {discNumber}
         </Text>
       </When>

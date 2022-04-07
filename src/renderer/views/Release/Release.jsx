@@ -53,7 +53,6 @@ export default function Release() {
       key={head(dataArr)?.discNumber}
       showDiscNumber={showDiscNumber}
       discNumber={head(dataArr)?.discNumber}
-      className={classes.trackList}
     >
       {mapIndexed((data) => {
         const index = findIndex(propEq("id", data.id))(tracks);
@@ -106,10 +105,10 @@ export default function Release() {
         </Stack>
       </div>
 
-      <ScrollArea classNames={{ root: classes.scrollArea }}>
-        <div className={classes.trackLists}>
+      <ScrollArea className={classes.scrollArea}>
+        <Stack p={theme.other.spacing.view} spacing={theme.other.spacing.view}>
           {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
-        </div>
+        </Stack>
       </ScrollArea>
     </div>
   );
@@ -156,11 +155,5 @@ const useStyles = createStyles((theme) => ({
   trackList: {
     width: "100%",
     padding: theme.spacing.xl,
-  },
-
-  trackLists: {
-    display: "flex",
-    gap: theme.spacing.md,
-    flexDirection: "column",
   },
 }));

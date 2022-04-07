@@ -9,7 +9,7 @@ export default function NavigationButton(props) {
 
   return (
     <Link to={to} className={classes.container}>
-      <Group className={classes.contentContainer}>
+      <Group className={classes.contentContainer} spacing={theme.spacing.sm}>
         {icon}
         <Text size="sm" weight={active ? 600 : 500} ml={theme.spacing.md}>
           {children}
@@ -37,6 +37,7 @@ const useStyles = createStyles((theme, { active }) => ({
   },
 
   contentContainer: {
+    fontSize: theme.fontSizes.sm * 1.625,
     color: active ? theme.black : theme.other.textSecondary,
   },
 }));

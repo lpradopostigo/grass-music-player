@@ -14,7 +14,6 @@ import {
   IoPlaySkipForwardCircle,
   IoPlaySkipBackCircle,
 } from "react-icons/io5";
-import { Else, If, Then } from "react-if";
 import ReleasePicture from "../ReleasePicture";
 import usePlayer from "../../hooks/usePlayer";
 import { navigationWidth } from "../../services/constants";
@@ -39,19 +38,15 @@ export default function Player() {
             <IoPlaySkipBackCircle size={40} color={theme.other.accentColor} />
           </ActionIcon>
 
-          <If condition={state.playbackState === "playing"}>
-            <Then>
-              <ActionIcon size={48} onClick={controls.pause}>
-                <IoPauseCircle color={theme.other.accentColor} size={48} />
-              </ActionIcon>
-            </Then>
-
-            <Else>
-              <ActionIcon size={48} onClick={controls.play}>
-                <IoPlayCircle color={theme.other.accentColor} size={48} />
-              </ActionIcon>
-            </Else>
-          </If>
+          {state.playbackState === "playing" ? (
+            <ActionIcon size={48} onClick={controls.pause}>
+              <IoPauseCircle color={theme.other.accentColor} size={48} />
+            </ActionIcon>
+          ) : (
+            <ActionIcon size={48} onClick={controls.play}>
+              <IoPlayCircle color={theme.other.accentColor} size={48} />
+            </ActionIcon>
+          )}
 
           <ActionIcon onClick={controls.next}>
             <IoPlaySkipForwardCircle

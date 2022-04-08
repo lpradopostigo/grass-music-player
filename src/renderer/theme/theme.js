@@ -1,3 +1,7 @@
+import interRegularFontSrc from "../../../assets/fonts/Inter-Regular.ttf";
+import interMediumFontSrc from "../../../assets/fonts/Inter-Medium.ttf";
+import interSemiBoldFontSrc from "../../../assets/fonts/Inter-SemiBold.ttf";
+import interBoldFontSrc from "../../../assets/fonts/Inter-Bold.ttf";
 import { titleBarButtonSize } from "../services/constants";
 
 const baseColors = {
@@ -251,6 +255,48 @@ const theme = {
     spacing,
   },
 };
+
+export const globalStyles = (theme) => [
+  {
+    "@font-face": {
+      fontFamily: "Inter",
+      src: `url('${interRegularFontSrc}')`,
+      fontWeight: 400,
+    },
+  },
+
+  {
+    "@font-face": {
+      fontFamily: "Inter",
+      src: `url('${interMediumFontSrc}')`,
+      fontWeight: 500,
+    },
+  },
+  {
+    "@font-face": {
+      fontFamily: "Inter",
+      src: `url('${interSemiBoldFontSrc}')`,
+      fontWeight: 600,
+    },
+  },
+  {
+    "@font-face": {
+      fontFamily: "Inter",
+      src: `url('${interBoldFontSrc}')`,
+      fontWeight: 700,
+    },
+  },
+  {
+    "*,::before,::after": {
+      boxSizing: "border-box",
+    },
+    body: {
+      boxSizing: "border-box",
+      color: theme.black,
+      WebkitUserSelect: "none",
+    },
+  },
+];
 
 export const styles = { Title: { root: { color: "inherit" } } };
 

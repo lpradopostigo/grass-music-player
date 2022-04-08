@@ -20,6 +20,8 @@ import {
   Title,
   Group,
   Stack,
+  Center,
+  Loader,
 } from "@mantine/core";
 import { IoPlayCircle } from "react-icons/io5";
 import TrackList from "../../components/TrackList";
@@ -30,7 +32,7 @@ import usePlayer from "../../hooks/usePlayer";
 
 export default function Release() {
   const { state: releaseData } = useLocation();
-  const { data: tracks = [] } = useGetReleaseTracksQuery(releaseData.id);
+  const { data: tracks, isLoading } = useGetReleaseTracksQuery(releaseData.id);
   const { classes, theme } = useStyles({
     pictureSrc: parsePictureSrc(releaseData.picture),
   });
@@ -100,11 +102,20 @@ export default function Release() {
         </Button>
       </Stack>
 
-      <ScrollArea>
-        <Stack p={theme.other.spacing.view} spacing={theme.other.spacing.view}>
-          {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
-        </Stack>
-      </ScrollArea>
+      {isLoading ? (
+        <Center className={classes.loaderWrapper}>
+          <Loader />
+        </Center>
+      ) : (
+        <ScrollArea>
+          <Stack
+            p={theme.other.spacing.view}
+            spacing={theme.other.spacing.view}
+          >
+            {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
+          </Stack>
+        </ScrollArea>
+      )}
     </Stack>
   );
 }
@@ -125,5 +136,9 @@ const useStyles = createStyles((theme, { pictureSrc }) => ({
     backgroundSize: "cover",
     backgroundBlendMode: "overlay",
     backgroundPosition: "center",
+  },
+
+  loaderWrapper: {
+    flexGrow: 1,
   },
 }));

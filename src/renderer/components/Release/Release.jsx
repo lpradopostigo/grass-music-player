@@ -1,29 +1,38 @@
-import React from "react";
+import React, { Suspense } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Anchor, createStyles, Stack, Text } from "@mantine/core";
-import ReleasePicture from "../ReleasePicture";
+import { Anchor, createStyles, Skeleton, Stack, Text } from "@mantine/core";
+import { sizes } from "../ReleasePicture";
+
+const ReleasePicture = React.lazy(() => import("../ReleasePicture"));
 
 export default function Release(props) {
-  const { size, data } = props;
-  const { classes, theme } = useStyles();
+  const { size, data, style, className } = props;
+  const { classes, theme, cx } = useStyles();
 
   return (
     <Anchor
       underline={false}
       component={Link}
-      to="/Release"
+      to={`/library/${data.id}`}
       state={data}
-      className={classes.wrapper}
+      style={style}
+      className={cx(classes.wrapper, className)}
     >
       <Stack spacing={theme.spacing.sm}>
-        <ReleasePicture data={data} size={size} />
+        <Suspense
+          fallback={
+            <Skeleton height={sizes.md.height} width={sizes.md.width} />
+          }
+        >
+          <ReleasePicture data={data} size={size} />
+        </Suspense>
 
         <Stack spacing={0}>
-          <Text color={theme.black} size="md" weight={600}>
+          <Text lineClamp={2} color={theme.black} size="md" weight={600}>
             {data.title}
           </Text>
-          <Text size="xs" color="dimmed">
+          <Text lineClamp={1} size="xs" color="dimmed">
             {data.artist}
           </Text>
         </Stack>
@@ -38,6 +47,7 @@ Release.defaultProps = {
   },
   className: undefined,
   size: "md",
+  style: undefined,
 };
 
 Release.propTypes = {
@@ -45,10 +55,12 @@ Release.propTypes = {
     title: PropTypes.string.isRequired,
     artist: PropTypes.string.isRequired,
     picture: PropTypes.instanceOf(Uint8Array),
+    id: PropTypes.number.isRequired,
   }),
 
   size: PropTypes.oneOf(["sm", "md", "lg"]),
   className: PropTypes.string,
+  style: PropTypes.any,
 };
 
 const useStyles = createStyles(() => ({

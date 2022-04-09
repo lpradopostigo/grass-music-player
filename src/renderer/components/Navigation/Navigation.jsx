@@ -16,17 +16,17 @@ export default function Navigation() {
       spacing={0}
     >
       <NavigationButton
-        active={pathname === "/Library"}
+        active={pathname === "/library"}
         icon={<IoAlbums />}
-        to="/Library"
+        to="/library"
       >
         Library
       </NavigationButton>
 
       <NavigationButton
-        active={pathname === "/Preferences"}
+        active={pathname === "/preferences"}
         icon={<IoSettings />}
-        to="/Preferences"
+        to="/preferences"
       >
         Preferences
       </NavigationButton>

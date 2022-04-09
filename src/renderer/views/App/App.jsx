@@ -12,7 +12,9 @@ export default function App(props) {
 
   return (
     <Stack className={classes.container} spacing={0}>
-      <TitleBar color={pathname === "/Release" ? theme.white : theme.black} />
+      <TitleBar
+        color={pathname.startsWith("/library/") ? theme.white : theme.black}
+      />
 
       <Group className={classes.contentAndNavigationWrapper} spacing={0} noWrap>
         <Stack className={classes.navigationContainer}>{navigation}</Stack>

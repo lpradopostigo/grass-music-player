@@ -20,10 +20,10 @@ export default function Main() {
         <MemoryRouter>
           <App player={<Player />} navigation={<Navigation />}>
             <Routes>
-              <Route exact path="/" element={<Navigate to="/Library" />} />
-              <Route path="/Library" element={<Library />} />
-              <Route path="/Release" element={<Release />} />
-              <Route path="/Preferences" element={<Preferences />} />
+              <Route exact path="/" element={<Navigate to="/library" />} />
+              <Route path="/library" element={<Library />} />
+              <Route path="/library/*" element={<Release />} />
+              <Route path="/preferences" element={<Preferences />} />
             </Routes>
           </App>
         </MemoryRouter>

@@ -49,12 +49,7 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", createWindow);
 app.whenReady().then(() => {
-  installExtension(REDUX_DEVTOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log("An error occurred: ", err));
-  installExtension(REACT_DEVELOPER_TOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log("An error occurred: ", err));
+  installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS]);
 });
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

@@ -4,7 +4,8 @@ import { Image, createStyles, Center } from "@mantine/core";
 import { IoMusicalNotes } from "react-icons/io5";
 import parsePictureSrc from "../../utils/parsePictureSrc";
 
-export default function ReleasePicture({ data, size, className }) {
+export default function ReleasePicture(props) {
+  const { data, size, className } = props;
   const { classes, cx } = useStyles({ size });
 
   const pictureAlt = `${data.title} - ${data.artist} release picture`;
@@ -12,6 +13,7 @@ export default function ReleasePicture({ data, size, className }) {
 
   return (
     <Image
+      imageProps={{ loading: "lazy" }}
       fit="contain"
       src={pictureSrc}
       alt={pictureAlt}
@@ -29,7 +31,7 @@ export default function ReleasePicture({ data, size, className }) {
   );
 }
 
-const sizes = {
+export const sizes = {
   sm: {
     width: 56,
     height: 56,
@@ -73,6 +75,8 @@ const useStyles = createStyles((theme, { size }) => {
 
   return {
     container: {
+      display: "flex",
+      alignItems: "center",
       overflow: "hidden",
       borderRadius: theme.radius[size],
       boxShadow: theme.shadows[size],

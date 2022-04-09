@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import {
   map,
@@ -6,36 +6,24 @@ import {
   prop,
   values,
   head,
-  addIndex,
   partial,
   pipe,
   findIndex,
   propEq,
 } from "ramda";
-import {
-  createStyles,
-  Text,
-  ScrollArea,
-  Button,
-  Title,
-  Group,
-  Stack,
-  Center,
-  Loader,
-} from "@mantine/core";
-import { IoPlayCircle } from "react-icons/io5";
+import { mapIndexed } from "ramda-adjunct";
+import { createStyles, ScrollArea, Stack, Skeleton } from "@mantine/core";
 import TrackList from "../../components/TrackList";
-import Track from "../../components/Track";
 import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
-import parsePictureSrc from "../../utils/parsePictureSrc";
 import usePlayer from "../../hooks/usePlayer";
+import ReleaseHeader from "../../components/ReleaseHeader";
+
+const Track = React.lazy(() => import("../../components/Track"));
 
 export default function Release() {
   const { state: releaseData } = useLocation();
   const { data: tracks, isLoading } = useGetReleaseTracksQuery(releaseData.id);
-  const { classes, theme } = useStyles({
-    pictureSrc: parsePictureSrc(releaseData.picture),
-  });
+  const { classes, theme } = useStyles({});
   const {
     controls: { play, skipToIndex, setPlaylist },
     state: { track },
@@ -50,7 +38,6 @@ export default function Release() {
     await play();
   };
 
-  const mapIndexed = addIndex(map);
   const renderTrackList = (dataArr) => (
     <TrackList
       key={head(dataArr)?.discNumber}
@@ -60,85 +47,47 @@ export default function Release() {
       {mapIndexed((data) => {
         const index = findIndex(propEq("id", data.id))(tracks);
         return (
-          <Track
-            active={track.id === data.id}
-            key={data.id}
-            data={data}
-            onClick={partial(playTrack, [index])}
-          />
+          <Suspense key={data.id} fallback={<Skeleton height={64} />}>
+            <Track
+              active={track.id === data.id}
+              data={data}
+              onClick={partial(playTrack, [index])}
+            />
+          </Suspense>
         );
-      }, dataArr)}
+      })(dataArr)}
     </TrackList>
   );
 
+  const processedTracks = useMemo(
+    () =>
+      isLoading
+        ? []
+        : pipe(groupByDiscNumber, values, map(renderTrackList))(tracks),
+    [isLoading]
+  );
+
+  const handlePlayButtonClick = useCallback(() => playTrack(0), []);
+
   return (
     <Stack className={classes.container} spacing={0}>
-      <Stack
-        className={classes.header}
-        spacing={theme.other.spacing.view}
-        align="flex-start"
-        p={theme.other.spacing.safeView}
-      >
-        <Stack>
-          <Title order={1}>{releaseData.title}</Title>
-
-          <Group align="center" spacing="xs">
-            <Text inline weight={500}>
-              {releaseData.year}
-            </Text>
-
-            <Text inline weight={600} size="lg">
-              {releaseData.artist}
-            </Text>
-          </Group>
+      <ReleaseHeader
+        data={releaseData}
+        onPlayButtonClick={handlePlayButtonClick}
+      />
+      <ScrollArea>
+        <Stack p={theme.other.spacing.view} spacing={theme.other.spacing.view}>
+          {processedTracks}
         </Stack>
-
-        <Button
-          compact
-          onClick={partial(playTrack, [0])}
-          leftIcon={<IoPlayCircle size={theme.fontSizes.lg} />}
-        >
-          Play
-        </Button>
-      </Stack>
-
-      {isLoading ? (
-        <Center className={classes.loaderWrapper}>
-          <Loader />
-        </Center>
-      ) : (
-        <ScrollArea>
-          <Stack
-            p={theme.other.spacing.view}
-            spacing={theme.other.spacing.view}
-          >
-            {pipe(groupByDiscNumber, values, map(renderTrackList))(tracks)}
-          </Stack>
-        </ScrollArea>
-      )}
+      </ScrollArea>
     </Stack>
   );
 }
 
-const useStyles = createStyles((theme, { pictureSrc }) => ({
+const useStyles = createStyles((theme) => ({
   container: {
     overflow: "hidden",
     flexGrow: 1,
     backgroundColor: theme.white,
-  },
-
-  header: {
-    color: theme.white,
-    overflow: "hidden",
-    flexShrink: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    backgroundImage: `url(${pictureSrc})`,
-    backgroundSize: "cover",
-    backgroundBlendMode: "overlay",
-    backgroundPosition: "center",
-  },
-
-  loaderWrapper: {
-    flexGrow: 1,
   },
 }));

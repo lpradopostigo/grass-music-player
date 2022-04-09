@@ -246,6 +246,7 @@ const theme = {
   white,
   radius,
   spacing: baseSpacing,
+  loader: "dots",
   other: {
     borderSize: 1,
     borderColor: baseColors.gray[1],

@@ -26,7 +26,7 @@ export default function Player() {
   if (isLoading) return null;
 
   const { track } = state;
-  const handleOnChangeEnd = (value) => {
+  const handleSliderOnChange = (value) => {
     controls.seek(value);
   };
 
@@ -67,44 +67,46 @@ export default function Player() {
           size="sm"
         />
 
-        <Stack
-          spacing={theme.spacing.xs / 2}
-          className={classes.textAndSliderWrapper}
-        >
-          <Stack spacing={0}>
-            <Text weight={600}>{track.title}</Text>
+        {state.playbackState === "stopped" || (
+          <Stack
+            spacing={theme.spacing.xs / 2}
+            className={classes.textAndSliderWrapper}
+          >
+            <Stack spacing={0}>
+              <Text weight={600}>{track.title}</Text>
 
-            <Group position="apart">
-              <Text color="dimmed" size="sm">
-                {track.artist}
-              </Text>
+              <Group position="apart">
+                <Text color="dimmed" size="sm">
+                  {track.artist}
+                </Text>
 
-              <Group spacing={theme.spacing.xs}>
-                <Text weight={500} size="sm">
-                  {secondsToAudioDuration(track.position)}
-                </Text>
-                <Text size="xs" color="dimmed">
-                  /
-                </Text>
-                <Text size="xs" color="dimmed">
-                  {secondsToAudioDuration(track.duration)}
-                </Text>
+                <Group spacing={theme.spacing.xs}>
+                  <Text weight={500} size="sm">
+                    {secondsToAudioDuration(track.position)}
+                  </Text>
+                  <Text size="xs" color="dimmed">
+                    /
+                  </Text>
+                  <Text size="xs" color="dimmed">
+                    {secondsToAudioDuration(track.duration)}
+                  </Text>
+                </Group>
               </Group>
-            </Group>
-          </Stack>
+            </Stack>
 
-          <Slider
-            size="xs"
-            disabled={state.playbackState === "stopped"}
-            color={theme.other.accentColor}
-            step={5}
-            label={null}
-            onChange={handleOnChangeEnd}
-            value={track.position}
-            max={track.duration}
-            min={0}
-          />
-        </Stack>
+            <Slider
+              size="xs"
+              disabled={state.playbackState === "stopped"}
+              color={theme.other.accentColor}
+              step={5}
+              label={null}
+              onChange={handleSliderOnChange}
+              value={track.position}
+              max={track.duration}
+              min={0}
+            />
+          </Stack>
+        )}
       </Group>
     </Group>
   );

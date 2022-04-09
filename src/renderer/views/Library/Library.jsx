@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import { map } from "ramda";
 import {
@@ -14,8 +14,15 @@ import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../../components/Release/Release";
 
 export default function Library() {
-  const { data: releases, isLoading } = useGetReleasesQuery();
+  const { data, isLoading } = useGetReleasesQuery();
   const { classes, theme } = useStyles();
+
+  const releases = useMemo(
+    () =>
+      isLoading ||
+      map((release) => <Release data={release} key={release.id} />)(data),
+    [isLoading]
+  );
 
   return (
     <Stack className={classes.container} spacing={0}>
@@ -38,12 +45,7 @@ export default function Library() {
               spacing={theme.spacing.xl}
               align="flex-start"
             >
-              {map(
-                (release) => (
-                  <Release data={release} key={release.id} />
-                ),
-                releases
-              )}
+              {releases}
             </Group>
           </Stack>
         </ScrollArea>

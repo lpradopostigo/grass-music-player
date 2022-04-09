@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { Image, createStyles, Center } from "@mantine/core";
 import { IoMusicalNotes } from "react-icons/io5";
@@ -8,8 +8,8 @@ export default function ReleasePicture(props) {
   const { data, size, className } = props;
   const { classes, cx } = useStyles({ size });
 
-  const pictureAlt = `${data.title} - ${data.artist} release picture`;
-  const pictureSrc = parsePictureSrc(data.picture);
+  const pictureAlt = `${data.title} - ${data.artist} release`;
+  const pictureSrc = useMemo(() => parsePictureSrc(data.picture), [data]);
 
   return (
     <Image
@@ -17,10 +17,9 @@ export default function ReleasePicture(props) {
       fit="contain"
       src={pictureSrc}
       alt={pictureAlt}
-      classNames={{
-        root: cx(classes.container, className),
-        placeholder: classes.placeholder,
-      }}
+      height={sizes[size].height}
+      width={sizes[size].width}
+      className={cx(classes.container, className)}
       withPlaceholder
       placeholder={
         <Center>
@@ -70,28 +69,10 @@ ReleasePicture.propTypes = {
   className: PropTypes.string,
 };
 
-const useStyles = createStyles((theme, { size }) => {
-  const { width, height } = sizes[size];
-
-  return {
-    container: {
-      display: "flex",
-      alignItems: "center",
-      overflow: "hidden",
-      borderRadius: theme.radius[size],
-      boxShadow: theme.shadows[size],
-      width,
-      height,
-      maxWidth: width,
-      maxHeight: height,
-      minHeight: height,
-      minWidth: width,
-    },
-
-    placeholder: {
-      height,
-      width,
-      boxShadow: theme.shadows[size],
-    },
-  };
-});
+const useStyles = createStyles((theme, { size }) => ({
+  container: {
+    overflow: "hidden",
+    borderRadius: theme.radius[size],
+    boxShadow: theme.shadows[size],
+  },
+}));

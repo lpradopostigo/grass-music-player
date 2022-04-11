@@ -186,6 +186,7 @@ const colors = {
   accent: baseColors[primaryColor][6],
   border: baseColors.gray[1],
   accentSecondary: baseColors["gray"][0],
+  scrollbarThumb: baseColors.gray[3],
 };
 
 const baseSpacing = {
@@ -295,6 +296,17 @@ export const globalStyles = (theme) => [
       boxSizing: "border-box",
       color: theme.black,
       WebkitUserSelect: "none",
+    },
+  },
+  {
+    "::-webkit-scrollbar": {
+      width: 6,
+    },
+
+    "::-webkit-scrollbar-track": {},
+    "::-webkit-scrollbar-thumb": {
+      borderRadius: radius.md,
+      backgroundColor: colors.scrollbarThumb,
     },
   },
 ];

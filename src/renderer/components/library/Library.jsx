@@ -11,7 +11,7 @@ import {
   Center,
 } from "@mantine/core";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
-import Release from "../../components/Release/Release";
+import Release from "../release/Release";
 
 export default function Library() {
   const { data, isLoading } = useGetReleasesQuery();

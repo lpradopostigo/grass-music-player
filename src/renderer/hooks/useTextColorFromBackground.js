@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import theme from "../theme";
+import theme from "../theme/theme";
 import { getTextColorFromBackground } from "../utils/color";
 
 export default function useTextColorFromBackground(backgroundColor) {

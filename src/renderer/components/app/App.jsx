@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { createStyles, Group, Stack } from "@mantine/core";
 import { useLocation } from "react-router-dom";
-import TitleBar from "../../components/TitleBar";
+import TitleBar from "../title-bar/TitleBar";
 import backgroundSrc from "../../../../assets/img/navigation-bg.jpg";
 
 export default function App(props) {

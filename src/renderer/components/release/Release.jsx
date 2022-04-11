@@ -2,9 +2,11 @@ import React, { Suspense } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Anchor, createStyles, Skeleton, Stack, Text } from "@mantine/core";
-import { sizes } from "../ReleasePicture";
+import { sizes } from "../release-picture/ReleasePicture";
 
-const ReleasePicture = React.lazy(() => import("../ReleasePicture"));
+const ReleasePicture = React.lazy(() =>
+  import("../release-picture/ReleasePicture")
+);
 
 export default function Release(props) {
   const { size, data, style, className } = props;

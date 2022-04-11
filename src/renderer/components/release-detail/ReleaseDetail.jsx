@@ -13,14 +13,14 @@ import {
 } from "ramda";
 import { mapIndexed } from "ramda-adjunct";
 import { createStyles, ScrollArea, Stack, Skeleton } from "@mantine/core";
-import TrackList from "../../components/TrackList";
+import TrackList from "../track-list/TrackList";
 import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
 import usePlayer from "../../hooks/usePlayer";
-import ReleaseHeader from "../../components/ReleaseHeader";
+import ReleaseHeader from "../release-header/ReleaseHeader";
 
-const Track = React.lazy(() => import("../../components/Track"));
+const Track = React.lazy(() => import("../track/Track"));
 
-export default function Release() {
+export default function ReleaseDetail() {
   const { state: releaseData } = useLocation();
   const { data: tracks, isLoading } = useGetReleaseTracksQuery(releaseData.id);
   const { classes, theme } = useStyles({});

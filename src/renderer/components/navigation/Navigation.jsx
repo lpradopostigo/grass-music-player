@@ -2,7 +2,7 @@ import React from "react";
 import { createStyles, Stack } from "@mantine/core";
 import { IoAlbums, IoSettings } from "react-icons/io5";
 import { useLocation } from "react-router-dom";
-import NavigationButton from "../NavigationButton";
+import NavigationButton from "./NavigationButton";
 import { navigationWidth } from "../../services/constants";
 
 export default function Navigation() {

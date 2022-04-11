@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import React, { useState } from "react";
 import TrackList from "./TrackList";
-import Track from "../Track";
+import Track from "../track/Track";
 
 export default {
   title: "TrackList",

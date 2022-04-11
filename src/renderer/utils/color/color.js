@@ -1,6 +1,6 @@
 import ColorContrastChecker from "color-contrast-checker";
 import ColorThief from "colorthief";
-import theme from "../../theme";
+import theme from "../../theme/theme";
 import parsePictureSrc from "../parsePictureSrc";
 import { rgbToHex } from "../conversion";
 

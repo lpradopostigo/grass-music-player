@@ -14,12 +14,15 @@ import {
   IoPlaySkipForwardCircle,
   IoPlaySkipBackCircle,
 } from "react-icons/io5";
-import ReleasePicture from "../ReleasePicture";
+import PropTypes from "prop-types";
+import ReleasePicture from "../release-picture/ReleasePicture";
 import usePlayer from "../../hooks/usePlayer";
 import { navigationWidth } from "../../services/constants";
 import { secondsToAudioDuration } from "../../utils/format/format";
 
-export default function Player() {
+export default function Player(props) {
+  const { className, style } = props;
+
   const { state, controls, isLoading } = usePlayer();
   const { classes, theme } = useStyles();
 
@@ -31,7 +34,7 @@ export default function Player() {
   };
 
   return (
-    <Group spacing={0}>
+    <Group className={className} spacing={0} style={style}>
       <Center className={classes.playerControls}>
         <Group>
           <ActionIcon onClick={controls.previous}>
@@ -111,6 +114,16 @@ export default function Player() {
     </Group>
   );
 }
+
+Player.defaultProps = {
+  className: undefined,
+  style: undefined,
+};
+
+Player.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.any,
+};
 
 const useStyles = createStyles((theme) => ({
   playerInfo: {

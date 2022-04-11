@@ -1,14 +1,7 @@
 import React, { useMemo } from "react";
 
 import { map } from "ramda";
-import {
-  createStyles,
-  Group,
-  ScrollArea,
-  Stack,
-  Loader,
-  Center,
-} from "@mantine/core";
+import { createStyles, Group, Stack, Loader, Center } from "@mantine/core";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../release/Release";
 import Header from "../header/Header";
@@ -33,21 +26,15 @@ export default function Library() {
           <Loader />
         </Center>
       ) : (
-        <ScrollArea>
-          <Stack
-            p={theme.other.spacing.view}
-            pt={0}
-            spacing={theme.other.spacing.view}
-          >
-            <Group
-              className={classes.contentContainer}
-              spacing={theme.spacing.xl}
-              align="flex-start"
-            >
-              {releases}
-            </Group>
-          </Stack>
-        </ScrollArea>
+        <Group
+          className={classes.contentContainer}
+          spacing={theme.spacing.xl}
+          align="flex-start"
+          p={theme.other.spacing.view}
+          pt={0}
+        >
+          {releases}
+        </Group>
       )}
     </Stack>
   );
@@ -58,6 +45,10 @@ const useStyles = createStyles((theme) => ({
     alignSelf: "stretch",
     flexGrow: 1,
     backgroundColor: theme.white,
+  },
+
+  contentContainer: {
+    overflowY: "scroll",
   },
 
   loaderWrapper: {

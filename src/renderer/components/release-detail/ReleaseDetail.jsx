@@ -12,7 +12,7 @@ import {
   propEq,
 } from "ramda";
 import { mapIndexed } from "ramda-adjunct";
-import { createStyles, ScrollArea, Stack, Skeleton } from "@mantine/core";
+import { createStyles, Stack, Skeleton } from "@mantine/core";
 import TrackList from "../track-list/TrackList";
 import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
 import usePlayer from "../../hooks/usePlayer";
@@ -75,11 +75,13 @@ export default function ReleaseDetail() {
         data={releaseData}
         onPlayButtonClick={handlePlayButtonClick}
       />
-      <ScrollArea>
-        <Stack p={theme.other.spacing.view} spacing={theme.other.spacing.view}>
-          {processedTracks}
-        </Stack>
-      </ScrollArea>
+      <Stack
+        className={classes.contentContainer}
+        p={theme.other.spacing.view}
+        spacing={theme.other.spacing.view}
+      >
+        {processedTracks}
+      </Stack>
     </Stack>
   );
 }
@@ -89,5 +91,9 @@ const useStyles = createStyles((theme) => ({
     overflow: "hidden",
     flexGrow: 1,
     backgroundColor: theme.white,
+  },
+
+  contentContainer: {
+    overflowY: "scroll",
   },
 }));

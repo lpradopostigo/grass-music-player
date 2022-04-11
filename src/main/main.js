@@ -3,7 +3,6 @@ const { app, BrowserWindow } = require("electron");
 const {
   default: installExtension,
   REACT_DEVELOPER_TOOLS,
-  REDUX_DEVTOOLS,
 } = require("electron-devtools-installer");
 const path = require("path");
 require("./handlers/library");
@@ -48,7 +47,7 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
-  await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS]);
+  await installExtension(REACT_DEVELOPER_TOOLS);
   createWindow();
 });
 // Quit when all windows are closed, except on macOS. There, it's common

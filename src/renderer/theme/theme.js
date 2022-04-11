@@ -305,7 +305,7 @@ export const globalStyles = (theme) => [
 
     "::-webkit-scrollbar-track": {},
     "::-webkit-scrollbar-thumb": {
-      borderRadius: radius.md,
+      borderRadius: radius.xs,
       backgroundColor: colors.scrollbarThumb,
     },
   },

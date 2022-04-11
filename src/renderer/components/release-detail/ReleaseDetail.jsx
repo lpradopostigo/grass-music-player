@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import {
   map,
@@ -12,13 +12,12 @@ import {
   propEq,
 } from "ramda";
 import { mapIndexed } from "ramda-adjunct";
-import { createStyles, Stack, Skeleton } from "@mantine/core";
+import { createStyles, Stack } from "@mantine/core";
 import TrackList from "../track-list/TrackList";
 import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
 import usePlayer from "../../hooks/usePlayer";
 import ReleaseDetailHeader from "./release-detail-header/ReleaseDetailHeader";
-
-const Track = React.lazy(() => import("../track/Track"));
+import Track from "../track/Track";
 
 export default function ReleaseDetail() {
   const { state: releaseData } = useLocation();
@@ -47,13 +46,12 @@ export default function ReleaseDetail() {
       {mapIndexed((data) => {
         const index = findIndex(propEq("id", data.id))(tracks);
         return (
-          <Suspense key={data.id} fallback={<Skeleton height={64} />}>
-            <Track
-              active={track.id === data.id}
-              data={data}
-              onClick={partial(playTrack, [index])}
-            />
-          </Suspense>
+          <Track
+            key={data.id}
+            active={track.id === data.id}
+            data={data}
+            onClick={partial(playTrack, [index])}
+          />
         );
       })(dataArr)}
     </TrackList>
@@ -64,7 +62,7 @@ export default function ReleaseDetail() {
       isLoading
         ? []
         : pipe(groupByDiscNumber, values, map(renderTrackList))(tracks),
-    [isLoading]
+    [isLoading, track]
   );
 
   const handlePlayButtonClick = useCallback(() => playTrack(0), []);

@@ -6,12 +6,12 @@ import {
   Group,
   ScrollArea,
   Stack,
-  Title,
   Loader,
   Center,
 } from "@mantine/core";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../release/Release";
+import Header from "../header/Header";
 
 export default function Library() {
   const { data, isLoading } = useGetReleasesQuery();
@@ -26,9 +26,8 @@ export default function Library() {
 
   return (
     <Stack className={classes.container} spacing={0}>
-      <Title p={theme.other.spacing.safeView} order={1}>
-        Library
-      </Title>
+      <Header title="Library" />
+
       {isLoading ? (
         <Center className={classes.loaderWrapper}>
           <Loader />

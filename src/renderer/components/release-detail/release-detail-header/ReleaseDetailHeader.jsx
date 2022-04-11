@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
-import { Button, createStyles, Group, Stack, Text, Title } from "@mantine/core";
+import { Button, createStyles, Group, Text } from "@mantine/core";
 import { IoPlayCircle } from "react-icons/io5";
 import PropTypes from "prop-types";
-import parsePictureSrc from "../../utils/parsePictureSrc";
+import parsePictureSrc from "../../../utils/parsePictureSrc";
+import Header from "../../header/Header";
 
-const ReleaseHeader = React.memo((props) => {
+const ReleaseDetailHeader = React.memo((props) => {
   const {
     data: { artist, picture, title, year },
     onPlayButtonClick,
@@ -18,44 +19,36 @@ const ReleaseHeader = React.memo((props) => {
   });
 
   return (
-    <Stack
-      className={cx(classes.container, className)}
-      spacing={theme.other.spacing.view}
-      align="flex-start"
-      p={theme.other.spacing.safeView}
+    <Header
       style={style}
+      title={title}
+      className={cx(classes.container, className)}
     >
-      <Stack>
-        <Title order={1}>{title}</Title>
+      <Group align="center" spacing="xs" mt={theme.spacing.md}>
+        <Text weight={500}>{year}</Text>
 
-        <Group align="center" spacing="xs">
-          <Text inline weight={500}>
-            {year}
-          </Text>
-
-          <Text inline weight={600} size="lg">
-            {artist}
-          </Text>
-        </Group>
-      </Stack>
-
+        <Text weight={600} size="lg">
+          {artist}
+        </Text>
+      </Group>
       <Button
+        mt={theme.other.spacing.view}
         compact
         onClick={onPlayButtonClick}
         leftIcon={<IoPlayCircle size={theme.fontSizes.lg} />}
       >
         Play
       </Button>
-    </Stack>
+    </Header>
   );
 });
 
-ReleaseHeader.defaultProps = {
+ReleaseDetailHeader.defaultProps = {
   className: undefined,
   style: undefined,
 };
 
-ReleaseHeader.propTypes = {
+ReleaseDetailHeader.propTypes = {
   data: PropTypes.shape({
     title: PropTypes.string.isRequired,
     artist: PropTypes.string.isRequired,
@@ -80,4 +73,4 @@ const useStyles = createStyles((theme, { pictureSrc }) => ({
   },
 }));
 
-export default ReleaseHeader;
+export default ReleaseDetailHeader;

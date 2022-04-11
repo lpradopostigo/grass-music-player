@@ -16,7 +16,7 @@ import { createStyles, ScrollArea, Stack, Skeleton } from "@mantine/core";
 import TrackList from "../track-list/TrackList";
 import { useGetReleaseTracksQuery } from "../../services/api/libraryApi";
 import usePlayer from "../../hooks/usePlayer";
-import ReleaseHeader from "../release-header/ReleaseHeader";
+import ReleaseDetailHeader from "./release-detail-header/ReleaseDetailHeader";
 
 const Track = React.lazy(() => import("../track/Track"));
 
@@ -71,7 +71,7 @@ export default function ReleaseDetail() {
 
   return (
     <Stack className={classes.container} spacing={0}>
-      <ReleaseHeader
+      <ReleaseDetailHeader
         data={releaseData}
         onPlayButtonClick={handlePlayButtonClick}
       />

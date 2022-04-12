@@ -1,5 +1,5 @@
 const ElectronStore = require("electron-store");
-const { includes } = require("lodash");
+const { includes, values } = require("ramda");
 
 const Keys = {
   LIBRARY_PATH: "libraryPath",
@@ -14,24 +14,22 @@ const schema = {
 
 const store = new ElectronStore({ schema });
 
-/** get the value of a valid key
- * @param {string} key
- * @param {any} [defaultValue]
- * @return {any} */
+function keyIsValid(key) {
+  return includes(key, values(Keys)) && typeof key === "string";
+}
+
+/** get the value of a valid key, valid keys are defined in the Keys object */
 function getValue(key, defaultValue) {
-  if (!includes(Keys, key) || typeof key !== "string") {
+  if (!keyIsValid(key)) {
     throw Error("invalid key");
   }
 
   return store.get(key, defaultValue);
 }
 
-/** set the value of a valid key
- * @param {string} key
- * @param {any} value a valid json value
- * @return {void} */
+/** set the value of a valid key, valid keys are defined in the Keys object */
 function setValue(key, value) {
-  if (!includes(Keys, key) || typeof key !== "string") {
+  if (!keyIsValid(key)) {
     throw Error("invalid key");
   }
 

@@ -1,10 +1,8 @@
-/** @typedef {import('../../shared/types').DatabaseTrack} DatabaseTrack */
-/** @typedef {import('../../shared/types').DatabaseRelease} DatabaseRelease */
-/** @typedef {import('../../shared/types').ScannerTrack} ScannerTrack */
-/** @typedef {import('../../shared/types').ScannerRelease} ScannerRelease */
 const sqlite3 = require("sqlite3");
-const { map, head } = require("ramda");
+const { map, head, pipe, groupBy, prop, values, pick } = require("ramda");
 const log = require("loglevel");
+const { renameKeys } = require("ramda-adjunct");
+const fsp = require("fs/promises");
 const { pathExist } = require("../utils/file");
 const { DATABASE_PATH } = require("./constants");
 const { terminateApp } = require("../utils/error");
@@ -17,58 +15,38 @@ class Database {
 
   #database = null;
 
-  /** Construct a valid instance of Database
-   * @return {Promise<Database>} */
+  /** Construct a valid instance, prefer this instead of the standard constructor */
   static async construct() {
     const instance = new Database();
     const databaseExists = await pathExist(DATABASE_PATH);
     if (!databaseExists) {
       await instance.open().catch(terminateApp);
-      await instance.createTables().catch(terminateApp);
+      await instance.#createTables().catch(terminateApp);
       await instance.close().catch(terminateApp);
     }
     return instance;
   }
 
-  /** Create the tables on the database, useful on rescan or first launch
-   * @return {Promise<void>} */
-  async createTables() {
-    await this.#createTable(Database.#Table.RELEASE);
-    await this.#createTable(Database.#Table.TRACK);
-  }
-
-  /** Open a database connection, it does nothing if one already exists
-   *  @return {Promise<void>} */
-  open() {
-    return new Promise((resolve, reject) => {
-      this.#database = new sqlite3.Database(DATABASE_PATH, (error) => {
-        if (error != null) reject(error);
-        resolve();
-      });
-    });
-  }
-
-  /**
-   * Populate the database tables given an array of release
-   * @param {ScannerRelease[]} releases
-   *  @return {Promise<void[]>} */
-  async insertReleases(releases) {
+  async insertData(parsedFiles) {
+    const releases = await Database.#normalizeParsedFiles(parsedFiles);
     await this.#insertReleases(releases).catch(log.warn);
-
-    return Promise.all(
+    await Promise.all(
       map(
         (release) =>
           this.#insertTracks(release.tracks, {
-            title: release.title,
-            artist: release.artist,
+            releaseTitle: release.title,
+            releaseArtist: release.artist,
           }),
         releases
       )
     );
   }
 
-  /** Get all the releases on the database
-   * @return {Promise<DatabaseRelease[]>} */
+  static delete() {
+    return fsp.unlink(DATABASE_PATH);
+  }
+
+  /** Get all the releases stored in the database */
   getReleases() {
     return new Promise((resolve, reject) => {
       this.#database?.all(
@@ -81,9 +59,7 @@ class Database {
     });
   }
 
-  /** Get the corresponding release given the id
-   * @param {number} id
-   * @return {Promise<DatabaseRelease>} */
+  /** Get the corresponding release given an id */
   getRelease(id) {
     return new Promise((resolve, reject) => {
       this.#database?.get(
@@ -97,9 +73,7 @@ class Database {
     });
   }
 
-  /** Get a track given an id
-   * @param {number} id
-   * @return {Promise<DatabaseTrack>} */
+  /** Get the corresponding track given an id */
   getTrack(id) {
     return new Promise((resolve, reject) => {
       this.#database?.all(
@@ -113,9 +87,7 @@ class Database {
     });
   }
 
-  /** Get all tracks associated to a given release
-   * @param {number} releaseId
-   * @return {Promise<DatabaseTrack[]>} */
+  /** Get all tracks associated to a given release */
   getTracks(releaseId) {
     return new Promise((resolve, reject) => {
       this.#database?.all(
@@ -129,8 +101,7 @@ class Database {
     });
   }
 
-  /** Close the database connection, it does nothing if there is no connection
-   * @return {Promise<void>} */
+  /** Close the database connection, it does nothing if there is no connection */
   close() {
     return new Promise((resolve, reject) => {
       this.#database?.close((error) => {
@@ -140,18 +111,67 @@ class Database {
     });
   }
 
-  /** Insert an array of releases on the database
-   * @param {ScannerRelease[]} releases
-   * @return {Promise<void[]>} */
+  /** Open a database connection, it does nothing if one already exists */
+  open() {
+    return new Promise((resolve, reject) => {
+      this.#database = new sqlite3.Database(DATABASE_PATH, (error) => {
+        if (error != null) reject(error);
+        resolve();
+      });
+    });
+  }
+
+  async #createTables() {
+    await this.#createTable(Database.#Table.RELEASE);
+    await this.#createTable(Database.#Table.TRACK);
+  }
+
+  static async #normalizeParsedFiles(parsedFiles) {
+    const groupByReleaseTitle = pipe(groupBy(prop("releaseTitle")), values);
+    const toNormalizedRelease = (xs) => {
+      const x = head(xs);
+      const toNormalizedTrack = pick([
+        "title",
+        "artist",
+        "trackNumber",
+        "discNumber",
+        "duration",
+        "filePath",
+      ]);
+
+      const pickReleaseKeys = pick([
+        "year",
+        "pictureSm",
+        "pictureMd",
+        "pictureLg",
+        "releaseTitle",
+        "releaseArtist",
+        "numberOfDiscs",
+        "numberOfTracks",
+      ]);
+
+      const normalizeReleaseKeys = renameKeys({
+        releaseTitle: "title",
+        releaseArtist: "artist",
+      });
+
+      return {
+        ...pipe(pickReleaseKeys, normalizeReleaseKeys)(x),
+        tracks: map(toNormalizedTrack)(xs),
+      };
+    };
+
+    return pipe(groupByReleaseTitle, map(toNormalizedRelease))(parsedFiles);
+  }
+
+  /** Insert an array of releases on the database */
   #insertReleases(releases) {
     return Promise.all(
       map((release) => this.#insertRelease(release), releases)
     );
   }
 
-  /** Create a table given a valid table name
-   * @param {string} table
-   * @return {Promise<void>} */
+  /** Create a table given a valid table name */
   #createTable(table) {
     const Query = {
       [Database.#Table.RELEASE]: `CREATE TABLE "${Database.#Table.RELEASE}" (
@@ -161,7 +181,9 @@ class Database {
             "year" INTEGER,
             "numberOfTracks" INTEGER,
             "numberOfDiscs" INTEGER,
-            "picture" BLOB,
+            "pictureSm" BLOB,
+            "pictureMd" BLOB,
+            "pictureLg" BLOB,
             PRIMARY KEY("id" AUTOINCREMENT)
           )`,
       [Database.#Table.TRACK]: `CREATE TABLE "${Database.#Table.TRACK}" (
@@ -187,11 +209,8 @@ class Database {
     });
   }
 
-  /** Insert a track into the database, given some release information
-   * @param {ScannerTrack} track
-   * @param {{title: string, artist: string}} releaseInfo
-   * @return {Promise<void>} */
-  #insertTrack(track, releaseInfo) {
+  /** Insert a track given some release information */
+  #insertTrack(track, { releaseTitle, releaseArtist }) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
         `INSERT INTO "${Database.#Table.TRACK}"
@@ -207,8 +226,8 @@ class Database {
           track.discNumber,
           track.duration,
           track.filePath,
-          releaseInfo.title,
-          releaseInfo.artist,
+          releaseTitle,
+          releaseArtist,
         ],
         (error) => {
           if (error != null) reject(error);
@@ -218,30 +237,29 @@ class Database {
     });
   }
 
-  /** Insert an array of tracks into the database, given some release information
-   *  @param {ScannerTrack[]} tracks
-   *  @param {{title: string, artist: string}} releaseInfo
-   *  @return {Promise<void[]>} */
-  #insertTracks(tracks, releaseInfo) {
+  /** Insert an array of tracks into the database given some release information */
+  #insertTracks(tracks, { releaseTitle, releaseArtist }) {
     return Promise.all(
-      map((track) => this.#insertTrack(track, releaseInfo), tracks)
+      map(
+        (track) => this.#insertTrack(track, { releaseTitle, releaseArtist }),
+        tracks
+      )
     );
   }
 
-  /** Insert a release into the database
-   *  @param {ScannerRelease} release
-   *  @return {Promise<void>} */
   #insertRelease(release) {
     return new Promise((resolve, reject) => {
       this.#database?.run(
         `INSERT INTO "${Database.#Table.RELEASE}"
-            (title, artist,year, picture,numberOfTracks, numberOfDiscs)
-            values (?,?,?,?,?,?)`,
+            (title, artist, year, pictureSm, pictureMd, pictureLg, numberOfTracks, numberOfDiscs)
+            values (?,?,?,?,?,?,?,?)`,
         [
           release.title,
           release.artist,
           release.year,
-          release.picture,
+          release.pictureSm,
+          release.pictureMd,
+          release.pictureLg,
           release.numberOfTracks,
           release.numberOfDiscs,
         ],

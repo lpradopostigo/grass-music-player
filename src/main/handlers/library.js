@@ -5,8 +5,9 @@ const {
   getReleases,
   getReleaseTracks,
 } = require("../services/store");
+const { scan } = require("../services/scanner");
 
-ipcMain.handle("library:get-releases", () => getReleases());
+ipcMain.handle("library:get-releases", getReleases);
 
 ipcMain.handle("library:get-release", (_, releaseId) => getRelease(releaseId));
 
@@ -17,3 +18,5 @@ ipcMain.handle("library:get-release-tracks", async (_, releaseId) => {
     return rest;
   });
 });
+
+ipcMain.handle("library:scan", scan);

@@ -1,24 +1,10 @@
 import React from "react";
-import {
-  ActionIcon,
-  Center,
-  createStyles,
-  Group,
-  Slider,
-  Stack,
-  Text,
-} from "@mantine/core";
-import {
-  IoPlayCircle,
-  IoPauseCircle,
-  IoPlaySkipForwardCircle,
-  IoPlaySkipBackCircle,
-} from "react-icons/io5";
+import { createStyles, Group, Slider, Stack, Text } from "@mantine/core";
 import PropTypes from "prop-types";
 import ReleasePicture from "../release-picture/ReleasePicture";
 import usePlayer from "../../hooks/usePlayer";
-import { navigationWidth } from "../../services/constants";
 import { secondsToAudioDuration } from "../../utils/format/format";
+import PlayerControls from "./player-controls/PlayerControls";
 
 export default function Player(props) {
   const { className, style } = props;
@@ -33,31 +19,7 @@ export default function Player(props) {
   return (
     isLoading || (
       <Group className={className} spacing={0} style={style}>
-        <Center className={classes.playerControls}>
-          <Group>
-            <ActionIcon onClick={controls.previous}>
-              <IoPlaySkipBackCircle size={40} color={theme.other.accentColor} />
-            </ActionIcon>
-
-            {state.playbackState === "playing" ? (
-              <ActionIcon size={48} onClick={controls.pause}>
-                <IoPauseCircle color={theme.other.accentColor} size={48} />
-              </ActionIcon>
-            ) : (
-              <ActionIcon size={48} onClick={controls.play}>
-                <IoPlayCircle color={theme.other.accentColor} size={48} />
-              </ActionIcon>
-            )}
-
-            <ActionIcon onClick={controls.next}>
-              <IoPlaySkipForwardCircle
-                size={40}
-                color={theme.other.accentColor}
-              />
-            </ActionIcon>
-          </Group>
-        </Center>
-
+        <PlayerControls playing={state.playbackState === "playing"} />
         <Group className={classes.playerInfo} p={theme.spacing.md}>
           <ReleasePicture
             data={{
@@ -128,15 +90,6 @@ const useStyles = createStyles((theme) => ({
   playerInfo: {
     backgroundColor: theme.white,
     flexGrow: 1,
-  },
-
-  playerControls: {
-    flexBasis: navigationWidth,
-    flexGrow: 0,
-    flexShrink: 0,
-    alignSelf: "stretch",
-    backgroundColor: "rgba(255,255,255,0.95)",
-    backdropFilter: "blur(24px)",
   },
 
   textAndSliderWrapper: {

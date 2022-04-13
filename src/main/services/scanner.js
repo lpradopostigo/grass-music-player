@@ -6,9 +6,9 @@ const persistentStorage = require("./persistentStorage");
 const Database = require("./Database");
 
 const PictureWidth = {
-  sm: 56,
-  md: 144,
-  lg: 600,
+  sm: 160,
+  md: 320,
+  lg: 640,
 };
 
 function resizePicture(picture, width) {

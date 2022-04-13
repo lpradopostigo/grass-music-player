@@ -25,7 +25,7 @@ const playerApi = createApi({
             updateCachedData((draft) => {
               Object.assign(draft, data);
             });
-          }, 500);
+          }, 1000);
         } catch {
           // this was intentional
         }

@@ -10,11 +10,15 @@ import {
 import usePreferences from "../../hooks/usePreferences";
 import { useOpenPathSelectorMutation } from "../../services/api/preferencesApi";
 import Header from "../header/Header";
+import { useScanMutation } from "../../services/api/libraryApi";
 
 export default function Preferences() {
   const { preferences, setPreference } = usePreferences();
   const [openPathSelector] = useOpenPathSelectorMutation();
   const { classes, theme } = useStyles();
+  const [scan, { isLoading }] = useScanMutation({
+    fixedCacheKey: "scan",
+  });
   return (
     <Stack className={classes.container} spacing={0}>
       <Header title="Preferences" />
@@ -48,6 +52,10 @@ export default function Preferences() {
           data={["blue", "red", "green"]}
           defaultValue="green"
         />
+
+        <Button loading={isLoading} onClick={scan}>
+          Rescan
+        </Button>
       </Stack>
     </Stack>
   );
@@ -59,6 +67,3 @@ const useStyles = createStyles((theme) => ({
     flexGrow: 1,
   },
 }));
-
-Preferences.propTypes = {};
-Preferences.defaultProps = {};

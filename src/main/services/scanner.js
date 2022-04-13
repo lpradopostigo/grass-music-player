@@ -29,9 +29,15 @@ async function parseFiles(path) {
 
       parsedFiles.push({
         filePath,
-        pictureSm: await resizePicture(picture, PictureWidth.sm),
-        pictureMd: await resizePicture(picture, PictureWidth.md),
-        pictureLg: await resizePicture(picture, PictureWidth.lg),
+        pictureSm: picture
+          ? await resizePicture(picture, PictureWidth.sm)
+          : null,
+        pictureMd: picture
+          ? await resizePicture(picture, PictureWidth.md)
+          : null,
+        pictureLg: picture
+          ? await resizePicture(picture, PictureWidth.lg)
+          : null,
         title: common.title,
         artist: common.artist,
         trackNumber: common.track.no,

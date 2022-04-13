@@ -62,10 +62,10 @@ ReleaseDetailHeader.propTypes = {
 
 const useStyles = createStyles((theme, { pictureSrc }) => ({
   container: {
-    color: theme.white,
+    color: pictureSrc ? theme.white : theme.black,
     overflow: "hidden",
     flexShrink: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: pictureSrc ? "rgba(0,0,0,0.5)" : theme.white,
     backgroundImage: `url(${pictureSrc})`,
     backgroundSize: "cover",
     backgroundBlendMode: "overlay",

@@ -26,92 +26,91 @@ export default function Player(props) {
   const { state, controls, isLoading } = usePlayer();
   const { classes, theme } = useStyles();
 
-  if (isLoading) return null;
-
-  const { track } = state;
+  const { track } = state ?? {};
   const handleSliderOnChange = (value) => {
     controls.seek(value);
   };
-
   return (
-    <Group className={className} spacing={0} style={style}>
-      <Center className={classes.playerControls}>
-        <Group>
-          <ActionIcon onClick={controls.previous}>
-            <IoPlaySkipBackCircle size={40} color={theme.other.accentColor} />
-          </ActionIcon>
-
-          {state.playbackState === "playing" ? (
-            <ActionIcon size={48} onClick={controls.pause}>
-              <IoPauseCircle color={theme.other.accentColor} size={48} />
+    isLoading || (
+      <Group className={className} spacing={0} style={style}>
+        <Center className={classes.playerControls}>
+          <Group>
+            <ActionIcon onClick={controls.previous}>
+              <IoPlaySkipBackCircle size={40} color={theme.other.accentColor} />
             </ActionIcon>
-          ) : (
-            <ActionIcon size={48} onClick={controls.play}>
-              <IoPlayCircle color={theme.other.accentColor} size={48} />
+
+            {state.playbackState === "playing" ? (
+              <ActionIcon size={48} onClick={controls.pause}>
+                <IoPauseCircle color={theme.other.accentColor} size={48} />
+              </ActionIcon>
+            ) : (
+              <ActionIcon size={48} onClick={controls.play}>
+                <IoPlayCircle color={theme.other.accentColor} size={48} />
+              </ActionIcon>
+            )}
+
+            <ActionIcon onClick={controls.next}>
+              <IoPlaySkipForwardCircle
+                size={40}
+                color={theme.other.accentColor}
+              />
             </ActionIcon>
-          )}
+          </Group>
+        </Center>
 
-          <ActionIcon onClick={controls.next}>
-            <IoPlaySkipForwardCircle
-              size={40}
-              color={theme.other.accentColor}
-            />
-          </ActionIcon>
-        </Group>
-      </Center>
+        <Group className={classes.playerInfo} p={theme.spacing.md}>
+          <ReleasePicture
+            data={{
+              title: track.releaseTitle ?? "",
+              artist: track.releaseArtist ?? "",
+              picture: track.pictureSm,
+            }}
+            size="sm"
+          />
 
-      <Group className={classes.playerInfo} p={theme.spacing.md}>
-        <ReleasePicture
-          data={{
-            title: track.releaseTitle,
-            artist: track.releaseArtist,
-            picture: track.picture,
-          }}
-          size="sm"
-        />
+          {state.playbackState === "stopped" || (
+            <Stack
+              spacing={theme.spacing.xs / 2}
+              className={classes.textAndSliderWrapper}
+            >
+              <Stack spacing={0}>
+                <Text weight={600}>{track.title}</Text>
 
-        {state.playbackState === "stopped" || (
-          <Stack
-            spacing={theme.spacing.xs / 2}
-            className={classes.textAndSliderWrapper}
-          >
-            <Stack spacing={0}>
-              <Text weight={600}>{track.title}</Text>
-
-              <Group position="apart">
-                <Text color="dimmed" size="sm">
-                  {track.artist}
-                </Text>
-
-                <Group spacing={theme.spacing.xs}>
-                  <Text weight={500} size="sm">
-                    {secondsToAudioDuration(track.position)}
+                <Group position="apart">
+                  <Text color="dimmed" size="sm">
+                    {track.artist}
                   </Text>
-                  <Text size="xs" color="dimmed">
-                    /
-                  </Text>
-                  <Text size="xs" color="dimmed">
-                    {secondsToAudioDuration(track.duration)}
-                  </Text>
+
+                  <Group spacing={theme.spacing.xs}>
+                    <Text weight={500} size="sm">
+                      {secondsToAudioDuration(track.position)}
+                    </Text>
+                    <Text size="xs" color="dimmed">
+                      /
+                    </Text>
+                    <Text size="xs" color="dimmed">
+                      {secondsToAudioDuration(track.duration)}
+                    </Text>
+                  </Group>
                 </Group>
-              </Group>
-            </Stack>
+              </Stack>
 
-            <Slider
-              size="xs"
-              disabled={state.playbackState === "stopped"}
-              color={theme.other.accentColor}
-              step={5}
-              label={null}
-              onChange={handleSliderOnChange}
-              value={track.position}
-              max={track.duration}
-              min={0}
-            />
-          </Stack>
-        )}
+              <Slider
+                size="xs"
+                disabled={state.playbackState === "stopped"}
+                color={theme.other.accentColor}
+                step={5}
+                label={null}
+                onChange={handleSliderOnChange}
+                value={track.position}
+                max={track.duration}
+                min={0}
+              />
+            </Stack>
+          )}
+        </Group>
       </Group>
-    </Group>
+    )
   );
 }
 

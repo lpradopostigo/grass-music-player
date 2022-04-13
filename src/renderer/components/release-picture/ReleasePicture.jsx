@@ -8,19 +8,10 @@ import parsePictureSrc from "../../utils/parsePictureSrc";
 export default function ReleasePicture(props) {
   const { data, size, className } = props;
   const { classes, cx } = useStyles({ size });
-
-  if (!data.picture) {
-    return (
-      <Center className={classes.container}>
-        <IoMusicalNotes size={sizes[size].height / 4} />
-      </Center>
-    );
-  }
-
-  const pictureAlt = `${data.title} by ${data.artist} release`;
   const pictureSrc = useMemo(() => parsePictureSrc(data.picture), [data]);
+  const pictureAlt = `${data.title} by ${data.artist} release`;
 
-  return (
+  return data.picture ? (
     <LazyLoadImage
       effect="opacity"
       placeholder={
@@ -33,6 +24,10 @@ export default function ReleasePicture(props) {
       width={sizes[size].width}
       className={cx(classes.container, className)}
     />
+  ) : (
+    <Center className={classes.container}>
+      <IoMusicalNotes size={sizes[size].height / 4} />
+    </Center>
   );
 }
 

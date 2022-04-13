@@ -29,7 +29,9 @@ ipcMain.handle("player:get-state", async () => {
       releaseTitle: release.title,
       releaseArtist: release.artist,
       year: release.year,
-      picture: release.picture,
+      pictureSm: release.pictureSm,
+      pictureMd: release.pictureMd,
+      pictureLg: release.pictureLg,
       playlistIndex: fileIndex,
     };
   }

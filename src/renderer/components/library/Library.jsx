@@ -39,8 +39,9 @@ export default function Library() {
           component={Link}
           to={`/library/${release.id}`}
           state={linkData}
+          key={release.id}
         >
-          <Release data={releaseData} key={release.id} />
+          <Release data={releaseData} />
         </Anchor>
       );
     })(data);

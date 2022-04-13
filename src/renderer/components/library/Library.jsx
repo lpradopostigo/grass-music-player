@@ -1,7 +1,14 @@
 import React, { useMemo } from "react";
-
 import { map } from "ramda";
-import { createStyles, Group, Stack, Loader, Center } from "@mantine/core";
+import {
+  createStyles,
+  Group,
+  Stack,
+  Loader,
+  Center,
+  Anchor,
+} from "@mantine/core";
+import { Link } from "react-router-dom";
 import { useGetReleasesQuery } from "../../services/api/libraryApi";
 import Release from "../release/Release";
 import Header from "../header/Header";
@@ -10,12 +17,34 @@ export default function Library() {
   const { data, isLoading } = useGetReleasesQuery();
   const { classes, theme } = useStyles();
 
-  const releases = useMemo(
-    () =>
-      isLoading ||
-      map((release) => <Release data={release} key={release.id} />)(data),
-    [isLoading]
-  );
+  const releases = useMemo(() => {
+    if (isLoading) {
+      return [];
+    }
+
+    return map((release) => {
+      const releaseData = {
+        ...release,
+        picture: release.pictureMd,
+      };
+
+      const linkData = {
+        ...release,
+        picture: release.pictureLg,
+      };
+
+      return (
+        <Anchor
+          underline={false}
+          component={Link}
+          to={`/library/${release.id}`}
+          state={linkData}
+        >
+          <Release data={releaseData} key={release.id} />
+        </Anchor>
+      );
+    })(data);
+  }, [isLoading, data]);
 
   return (
     <Stack className={classes.container} spacing={0}>

@@ -1,7 +1,6 @@
 import React, { Suspense } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
-import { Anchor, createStyles, Skeleton, Stack, Text } from "@mantine/core";
+import { createStyles, Skeleton, Stack, Text } from "@mantine/core";
 import { sizes } from "../release-picture/ReleasePicture";
 
 const ReleasePicture = React.lazy(() =>
@@ -10,36 +9,29 @@ const ReleasePicture = React.lazy(() =>
 
 export default function Release(props) {
   const { size, data, style, className } = props;
-  const { classes, theme, cx } = useStyles();
+  const { classes, theme, cx } = useStyles({ size });
 
   return (
-    <Anchor
-      underline={false}
-      component={Link}
-      to={`/library/${data.id}`}
-      state={data}
+    <Stack
+      className={cx(classes.container, className)}
+      spacing={theme.spacing.sm}
       style={style}
-      className={cx(classes.wrapper, className)}
     >
-      <Stack spacing={theme.spacing.sm}>
-        <Suspense
-          fallback={
-            <Skeleton height={sizes.md.height} width={sizes.md.width} />
-          }
-        >
-          <ReleasePicture data={data} size={size} />
-        </Suspense>
+      <Suspense
+        fallback={<Skeleton height={sizes.md.height} width={sizes.md.width} />}
+      >
+        <ReleasePicture data={data} size={size} />
+      </Suspense>
 
-        <Stack spacing={0}>
-          <Text lineClamp={2} color={theme.black} size="md" weight={600}>
-            {data.title}
-          </Text>
-          <Text lineClamp={1} size="xs" color="dimmed">
-            {data.artist}
-          </Text>
-        </Stack>
+      <Stack spacing={0}>
+        <Text lineClamp={2} color={theme.black} size="md" weight={600}>
+          {data.title}
+        </Text>
+        <Text lineClamp={1} size="xs" color="dimmed">
+          {data.artist}
+        </Text>
       </Stack>
-    </Anchor>
+    </Stack>
   );
 }
 
@@ -47,9 +39,9 @@ Release.defaultProps = {
   data: {
     picture: null,
   },
-  className: undefined,
+  className: null,
   size: "md",
-  style: undefined,
+  style: null,
 };
 
 Release.propTypes = {
@@ -62,12 +54,11 @@ Release.propTypes = {
 
   size: PropTypes.oneOf(["sm", "md", "lg"]),
   className: PropTypes.string,
-  style: PropTypes.any,
+  style: PropTypes.object,
 };
 
-const useStyles = createStyles(() => ({
-  wrapper: {
-    width: "min-content",
-    height: "min-content",
+const useStyles = createStyles((theme, { size }) => ({
+  container: {
+    width: sizes[size].width,
   },
 }));

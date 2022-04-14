@@ -16,19 +16,20 @@ export default function Player(props) {
   const handleSliderOnChange = (value) => {
     controls.seek(value);
   };
+
+  const releasePictureData = {
+    title: track?.releaseTitle ?? "",
+    artist: track?.releaseArtist ?? "",
+    picture: track?.pictureSm,
+    id: track?.id ?? -1,
+  };
+
   return (
     isLoading || (
       <Group className={className} spacing={0} style={style}>
         <PlayerControls playing={state.playbackState === "playing"} />
         <Group className={classes.playerInfo} p={theme.spacing.md}>
-          <ReleasePicture
-            data={{
-              title: track.releaseTitle ?? "",
-              artist: track.releaseArtist ?? "",
-              picture: track.pictureSm,
-            }}
-            size="sm"
-          />
+          <ReleasePicture data={releasePictureData} size="sm" />
 
           {state.playbackState === "stopped" || (
             <Stack

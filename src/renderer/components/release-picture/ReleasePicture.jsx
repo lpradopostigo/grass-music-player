@@ -5,7 +5,7 @@ import { IoMusicalNotes } from "react-icons/io5";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import parsePictureSrc from "../../utils/parsePictureSrc";
 
-export default function ReleasePicture(props) {
+function ReleasePicture(props) {
   const { data, size, className } = props;
   const { classes, cx } = useStyles({ size });
   const pictureSrc = useMemo(() => parsePictureSrc(data.picture), [data]);
@@ -57,6 +57,7 @@ ReleasePicture.defaultProps = {
 
 ReleasePicture.propTypes = {
   data: PropTypes.shape({
+    id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     artist: PropTypes.string.isRequired,
     picture: PropTypes.oneOfType([
@@ -80,3 +81,8 @@ const useStyles = createStyles((theme, { size }) => ({
     color: theme.other.accentColor,
   },
 }));
+
+export default React.memo(
+  ReleasePicture,
+  (prevProps, nextProps) => prevProps.data.id === nextProps.data.id
+);

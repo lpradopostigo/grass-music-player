@@ -1,9 +1,4 @@
-const { parseFile } = require("music-metadata");
 const log = require("loglevel");
-const Sharp = require("sharp");
-const { getFiles, isAudioPath } = require("../utils/file");
-const persistentStorage = require("./persistentStorage");
-const Database = require("./Database");
 
 const PictureWidth = {
   sm: 160,
@@ -12,6 +7,8 @@ const PictureWidth = {
 };
 
 function resizePicture(picture, width) {
+  const Sharp = require("sharp");
+
   return Sharp(picture)
     .resize({ width: width })
     .jpeg({ mozjpeg: true })
@@ -19,6 +16,9 @@ function resizePicture(picture, width) {
 }
 
 async function parseFiles(path) {
+  const { parseFile } = require("music-metadata");
+  const { getFiles, isAudioPath } = require("../utils/file");
+
   const parsedFiles = [];
   for await (const filePath of getFiles(path)) {
     if (isAudioPath(filePath)) {
@@ -55,6 +55,9 @@ async function parseFiles(path) {
 }
 
 async function scan() {
+  const Database = require("./Database");
+  const persistentStorage = require("./persistentStorage");
+
   const parsedFiles = await parseFiles(
     persistentStorage.getValue(persistentStorage.Keys.LIBRARY_PATH)
   );

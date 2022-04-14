@@ -91,7 +91,9 @@ class Database {
   getTracks(releaseId) {
     return new Promise((resolve, reject) => {
       this.#database?.all(
-        `SELECT * FROM "${Database.#Table.TRACK}" WHERE releaseId = ?`,
+        `SELECT * FROM "${Database.#Table.TRACK}" 
+            WHERE releaseId = ? 
+            ORDER BY discNumber ASC, trackNumber ASC;`,
         [releaseId],
         (error, result) => {
           if (error != null) reject(error);

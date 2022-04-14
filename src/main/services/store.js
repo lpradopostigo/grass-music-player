@@ -1,4 +1,3 @@
-const { sortWith, ascend, prop } = require("ramda");
 const Database = require("./Database");
 
 async function getTrack(id) {
@@ -30,11 +29,7 @@ async function getReleaseTracks(releaseId) {
   await database.open();
   const tracks = await database.getTracks(releaseId);
   await database.close();
-  const sortTracks = sortWith([
-    ascend(prop("discNumber")),
-    ascend(prop("trackNumber")),
-  ]);
-  return sortTracks(tracks);
+  return tracks;
 }
 
 module.exports = {

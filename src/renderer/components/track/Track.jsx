@@ -15,8 +15,8 @@ export default function Track(props) {
 
   return (
     <UnstyledButton onClick={onClick}>
-      <Group className={classes.contentContainer} p={theme.spacing.xs}>
-        <Group className={classes.wrapper}>
+      <Group noWrap className={classes.contentContainer} p={theme.spacing.xs}>
+        <Group noWrap className={classes.wrapper}>
           <Text size="xs" color="dimmed">
             {data.trackNumber}
           </Text>

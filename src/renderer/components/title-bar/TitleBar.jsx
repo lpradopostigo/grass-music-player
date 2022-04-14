@@ -3,11 +3,18 @@ import {
   VscChromeClose,
   VscChromeMaximize,
   VscChromeMinimize,
+  VscChromeRestore,
 } from "react-icons/vsc";
 import { Center, createStyles, Group, UnstyledButton } from "@mantine/core";
 import PropTypes from "prop-types";
 import { titleBarButtonSize } from "../../services/constants";
-import { useCloseMutation } from "../../services/api/windowApi";
+import {
+  useCloseMutation,
+  useGetStateQuery,
+  useMaximizeMutation,
+  useMinimizeMutation,
+  useUnmaximizeMutation,
+} from "../../services/api/windowApi";
 
 const ICON_SIZE = 16;
 
@@ -15,19 +22,31 @@ export default function TitleBar(props) {
   const { color } = props;
   const { classes, cx } = useStyles({ color });
   const [close] = useCloseMutation();
+  const [minimize] = useMinimizeMutation();
+  const [maximize] = useMaximizeMutation();
+  const [unmaximize] = useUnmaximizeMutation();
+  const { data } = useGetStateQuery();
   return (
     <Group className={classes.container} spacing={0}>
-      <UnstyledButton className={classes.button}>
+      <UnstyledButton onClick={minimize} className={classes.button}>
         <Center>
           <VscChromeMinimize size={ICON_SIZE} />
         </Center>
       </UnstyledButton>
 
-      <UnstyledButton className={classes.button}>
-        <Center>
-          <VscChromeMaximize size={ICON_SIZE} />
-        </Center>
-      </UnstyledButton>
+      {data === "normal" ? (
+        <UnstyledButton onClick={maximize} className={classes.button}>
+          <Center>
+            <VscChromeMaximize size={ICON_SIZE} />
+          </Center>
+        </UnstyledButton>
+      ) : (
+        <UnstyledButton onClick={unmaximize} className={classes.button}>
+          <Center>
+            <VscChromeRestore size={ICON_SIZE} />
+          </Center>
+        </UnstyledButton>
+      )}
 
       <UnstyledButton
         onClick={close}

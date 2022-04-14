@@ -62,7 +62,7 @@ export default function ReleaseDetail() {
       isLoading
         ? []
         : pipe(groupByDiscNumber, values, map(renderTrackList))(tracks),
-    [isLoading, track]
+    [isLoading, track.id]
   );
 
   const handlePlayButtonClick = useCallback(() => playTrack(0), []);

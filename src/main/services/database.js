@@ -225,13 +225,16 @@ async function insertData(parsedFiles) {
   );
 }
 
-/** Get all the releases stored in the database */
 async function getReleases() {
   return new Promise((resolve, reject) => {
-    database.all(`select * from "${Table.RELEASE}"`, (error, result) => {
-      if (error != null) reject(error);
-      resolve(result);
-    });
+    database.all(
+      `SELECT * FROM "${Table.RELEASE}"
+        ORDER BY title ASC, artist ASC;`,
+      (error, result) => {
+        if (error != null) reject(error);
+        resolve(result);
+      }
+    );
   });
 }
 

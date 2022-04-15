@@ -1,13 +1,18 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { ipcMain } = require("electron");
-const database = require("../services/database");
-const { scan } = require("../services/scanner");
 
-ipcMain.handle("library:get-releases", database.getReleases);
+ipcMain.handle("library:get-releases", () => {
+  const database = require("../services/database");
+  return database.getReleases();
+});
 
-ipcMain.handle("library:get-release", (_, id) => database.getRelease(id));
+ipcMain.handle("library:get-release", (_, id) => {
+  const database = require("../services/database");
+  return database.getRelease(id);
+});
 
 ipcMain.handle("library:get-release-tracks", async (_, releaseId) => {
+  const database = require("../services/database");
   const tracks = await database.getReleaseTracks(releaseId);
   return tracks.map((track) => {
     const { filePath, ...rest } = track;
@@ -15,4 +20,7 @@ ipcMain.handle("library:get-release-tracks", async (_, releaseId) => {
   });
 });
 
-ipcMain.handle("library:scan", scan);
+ipcMain.handle("library:scan", () => {
+  const scanner = require("../services/scanner");
+  return scanner.scan();
+});

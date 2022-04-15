@@ -7,6 +7,7 @@ const log = require("loglevel");
 const AudioExtension = {
   FLAC: "flac",
   MP3: "mp3",
+  M4A: "m4a",
 };
 
 function pathExist(filePath) {

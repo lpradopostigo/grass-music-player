@@ -55,7 +55,7 @@ async function parseFiles(path) {
 }
 
 async function scan() {
-  const Database = require("./Database");
+  const database = require("./database");
   const persistentStorage = require("./persistentStorage");
 
   const parsedFiles = await parseFiles(
@@ -63,11 +63,8 @@ async function scan() {
   );
   log.info("parsed files", parsedFiles);
 
-  await Database.delete();
-  const database = await Database.construct();
-  await database.open();
+  await database.clear();
   await database.insertData(parsedFiles);
-  await database.close();
 }
 
 module.exports = { parseFiles, scan };

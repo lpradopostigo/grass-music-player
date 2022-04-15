@@ -2,13 +2,17 @@
 const { ipcMain } = require("electron");
 const GrassAudio = require("grass-audio");
 const { map, prop, pipe, andThen } = require("ramda");
-const { getTrack, getRelease } = require("../services/store");
+const database = require("../services/database");
 
 const player = new GrassAudio();
 let playlist = [];
 
 ipcMain.handle("player:set-playlist", async (_, tracks) => {
-  const getFilePath = pipe(prop("id"), getTrack, andThen(prop("filePath")));
+  const getFilePath = pipe(
+    prop("id"),
+    database.getTrack,
+    andThen(prop("filePath"))
+  );
   playlist = tracks;
   const filePaths = await Promise.all(map(getFilePath)(tracks));
   player.setFiles(filePaths);
@@ -21,7 +25,7 @@ ipcMain.handle("player:get-state", async () => {
   let track = {};
 
   if (playlistTrack) {
-    const release = await getRelease(playlistTrack.releaseId);
+    const release = await database.getRelease(playlistTrack.releaseId);
     track = {
       ...playlistTrack,
       duration: fileDuration,

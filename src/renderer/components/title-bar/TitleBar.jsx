@@ -34,16 +34,16 @@ export default function TitleBar(props) {
         </Center>
       </UnstyledButton>
 
-      {data === "normal" ? (
-        <UnstyledButton onClick={maximize} className={classes.button}>
-          <Center>
-            <VscChromeMaximize size={ICON_SIZE} />
-          </Center>
-        </UnstyledButton>
-      ) : (
+      {data === "maximized" ? (
         <UnstyledButton onClick={unmaximize} className={classes.button}>
           <Center>
             <VscChromeRestore size={ICON_SIZE} />
+          </Center>
+        </UnstyledButton>
+      ) : (
+        <UnstyledButton onClick={maximize} className={classes.button}>
+          <Center>
+            <VscChromeMaximize size={ICON_SIZE} />
           </Center>
         </UnstyledButton>
       )}

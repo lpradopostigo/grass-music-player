@@ -22,11 +22,11 @@ ipcMain.handle("window:restore", async () =>
 );
 
 ipcMain.handle("window:get-state", async () => {
-  const focusedWindow = BrowserWindow.getFocusedWindow();
+  const [window] = BrowserWindow.getAllWindows();
 
-  const isMaximized = focusedWindow.isMaximized();
-  const isMinimized = focusedWindow.isMinimized();
-  const isNormal = focusedWindow.isNormal();
+  const isMaximized = window.isMaximized();
+  const isMinimized = window.isMinimized();
+  const isNormal = window.isNormal();
 
   if (isNormal) {
     return "normal";

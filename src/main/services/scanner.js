@@ -17,7 +17,7 @@ function resizePicture(picture, width) {
 
 async function parseFiles(path) {
   const { parseFile } = require("music-metadata");
-  const { getFiles, isAudioPath } = require("../utils/file");
+  const { getFiles, isAudioPath } = require("../utils/file/file");
 
   const parsedFiles = [];
   for await (const filePath of getFiles(path)) {

@@ -3,7 +3,7 @@ const { map, head, pipe, groupBy, prop, values, pick } = require("ramda");
 const log = require("loglevel");
 const { renameKeys } = require("ramda-adjunct");
 const fsp = require("fs/promises");
-const { pathExist } = require("../utils/file");
+const { pathExist } = require("../utils/file/file");
 const { DATABASE_PATH } = require("./constants");
 const { terminateApp } = require("../utils/error");
 

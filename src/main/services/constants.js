@@ -2,10 +2,12 @@
 const { app } = require("electron");
 const { join } = require("path");
 
+const DATABASE_FILENAME = "database.db";
 const USER_DATA_PATH = app.getPath("userData");
-const DATABASE_PATH = join(USER_DATA_PATH, "database.db");
+const DATABASE_PATH = join(USER_DATA_PATH, DATABASE_FILENAME);
 
 module.exports = {
   USER_DATA_PATH,
   DATABASE_PATH,
+  DATABASE_FILENAME,
 };

@@ -34,7 +34,7 @@ const createWindow = () => {
   });
 };
 
-app.whenReady().then(() => {
+app.on("ready", () => {
   if (process.env.NODE_ENV === "development") {
     const {
       default: installExtension,
@@ -46,6 +46,7 @@ app.whenReady().then(() => {
   }
   createWindow();
 });
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

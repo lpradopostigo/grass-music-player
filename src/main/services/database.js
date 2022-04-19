@@ -1,5 +1,14 @@
 const sqlite3 = require("sqlite3");
-const { map, head, pipe, groupBy, prop, values, pick } = require("ramda");
+const {
+  map,
+  head,
+  pipe,
+  groupBy,
+  prop,
+  values,
+  pick,
+  andThen,
+} = require("ramda");
 const log = require("loglevel");
 const { renameKeys } = require("ramda-adjunct");
 const fsp = require("fs/promises");
@@ -11,6 +20,21 @@ const Table = {
   RELEASE: "Release",
   TRACK: "Track",
 };
+
+const PictureWidth = {
+  sm: 160,
+  md: 320,
+  lg: 640,
+};
+
+function resizePicture(picture, width) {
+  const Sharp = require("sharp");
+
+  return Sharp(picture)
+    .resize({ width: width })
+    .jpeg({ mozjpeg: true })
+    .toBuffer();
+}
 
 const database = new sqlite3.Database(DATABASE_PATH, (error) => {
   if (error != null) {
@@ -176,8 +200,7 @@ function getReleaseTracks(releaseId) {
 
 function normalizeParsedFiles(parsedFiles) {
   const groupByReleaseTitle = pipe(groupBy(prop("releaseTitle")), values);
-  const toNormalizedRelease = (xs) => {
-    const x = head(xs);
+  const toNormalizedRelease = async (xs) => {
     const toNormalizedTrack = pick([
       "title",
       "artist",
@@ -186,26 +209,21 @@ function normalizeParsedFiles(parsedFiles) {
       "duration",
       "filePath",
     ]);
-
-    const pickReleaseKeys = pick([
-      "year",
-      "pictureSm",
-      "pictureMd",
-      "pictureLg",
-      "releaseTitle",
-      "releaseArtist",
-      "numberOfDiscs",
-      "numberOfTracks",
-    ]);
-
-    const normalizeReleaseKeys = renameKeys({
-      releaseTitle: "title",
-      releaseArtist: "artist",
-    });
+    const [x] = xs;
 
     return {
-      ...pipe(pickReleaseKeys, normalizeReleaseKeys)(x),
-      tracks: map(toNormalizedTrack)(xs),
+      trackNumber: x.trackNumber,
+      discNumber: x.discNumber,
+      duration: x.duration,
+      year: x.year,
+      pictureSm: x.picture && (await resizePicture(x.picture, PictureWidth.sm)),
+      pictureMd: x.picture && (await resizePicture(x.picture, PictureWidth.md)),
+      pictureLg: x.picture && (await resizePicture(x.picture, PictureWidth.lg)),
+      numberOfDiscs: x.numberOfDiscs,
+      numberOfTracks: x.numberOfTracks,
+      title: x.releaseTitle,
+      artist: x.releaseArtist,
+      tracks: xs.map(toNormalizedTrack),
     };
   };
 
@@ -213,7 +231,7 @@ function normalizeParsedFiles(parsedFiles) {
 }
 
 async function insertData(parsedFiles) {
-  const releases = normalizeParsedFiles(parsedFiles);
+  const releases = await Promise.all(normalizeParsedFiles(parsedFiles));
   await insertReleases(releases).catch(log.warn);
   await Promise.all(
     releases.map((release) =>
@@ -229,7 +247,7 @@ async function getReleases() {
   return new Promise((resolve, reject) => {
     database.all(
       `SELECT * FROM "${Table.RELEASE}"
-        ORDER BY title ASC, artist ASC;`,
+        ORDER BY title COLLATE NOCASE ASC, artist COLLATE NOCASE ASC;`,
       (error, result) => {
         if (error != null) reject(error);
         resolve(result);

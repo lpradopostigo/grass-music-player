@@ -20,7 +20,9 @@ ipcMain.handle("library:get-release-tracks", async (_, releaseId) => {
   });
 });
 
-ipcMain.handle("library:scan", () => {
+ipcMain.handle("library:scan", async () => {
   const scanner = require("../services/scanner");
+  const player = require("../services/player");
+  await player.setPlaylist([]);
   return scanner.scan();
 });

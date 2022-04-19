@@ -1,10 +1,18 @@
-import React from "react";
-import { createStyles, Group, Slider, Stack, Text } from "@mantine/core";
+import React, { useCallback, useRef } from "react";
+import {
+  createStyles,
+  Group,
+  Progress,
+  Slider,
+  Stack,
+  Text,
+} from "@mantine/core";
 import PropTypes from "prop-types";
 import ReleasePicture from "../release-picture/ReleasePicture";
 import usePlayer from "../../hooks/usePlayer";
 import { secondsToAudioDuration } from "../../utils/format/format";
 import PlayerControls from "./player-controls/PlayerControls";
+import { valueToPercentage } from "../../utils/conversion";
 
 export default function Player(props) {
   const { className, style } = props;
@@ -13,9 +21,13 @@ export default function Player(props) {
   const { classes, theme } = useStyles();
 
   const { track } = state ?? {};
-  const handleSliderOnChange = (value) => {
-    controls.seek(value);
+  const handleProgressClick = (event) => {
+    const { width, x } = progressRef.current.getBoundingClientRect();
+    const relX = event.clientX - x;
+    controls.seek((track.duration * relX) / width);
   };
+
+  const progressRef = useRef(null);
 
   const releasePictureData = {
     title: track?.releaseTitle ?? "",
@@ -58,16 +70,11 @@ export default function Player(props) {
                 </Group>
               </Stack>
 
-              <Slider
+              <Progress
+                ref={progressRef}
+                onClick={handleProgressClick}
+                value={valueToPercentage(track.position, track.duration)}
                 size="xs"
-                disabled={state.playbackState === "stopped"}
-                color={theme.other.accentColor}
-                step={5}
-                label={null}
-                onChange={handleSliderOnChange}
-                value={track.position}
-                max={track.duration}
-                min={0}
               />
             </Stack>
           )}

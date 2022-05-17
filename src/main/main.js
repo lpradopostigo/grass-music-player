@@ -2,6 +2,7 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const log = require("loglevel");
+require("core-js/actual/array/group-by");
 
 log.setLevel("info");
 

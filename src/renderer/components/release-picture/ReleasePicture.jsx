@@ -1,14 +1,12 @@
-import React, { useMemo } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { createStyles, Center, Skeleton } from "@mantine/core";
 import { IoMusicalNotes } from "react-icons/io5";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import parsePictureSrc from "../../utils/parsePictureSrc";
 
 function ReleasePicture(props) {
   const { data, size, className } = props;
   const { classes, cx } = useStyles({ size });
-  const pictureSrc = useMemo(() => parsePictureSrc(data.picture), [data]);
   const pictureAlt = `${data.title} by ${data.artist} release`;
 
   return data.picture ? (
@@ -18,7 +16,7 @@ function ReleasePicture(props) {
         <Skeleton height={sizes[size].height} width={sizes[size].width} />
       }
       fit="contain"
-      src={pictureSrc}
+      src={data.picture}
       alt={pictureAlt}
       height={sizes[size].height}
       width={sizes[size].width}

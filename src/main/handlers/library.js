@@ -14,10 +14,7 @@ ipcMain.handle("library:get-release", (_, id) => {
 ipcMain.handle("library:get-release-tracks", async (_, releaseId) => {
   const database = require("../services/database");
   const tracks = await database.getReleaseTracks(releaseId);
-  return tracks.map((track) => {
-    const { filePath, ...rest } = track;
-    return rest;
-  });
+  return tracks.map(({ filePath, ...rest }) => rest);
 });
 
 ipcMain.handle("library:scan", async () => {

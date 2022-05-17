@@ -25,12 +25,12 @@ export default function Library() {
     return map((release) => {
       const releaseData = {
         ...release,
-        picture: release.pictureMd,
+        picture: release.thumbnail,
       };
 
       const linkData = {
         ...release,
-        picture: release.pictureLg,
+        picture: release.picture,
       };
 
       return (

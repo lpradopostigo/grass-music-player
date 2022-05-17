@@ -32,7 +32,7 @@ export default function Player(props) {
   const releasePictureData = {
     title: track?.releaseTitle ?? "",
     artist: track?.releaseArtist ?? "",
-    picture: track?.pictureSm,
+    picture: track?.thumbnail,
     id: track?.id ?? -1,
   };
 

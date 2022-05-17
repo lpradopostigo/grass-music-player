@@ -33,9 +33,8 @@ async function getState() {
       releaseTitle: release.title,
       releaseArtist: release.artist,
       year: release.year,
-      pictureSm: release.pictureSm,
-      pictureMd: release.pictureMd,
-      pictureLg: release.pictureLg,
+      picture: release.picture,
+      thumbnail: release.thumbnail,
       playlistIndex: fileIndex,
     };
   }

@@ -56,14 +56,13 @@
     "base64-js": "^1.5.1",
     "color-contrast-checker": "^2.1.0",
     "colorthief": "^2.3.2",
+    "core-js": "^3.22.5",
     "electron-devtools-installer": "^3.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
     "eslint-config-airbnb": "^19.0.4",
     "grass-audio": "0.5.3",
-    "lodash": "^4.17.21",
     "loglevel": "^1.8.0",
-    "memoizee": "^0.4.15",
     "mini-css-extract-plugin": "^2.4.5",
     "music-metadata": "^7.11.4",
     "prop-types": "^15.8.0",
@@ -78,8 +77,8 @@
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",
     "react-stately": "^3.11.0",
-    "sharp": "^0.30.3",
-    "sqlite3": "^5.0.2"
+    "sharp": "^0.30.4",
+    "sqlite3": "^5.0.8"
   },
   "description": "My Electron application description",
   "devDependencies": {

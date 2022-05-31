@@ -16,6 +16,13 @@ module.exports = [
     },
   },
   {
+    test: /\.svelte$/,
+    exclude: /node_modules/,
+    use: {
+      loader: "svelte-loader",
+    },
+  },
+  {
     test: /\.?jsx$/,
     exclude: /node_modules/,
     use: "babel-loader",

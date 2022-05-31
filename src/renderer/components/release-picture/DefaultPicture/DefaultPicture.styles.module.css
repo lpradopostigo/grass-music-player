@@ -1,0 +1,21 @@
+.base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+.sm {
+  width: var(--picture__size--sm);
+  height: var(--picture__size--sm);
+}
+
+.md {
+  width: var(--picture__size--md);
+  height: var(--picture__size--md);
+}
+
+.lg {
+  width: var(--picture__size--lg);
+  height: var(--picture__size--lg);
+}

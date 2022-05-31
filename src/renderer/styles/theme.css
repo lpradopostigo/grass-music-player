@@ -1,0 +1,25 @@
+:root {
+  --color-white: #ffffff;
+  --color-black: #1c1c1e;
+
+  --font-size-xs: calc(12.3 / 16 * 1rem);
+  --font-size-sm: calc(13.12 / 16 * 1rem);
+  --font-size-md: calc(14 / 16 * 1rem);
+  --font-size-lg: calc(14.94 / 16 * 1rem);
+  --font-size-xl: calc(15.94 / 16 * 1rem);
+  --font-size-2xl: calc(27.34 / 16 * 1rem);
+
+  --space-xs: calc(10 / 16 * 1rem);
+  --space-sm: calc(12 / 16 * 1rem);
+  --space-md: calc(16 / 16 * 1rem);
+  --space-lg: calc(20 / 16 * 1rem);
+  --space-xl: calc(24 / 16 * 1rem);
+
+  --picture-size-sm: 56px;
+  --picture-size-md: 144px;
+  --picture-size-lg: 176px;
+}
+
+:root {
+  --space-view: calc(var(--space-xl) + 0.5rem);
+}

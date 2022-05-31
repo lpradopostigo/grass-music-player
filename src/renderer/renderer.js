@@ -1,9 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import App from "./App.svelte";
 
-import Main from "./Main";
+const app = new App({
+  target: document.getElementById("root"),
+  props: {
+    name: "Svelte",
+  },
+});
 
-ReactDOM.render(
-  React.createElement(Main, null, null),
-  document.getElementById("root")
-);
+export default app;

@@ -1,48 +1,34 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { createStyles, Center, Skeleton } from "@mantine/core";
-import { IoMusicalNotes } from "react-icons/io5";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { styled } from "@stitches/react";
+import sizes from "./sizes";
+import DefaultPicture from "./DefaultPicture/DefaultPicture";
+
+const Image = styled(LazyLoadImage, {
+  overflow: "hidden",
+  borderRadius: 5,
+  height: 200,
+  width: 200,
+});
 
 function ReleasePicture(props) {
   const { data, size, className } = props;
-  const { classes, cx } = useStyles({ size });
   const pictureAlt = `${data.title} by ${data.artist} release`;
 
   return data.picture ? (
-    <LazyLoadImage
+    <Image
       effect="opacity"
-      placeholder={
-        <Skeleton height={sizes[size].height} width={sizes[size].width} />
-      }
       fit="contain"
       src={data.picture}
       alt={pictureAlt}
-      height={sizes[size].height}
-      width={sizes[size].width}
-      className={cx(classes.container, className)}
+      height={200}
+      width={200}
     />
   ) : (
-    <Center className={classes.container}>
-      <IoMusicalNotes size={sizes[size].height / 4} />
-    </Center>
+    <DefaultPicture size={size} />
   );
 }
-
-export const sizes = {
-  sm: {
-    width: 56,
-    height: 56,
-  },
-  md: {
-    width: 144,
-    height: 144,
-  },
-  lg: {
-    width: 176,
-    height: 176,
-  },
-};
 
 ReleasePicture.defaultProps = {
   data: {
@@ -68,17 +54,6 @@ ReleasePicture.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
 };
-
-const useStyles = createStyles((theme, { size }) => ({
-  container: {
-    overflow: "hidden",
-    borderRadius: theme.radius[size],
-    boxShadow: theme.shadows[size],
-    height: sizes[size].height,
-    width: sizes[size].width,
-    color: theme.other.accentColor,
-  },
-}));
 
 export default React.memo(
   ReleasePicture,

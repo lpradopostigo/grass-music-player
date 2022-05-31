@@ -1,73 +1,21 @@
-import React, { useMemo } from "react";
-import { map } from "ramda";
-import {
-  createStyles,
-  Group,
-  Stack,
-  Loader,
-  Center,
-  Anchor,
-} from "@mantine/core";
-import { Link } from "react-router-dom";
-import { useGetReleasesQuery } from "../../services/api/libraryApi";
-import Release from "../release/Release";
-import Header from "../header/Header";
+import React, { useEffect, useState } from "react";
+import { createStyles } from "@mantine/core";
+import ReleasePicture from "../release-picture/ReleasePicture";
 
 export default function Library() {
-  const { data, isLoading } = useGetReleasesQuery();
+  const [releases, setReleases] = useState([]);
+
+  useEffect(() => {
+    window.api.invoke("library:get-releases").then(setReleases);
+  }, []);
+
   const { classes, theme } = useStyles();
 
-  const releases = useMemo(() => {
-    if (isLoading) {
-      return [];
-    }
+  const processedReleases = releases.map((release) => (
+    <ReleasePicture data={release} />
+  ));
 
-    return map((release) => {
-      const releaseData = {
-        ...release,
-        picture: release.thumbnail,
-      };
-
-      const linkData = {
-        ...release,
-        picture: release.picture,
-      };
-
-      return (
-        <Anchor
-          underline={false}
-          component={Link}
-          to={`/library/${release.id}`}
-          state={linkData}
-          key={release.id}
-        >
-          <Release data={releaseData} />
-        </Anchor>
-      );
-    })(data);
-  }, [isLoading, data]);
-
-  return (
-    <Stack className={classes.container} spacing={0}>
-      <Header title="Library" />
-
-      {isLoading ? (
-        <Center className={classes.loaderWrapper}>
-          <Loader />
-        </Center>
-      ) : (
-        <Group
-          className={classes.contentContainer}
-          spacing={theme.spacing.xl}
-          align="flex-start"
-          p={theme.other.spacing.view}
-          pt={0}
-        >
-          {releases}
-        </Group>
-      )}
-    </Stack>
-  );
+  return <div className={classes.container}>{processedReleases}</div>;
 }
 
 const useStyles = createStyles((theme) => ({
@@ -75,6 +23,9 @@ const useStyles = createStyles((theme) => ({
     alignSelf: "stretch",
     flexGrow: 1,
     backgroundColor: theme.white,
+    overflowY: "scroll",
+    display: "flex",
+    flexWrap: "wrap",
   },
 
   contentContainer: {

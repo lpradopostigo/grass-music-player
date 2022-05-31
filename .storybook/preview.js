@@ -1,5 +1,4 @@
-import { MantineProvider, Global } from "@mantine/core";
-import theme, { styles, globalStyles } from "../src/renderer/theme";
+import "../src/renderer/styles/theme.css";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -10,12 +9,3 @@ export const parameters = {
     },
   },
 };
-
-export const decorators = [
-  (Story) => (
-    <MantineProvider theme={theme} styles={styles} withNormalizeCSS>
-      <Global styles={globalStyles} />
-      <Story />
-    </MantineProvider>
-  ),
-];

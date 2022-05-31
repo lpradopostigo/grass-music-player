@@ -53,7 +53,9 @@
     "@mantine/core": "^4.1.2",
     "@mantine/hooks": "^4.1.2",
     "@reduxjs/toolkit": "^1.8.0",
+    "@stitches/react": "^1.2.8",
     "base64-js": "^1.5.1",
+    "clsx": "^1.1.1",
     "color-contrast-checker": "^2.1.0",
     "colorthief": "^2.3.2",
     "core-js": "^3.22.5",
@@ -78,7 +80,9 @@
     "react-router-dom": "^6.2.1",
     "react-stately": "^3.11.0",
     "sharp": "^0.30.4",
-    "sqlite3": "^5.0.8"
+    "sqlite3": "^5.0.8",
+    "svelte": "^3.48.0",
+    "svelte-loader": "^3.1.2"
   },
   "description": "My Electron application description",
   "devDependencies": {
@@ -106,9 +110,11 @@
     "eslint": "^8.11.0",
     "eslint-config-node": "^4.1.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^25.3.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-svelte3": "^4.0.0",
     "jest": "^27.4.5",
     "node-loader": "^2.0.0",
     "postcss": "^8.4.5",

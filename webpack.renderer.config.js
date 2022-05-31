@@ -1,5 +1,5 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const rules = require("./webpack.rules");
+const rules = require("./webpack.rules.js");
 
 rules.push({
   test: /\.css$/,
@@ -10,6 +10,7 @@ rules.push({
       options: {
         modules: {
           localIdentName: "[local]_[hash:base64:5]",
+          exportLocalsConvention: "camelCase",
         },
       },
     },
@@ -21,7 +22,7 @@ module.exports = {
     rules,
   },
   resolve: {
-    extensions: [".jsx", "..."],
+    extensions: [".jsx", "svelte", "..."],
   },
   plugins: [
     new MiniCssExtractPlugin({

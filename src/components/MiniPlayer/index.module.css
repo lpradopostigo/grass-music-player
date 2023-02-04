@@ -1,0 +1,55 @@
+.container {
+  padding: var(--size-2);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  position: relative;
+  gap: var(--size-2);
+}
+
+.controls {
+  display: flex;
+  gap: var(--size-3);
+  align-items: center;
+}
+
+.control {
+  border-radius: var(--radius-1);
+  font-size: var(--font-size-4);
+  display: grid;
+  place-content: center;
+  height: var(--size-6);
+  width: var(--size-6);
+}
+
+.control:hover {
+  background-color: var(--hover);
+}
+
+.left {
+  display: grid;
+  grid-template-columns: var(--size-picture-sm) 1fr;
+  align-items: center;
+  gap: var(--size-2);
+}
+
+.name {
+  font-weight: var(--font-weight-5);
+}
+
+.artist {
+  font-size: var(--font-size-00);
+  color: var(--text-subtle);
+}
+
+.release {
+  font-size: var(--font-size-0);
+}
+
+.time {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--size-1);
+  font-size: var(--font-size-0);
+  color: var(--text-subtle);
+}

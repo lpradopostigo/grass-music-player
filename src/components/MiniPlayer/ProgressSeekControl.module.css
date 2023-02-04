@@ -1,0 +1,36 @@
+.container {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-50%);
+  height: var(--size-2);
+}
+
+.progress {
+  background-color: black;
+  position: relative;
+  height: 100%;
+}
+
+.track {
+  background-color: var(--gray-3);
+  position: absolute;
+  bottom: 50%;
+  transform: translateY(50%);
+  left: 0;
+  height: 20%;
+  width: 100%;
+}
+
+.thumb {
+  background-color: black;
+  position: absolute;
+  right: 0;
+  bottom: 50%;
+  top: 50%;
+  transform: translateX(50%) translateY(-50%);
+  border-radius: var(--radius-round);
+  width: var(--size-2);
+  height: var(--size-2);
+}

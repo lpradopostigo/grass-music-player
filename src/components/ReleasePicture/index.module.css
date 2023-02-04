@@ -1,0 +1,22 @@
+.container {
+  overflow: hidden;
+  border-radius: var(--radius-1);
+  aspect-ratio: 1 / 1;
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.default-image {
+  display: flex;
+  color: white;
+  font-size: var(--font-size-4);
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--text);
+}

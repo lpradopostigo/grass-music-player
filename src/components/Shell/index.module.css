@@ -1,0 +1,17 @@
+.container {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  grid-template-columns: auto 1fr;
+  height: 100%;
+  width: 100%;
+}
+
+.content-wrapper {
+  min-height: 0;
+  flex-grow: 1;
+}
+
+.mini-player {
+  width: 100%;
+  grid-column: 1 / -1;
+}

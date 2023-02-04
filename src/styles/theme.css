@@ -1,0 +1,40 @@
+@import "../../node_modules/open-props/gray.min.css";
+@import "../../node_modules/open-props/stone.min.css";
+@import "../../node_modules/open-props/fonts.min.css";
+@import "../../node_modules/open-props/sizes.min.css";
+@import "../../node_modules/open-props/borders.min.css";
+@import "../../node_modules/open-props/shadows.min.css";
+
+:root {
+  /* font */
+  --font-size-00: 0.6875rem;
+  --font-size-0: 0.75rem;
+  --font-size-1: 0.875rem;
+  --font-size-2: 1rem;
+  --font-size-3: 1.125rem;
+  --font-size-4: 1.25rem;
+  --font-size-5: 1.375rem;
+  --font-size-6: 1.5625rem;
+  --font-size-7: 1.75rem;
+  --font-size-8: 2rem;
+
+  /* colors */
+  --text: #000;
+  --text-subtle: var(--gray-7);
+  --hover: var(--stone-2);
+  --hover-alt: var(--stone-4);
+
+  /* opacity */
+  --opacity-disabled: 0.5;
+
+  /* size */
+  --size-scrollbar-width: 3px;
+
+  --size-picture-sm: 56px;
+  --size-picture-md: 128px;
+  --size-picture-lg: 176px;
+
+  --size-title-bar-height: 32px;
+  --size-title-bar-button-height: var(--size-title-bar-height);
+  --size-title-bar-button-width: 48px;
+}

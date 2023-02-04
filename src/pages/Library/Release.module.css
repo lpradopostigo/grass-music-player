@@ -1,0 +1,15 @@
+.picture {
+  margin-bottom: var(--size-1);
+}
+
+a:hover .picture {
+  box-shadow: var(--shadow-4);
+}
+
+.name {
+  font-weight: var(--font-weight-6);
+}
+
+.artist-credit-name {
+  font-size: var(--font-size-0);
+}

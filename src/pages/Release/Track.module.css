@@ -1,0 +1,28 @@
+.track {
+  display: grid;
+  grid-template-columns: 2ch 1fr auto;
+  line-height: normal;
+  align-items: center;
+  gap: var(--size-3);
+  padding: var(--size-2);
+  border-radius: var(--radius-1);
+}
+
+.track:hover {
+  background-color: var(--hover);
+}
+
+.track-number {
+  font-size: var(--font-size-00);
+  font-weight: var(--font-weight-5);
+  text-align: center;
+}
+
+.track-length {
+  font-size: var(--font-size-00);
+}
+
+.track-artist-credit {
+  font-size: var(--font-size-0);
+  color: var(--text-subtle);
+}

@@ -5,11 +5,19 @@
   align-items: center;
   gap: var(--size-3);
   padding: var(--size-2);
-  border-radius: var(--radius-1);
+  border-bottom: var(--border-size-1) solid var(--gray-2);
 }
 
-.track:hover {
-  background-color: var(--hover);
+.track:focus-visible {
+  outline: var(--outline-focus);
+  outline-offset: 0;
+}
+
+.tracks {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: var(--size-2);
 }
 
 .track-number {

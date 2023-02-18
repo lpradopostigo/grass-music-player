@@ -10,7 +10,7 @@ import { listen } from "@tauri-apps/api/event";
 
 const PlayerStateContext = createContext();
 
-export function PlayerStateProvider(props) {
+export default function PlayerStateProvider(props) {
   const [state, setState] = createStore({});
 
   const promise = listen("player-state", ({ payload }) => {

@@ -2,6 +2,7 @@ use crate::global::APP_DIR;
 use std::fs::File;
 use std::io::{Cursor, Write};
 use std::path::{Path, PathBuf};
+use image::imageops::FilterType;
 
 static THUMBNAIL_SIZE: u32 = 320;
 static DIR_NAME: &str = "cover_art";
@@ -17,21 +18,13 @@ impl CoverArtRepository {
         format!("{}_thumbnail.webp", release_id)
     }
 
-    pub fn thumbnail_path(release_id: &str) -> PathBuf {
-        Self::cover_art_dir().join(Self::thumbnail_filename(release_id))
-    }
-
-    pub fn picture_path(release_id: &str) -> PathBuf {
-        Self::cover_art_dir().join(Self::picture_filename(release_id))
-    }
-
     fn process_cover_art(image: &[u8]) -> Result<(Vec<u8>, Vec<u8>), ()> {
         let original_image = match image::load_from_memory(image) {
             Ok(image) => image,
             Err(_) => return Err(()),
         };
 
-        let resized_image = original_image.thumbnail(THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+        let resized_image = original_image.resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, FilterType::CatmullRom);
 
         let mut picture_output = Cursor::new(Vec::new());
         let mut thumbnail_output = Cursor::new(Vec::new());
@@ -50,7 +43,16 @@ impl CoverArtRepository {
         Ok((picture, thumbnail))
     }
 
-    pub fn cover_art_dir() -> PathBuf {
+    pub fn thumbnail_path(release_id: &str) -> PathBuf {
+        Self::cover_art_dir().join(Self::thumbnail_filename(release_id))
+    }
+
+    fn picture_path(release_id: &str) -> PathBuf {
+        Self::cover_art_dir().join(Self::picture_filename(release_id))
+    }
+
+
+    fn cover_art_dir() -> PathBuf {
         let app_dir_path = Path::new(APP_DIR.get().unwrap());
         app_dir_path.join(DIR_NAME)
     }
@@ -61,7 +63,7 @@ impl CoverArtRepository {
         picture_path.exists() && thumbnail_path.exists()
     }
 
-    pub fn add_cover_art(release_id: &str, data: Vec<u8>) -> Result<(), ()> {
+    pub fn add(release_id: &str, data: Vec<u8>) -> Result<(), ()> {
         if Self::cover_art_exists(release_id) {
             return Err(());
         }
@@ -80,5 +82,40 @@ impl CoverArtRepository {
         thumbnail_file.write_all(&thumbnail).unwrap();
 
         Ok(())
+    }
+
+    pub fn find_picture(release_id: &str) -> Option<String> {
+        let picture_path = Self::picture_path(release_id);
+
+        if !picture_path.exists() {
+            None
+        } else {
+            Some(picture_path.to_str().unwrap().to_string())
+        }
+    }
+
+    pub fn find_thumbnail(release_id: &str) -> Option<String> {
+        let thumbnail_path = Self::thumbnail_path(release_id);
+
+        if !thumbnail_path.exists() {
+            None
+        } else {
+            Some(thumbnail_path.to_str().unwrap().to_string())
+        }
+    }
+
+    pub fn setup() {
+        let repository_dir = Self::cover_art_dir();
+        if !repository_dir.exists() {
+            std::fs::create_dir_all(repository_dir).unwrap();
+        }
+    }
+
+    pub fn clear_data() {
+        let cover_art_dir = Self::cover_art_dir();
+        if cover_art_dir.exists() {
+            std::fs::remove_dir_all(&cover_art_dir).unwrap();
+            std::fs::create_dir(&cover_art_dir).unwrap();
+        }
     }
 }

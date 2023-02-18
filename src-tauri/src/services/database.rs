@@ -1,81 +1,206 @@
 use crate::global::DB_CONNECTION;
 use rusqlite::Error as RusqliteError;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use ts_rs::TS;
+
+const SETTINGS_ROW_ID: i8 = 1;
+
+const TRACK_SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS track (
+    id TEXT NOT NULL,
+    release_id TEXT NOT NULL,
+    artist_credit_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    length REAL NOT NULL,
+    track_number INTEGER NOT NULL,
+    disc_number INTEGER NOT NULL,
+    path TEXT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (release_id) REFERENCES release(id),
+    FOREIGN KEY (artist_credit_id) REFERENCES artist_credit(id)
+)
+";
+
+const ARTIST_SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS artist (
+    id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+)
+";
+
+const ARTIST_CREDIT_SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS artist_credit (
+    id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+)
+";
+
+const ARTIST_CREDIT_PART_SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS artist_credit_part (
+    artist_credit_id TEXT NOT NULL,
+    artist_id TEXT NOT NULL,
+    PRIMARY KEY (artist_credit_id, artist_id),
+    FOREIGN KEY (artist_credit_id) REFERENCES artist_credit(id),
+    FOREIGN KEY (artist_id) REFERENCES artist(id)
+)
+";
+
+const RELEASE_SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS release (
+    id TEXT NOT NULL,
+    artist_credit_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    date TEXT NOT NULL,
+    total_tracks INTEGER NOT NULL,
+    total_discs INTEGER NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (artist_credit_id) REFERENCES artist_credit(id)
+)
+";
+
+const SETTINGS_SCHEMA: &str = "
+CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER NOT NULL,
+    library_path TEXT NOT NULL,
+    PRIMARY KEY (id)
+)
+";
 
 pub struct Database;
 
 impl Database {
     pub async fn migrate() -> Result<(), RusqliteError> {
-        let connection = DB_CONNECTION.get().unwrap().lock().await;
-        let connection = connection.as_ref().unwrap();
-
-        let artist_schema = "CREATE TABLE IF NOT EXISTS artist (
-            id TEXT NOT NULL,
-            name TEXT NOT NULL,
-            PRIMARY KEY (id)
-        )";
-
-        let artist_credit_schema = "CREATE TABLE IF NOT EXISTS artist_credit (
-            id TEXT NOT NULL,
-            name TEXT NOT NULL,
-            PRIMARY KEY (id)
-        )";
-
-        let artist_credit_part_schema = "CREATE TABLE IF NOT EXISTS artist_credit_part (
-            artist_credit_id TEXT NOT NULL,
-            artist_id TEXT NOT NULL,
-            PRIMARY KEY (artist_credit_id, artist_id),
-            FOREIGN KEY (artist_credit_id) REFERENCES artist_credit(id),
-            FOREIGN KEY (artist_id) REFERENCES artist(id)
-        )";
-
-        let release_schema = "CREATE TABLE IF NOT EXISTS release (
-                id TEXT NOT NULL,
-                artist_credit_id TEXT NOT NULL,
-                name TEXT NOT NULL,
-                date TEXT NOT NULL,
-                total_tracks INTEGER NOT NULL,
-                total_discs INTEGER NOT NULL,
-                PRIMARY KEY (id),
-                FOREIGN KEY (artist_credit_id) REFERENCES artist_credit(id)
-        )";
-
-        let track_schema = "CREATE TABLE IF NOT EXISTS track (
-                id TEXT NOT NULL,
-                release_id TEXT NOT NULL,
-                artist_credit_id TEXT NOT NULL,
-                name TEXT NOT NULL,
-                length REAL NOT NULL,
-                track_number INTEGER NOT NULL,
-                disc_number INTEGER NOT NULL,
-                path TEXT NOT NULL,
-                PRIMARY KEY (id),
-                FOREIGN KEY (release_id) REFERENCES release(id),
-                FOREIGN KEY (artist_credit_id) REFERENCES artist_credit(id)
-        )";
-
-        connection.execute(artist_schema, [])?;
-        connection.execute(artist_credit_schema, [])?;
-        connection.execute(artist_credit_part_schema, [])?;
-        connection.execute(release_schema, [])?;
-        connection.execute(track_schema, [])?;
+        Database::create_artist_table().await?;
+        Database::create_artist_credit_table().await?;
+        Database::create_artist_credit_part_table().await?;
+        Database::create_release_table().await?;
+        Database::create_track_table().await?;
+        Database::create_settings_table().await?;
 
         Ok(())
     }
 
     pub async fn rollback() -> Result<(), RusqliteError> {
+        Database::drop_track_table().await?;
+        Database::drop_release_table().await?;
+        Database::drop_artist_credit_part_table().await?;
+        Database::drop_artist_credit_table().await?;
+        Database::drop_artist_table().await?;
+        Database::drop_settings_table().await?;
+
+        Ok(())
+    }
+
+    pub async fn create_track_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute(TRACK_SCHEMA, [])?;
+
+        Ok(())
+    }
+
+    pub async fn drop_track_table() -> Result<(), RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
         connection.execute("DROP TABLE IF EXISTS track", [])?;
-        connection.execute("DROP TABLE IF EXISTS release", [])?;
-        connection.execute("DROP TABLE IF EXISTS artist_credit_part", [])?;
-        connection.execute("DROP TABLE IF EXISTS artist_credit", [])?;
+
+        Ok(())
+    }
+
+    pub async fn create_artist_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute(ARTIST_SCHEMA, [])?;
+
+        Ok(())
+    }
+
+    pub async fn drop_artist_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
         connection.execute("DROP TABLE IF EXISTS artist", [])?;
 
         Ok(())
     }
+
+    pub async fn create_artist_credit_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute(ARTIST_CREDIT_SCHEMA, [])?;
+
+        Ok(())
+    }
+
+    pub async fn drop_artist_credit_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute("DROP TABLE IF EXISTS artist_credit", [])?;
+
+        Ok(())
+    }
+
+    pub async fn create_artist_credit_part_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute(ARTIST_CREDIT_PART_SCHEMA, [])?;
+
+        Ok(())
+    }
+
+    pub async fn drop_artist_credit_part_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute("DROP TABLE IF EXISTS artist_credit_part", [])?;
+
+        Ok(())
+    }
+
+    pub async fn create_release_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute(RELEASE_SCHEMA, [])?;
+
+        Ok(())
+    }
+
+    pub async fn drop_release_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute("DROP TABLE IF EXISTS release", [])?;
+
+        Ok(())
+    }
+
+    pub async fn create_settings_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute(SETTINGS_SCHEMA, [])?;
+
+        Ok(())
+    }
+
+    pub async fn drop_settings_table() -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        connection.execute("DROP TABLE IF EXISTS settings", [])?;
+
+        Ok(())
+    }
+
 
     pub async fn begin_transaction() -> Result<(), RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
@@ -95,7 +220,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn add_artist_credit(artist_credit: &ArtistCredit) -> Result<(), RusqliteError> {
+    pub async fn insert_artist_credit(artist_credit: &ArtistCredit) -> Result<(), RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -107,7 +232,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn add_artist_credit_part(
+    pub async fn insert_artist_credit_part(
         artist_credit_part: &ArtistCreditPart,
     ) -> Result<(), RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
@@ -124,7 +249,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn add_artist(artist: &Artist) -> Result<(), RusqliteError> {
+    pub async fn insert_artist(artist: &Artist) -> Result<(), RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -136,7 +261,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn add_release(release: &Release) -> Result<(), RusqliteError> {
+    pub async fn insert_release(release: &Release) -> Result<(), RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -155,7 +280,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn add_track(track: &Track) -> Result<(), RusqliteError> {
+    pub async fn insert_track(track: &Track) -> Result<(), RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -176,7 +301,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn find_release(release_id: &str) -> Result<Release, RusqliteError> {
+    pub async fn select_release_by_id(release_id: &str) -> Result<Release, RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -195,7 +320,7 @@ impl Database {
         Ok(release)
     }
 
-    pub async fn find_all_releases() -> Result<Vec<Release>, RusqliteError> {
+    pub async fn select_all_releases() -> Result<Vec<Release>, RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -220,7 +345,7 @@ impl Database {
         Ok(releases)
     }
 
-    pub async fn find_track_by_path(path: &str) -> Result<Track, RusqliteError> {
+    pub async fn select_track_by_path(path: &str) -> Result<Track, RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -240,7 +365,7 @@ impl Database {
         Ok(track)
     }
 
-    pub async fn find_track(track_id: &str) -> Result<Track, RusqliteError> {
+    pub async fn select_track_by_id(track_id: &str) -> Result<Track, RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -261,7 +386,7 @@ impl Database {
         Ok(track)
     }
 
-    pub async fn find_tracks_by_release_id(release_id: &str) -> Result<Vec<Track>, RusqliteError> {
+    pub async fn select_tracks_by_release_id(release_id: &str) -> Result<Vec<Track>, RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -288,7 +413,7 @@ impl Database {
         Ok(tracks)
     }
 
-    pub async fn find_artist_credit(artist_credit_id: &str) -> Result<ArtistCredit, RusqliteError> {
+    pub async fn select_artist_credit_by_id(artist_credit_id: &str) -> Result<ArtistCredit, RusqliteError> {
         let connection = DB_CONNECTION.get().unwrap().lock().await;
         let connection = connection.as_ref().unwrap();
 
@@ -304,6 +429,39 @@ impl Database {
         )?;
 
         Ok(artist_credit)
+    }
+
+    pub async fn select_settings() -> Result<Settings, RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        let settings = connection.query_row("SELECT * FROM settings WHERE id = ?1", [SETTINGS_ROW_ID], |row| {
+            Ok(Settings {
+                library_path: row.get(1)?,
+            })
+        })?;
+
+        Ok(settings)
+    }
+
+    pub async fn update_settings(settings: &Settings) -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        let mut statement = connection.prepare("UPDATE settings SET library_path = ?1 WHERE id = ?2")?;
+        statement.execute((&settings.library_path, SETTINGS_ROW_ID))?;
+
+        Ok(())
+    }
+
+    pub async fn insert_settings(settings: &Settings) -> Result<(), RusqliteError> {
+        let connection = DB_CONNECTION.get().unwrap().lock().await;
+        let connection = connection.as_ref().unwrap();
+
+        let mut statement = connection.prepare("INSERT INTO settings (id, library_path) VALUES (?1, ?2)")?;
+        statement.execute((SETTINGS_ROW_ID, &settings.library_path))?;
+
+        Ok(())
     }
 }
 
@@ -355,4 +513,11 @@ pub struct Track {
     pub track_number: u16,
     pub disc_number: u16,
     pub path: String,
+}
+
+#[derive(Serialize, Deserialize, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct Settings {
+    pub library_path: String,
 }

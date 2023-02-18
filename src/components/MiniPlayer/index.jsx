@@ -6,12 +6,12 @@ import {
 } from "solid-icons/io";
 import ProgressSeekControl from "./ProgressSeekControl.jsx";
 import classes from "./index.module.css";
-import ReleasePicture from "../ReleasePicture/index.jsx";
+import CoverArt from "../CoverArt/index.jsx";
 import { secondsToAudioDuration } from "../../utils/index.js";
-import Player from "../../services/Player/index.js";
+import Player from "../../commands/Player/index.js";
 import { createResource, Show } from "solid-js";
-import Library from "../../services/Library.js";
-import { usePlayerState } from "../../services/Player/context.jsx";
+import Library from "../../commands/Library.js";
+import { usePlayerState } from "../../commands/Player/PlayerStateProvider.jsx";
 
 function MiniPlayer() {
   const playerState = usePlayerState();
@@ -28,19 +28,30 @@ function MiniPlayer() {
       );
 
       const thumbnailSrc = await Library.findReleaseThumbnail(track.releaseId);
+      const pictureSrc = await Library.findReleasePicture(track.releaseId);
 
       return {
         ...track,
         thumbnailSrc,
+        pictureSrc,
         releaseName: release.name,
         artistCreditName: artistCredit.name,
       };
     }
   );
+
+  const gradient =
+    "linear-gradient(rgba(255, 255, 255, 0.825), rgba(255,255,255, 0.825))";
+
   return (
-    <div class={classes.container}>
+    <div
+      class={classes.container}
+      style={{
+        "background-image": `${gradient}, url(${track()?.pictureSrc})`,
+      }}
+    >
       <div class={classes.left}>
-        <ReleasePicture src={track()?.thumbnailSrc} />
+        <CoverArt size="sm" src={track()?.thumbnailSrc} />
 
         <Show when={track()} keyed>
           <div>

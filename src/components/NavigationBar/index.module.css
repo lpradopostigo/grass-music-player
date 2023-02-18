@@ -1,8 +1,8 @@
 .container {
   display: flex;
   flex-direction: column;
-  background-color: var(--stone-1);
   height: 100%;
+  box-shadow: var(--inner-shadow-4);
 }
 
 .link {
@@ -18,11 +18,5 @@
 }
 
 .link-inactive {
-  opacity: var(--opacity-disabled);
-  color: var(--text);
-}
-
-.link:hover {
-  background-color: var(--hover-alt);
-  color: var(--text);
+  color: var(--gray-5);
 }

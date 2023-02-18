@@ -25,14 +25,16 @@
     "vite-plugin-solid": "^2.3.0"
   },
   "dependencies": {
+    "@solid-aria/focus": "^0.1.4",
+    "@solid-primitives/event-listener": "^2.2.6",
+    "@solid-primitives/intersection-observer": "^2.0.6",
     "@solidjs/router": "^0.7.0",
-    "@tailwindcss/line-clamp": "^0.4.2",
     "@tauri-apps/api": "^1.2.0",
     "clsx": "^1.2.1",
     "modern-normalize": "^1.1.0",
     "open-props": "^1.5.5",
     "prettier-plugin-jsdoc": "^0.4.2",
     "solid-icons": "^1.0.4",
-    "solid-js": "^1.5.1"
+    "solid-js": "^1.6.10"
   }
 }

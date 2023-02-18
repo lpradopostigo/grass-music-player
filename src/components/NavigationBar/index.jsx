@@ -19,6 +19,7 @@ function NavigationBar() {
 function Link(props) {
   return (
     <A
+      tabIndex={-1}
       class={classes.link}
       activeClass={classes.linkActive}
       inactiveClass={classes.linkInactive}

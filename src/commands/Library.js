@@ -57,30 +57,36 @@ const Library = {
 
   /**
    * @param releaseId {string}
-   * @returns {Promise<string>}
+   * @returns {Promise<string | null>}
    */
   async findReleaseThumbnail(releaseId) {
-    const path = await invoke("library_thumbnail_path", { releaseId });
-    return convertFileSrc(path);
+    const path = await invoke("library_find_thumbnail", { releaseId });
+    return path ? convertFileSrc(path) : null;
   },
 
   /**
    * @param releaseId
-   * @returns {Promise<string>}
+   * @returns {Promise<string | null>}
    */
   async findReleasePicture(releaseId) {
-    const path = await invoke("library_picture_path", { releaseId });
-    return convertFileSrc(path);
+    const path = await invoke("library_find_picture", { releaseId });
+    return path ? convertFileSrc(path) : null;
   },
 
-  /** @returns {Promise<void>} */
-  scan() {
-    return invoke("library_scan");
+  /**
+   * @param [clearData] {boolean}
+   * @returns {Promise<void>}
+   */
+  scan(clearData = false) {
+    return invoke("library_scan", { clearData });
   },
 
-  /** @returns {Promise<void>} */
-  scanCoverArt() {
-    return invoke("library_scan_cover_art");
+  /**
+   * @param [clearData] {boolean}
+   * @returns {Promise<void>}
+   */
+  scanCoverArt(clearData = false) {
+    return invoke("library_scan_cover_art", { clearData });
   },
 };
 

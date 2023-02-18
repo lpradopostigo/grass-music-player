@@ -1,0 +1,32 @@
+.title-bar {
+  position: absolute;
+  height: var(--size-title-bar-height);
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.title-bar-alt {
+  color: var(--white);
+}
+
+.title-bar-button {
+  display: grid;
+  place-items: center;
+  height: var(--size-title-bar-button-height);
+  width: var(--size-title-bar-button-width);
+  font-size: 16px;
+}
+
+.title-bar-button:hover {
+  background-color: var(--gray-2);
+}
+
+.close-button:hover {
+  background-color: var(--red-8) !important;
+  color: var(--white) !important;
+}
+
+.title-bar-alt > .title-bar-button:hover {
+  color: var(--black);
+}

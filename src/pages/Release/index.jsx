@@ -1,14 +1,14 @@
 import { useParams } from "@solidjs/router";
-import { createResource, For, Show } from "solid-js";
-import Library from "../../services/Library.js";
+import { createResource, Show } from "solid-js";
+import Library from "../../commands/Library.js";
 import classes from "./index.module.css";
-import Track from "./Track.jsx";
-import Player from "../../services/Player/index.js";
-import { usePlayerState } from "../../services/Player/context.jsx";
+import TrackList from "./TrackList.jsx";
+import { useTitleBarTheme } from "../../components/Shell/TitleBarThemeProvider.jsx";
 
 function Release() {
   const params = useParams();
-  const playerState = usePlayerState();
+  const { setBackgroundIsDark } = useTitleBarTheme();
+
   const [release] = createResource(params.id, async (id) => {
     const release = await Library.findRelease(id);
     const pictureSrc = await Library.findReleasePicture(id);
@@ -32,36 +32,25 @@ function Release() {
     return Promise.all(tracksWithCreditName);
   });
 
+  setBackgroundIsDark(true);
+
+  const gradient = "linear-gradient(rgba(0, 0, 0, 0.425), rgba(0,0,0, 0.425))";
+
   return (
     <Show when={release() && tracks()} keyed>
       <div class={classes.container}>
-        <header>
-          <Show when={release().pictureSrc} keyed={false}>
-            <img src={release().pictureSrc} alt="picture" />
-          </Show>
+        <header
+          class={classes.header}
+          style={{
+            "background-image": `${gradient}, url(${release().pictureSrc})`,
+          }}
+        >
           <h1>{release().name}</h1>
           <div class={classes.artistCredit}>{release().artistCreditName}</div>
           <div class={classes.date}>{release().date}</div>
         </header>
 
-        <ul class={classes.tracks}>
-          <For each={tracks()}>
-            {(track, index) => (
-              <Track
-                {...track}
-                active={
-                  playerState.currentTrackPath === track.path &&
-                  playerState.playbackState === "playing"
-                }
-                onClick={async () => {
-                  await Player.setPlaylist(tracks().map(({ path }) => path));
-                  await Player.skipToTrack(index());
-                  await Player.play();
-                }}
-              />
-            )}
-          </For>
-        </ul>
+        <TrackList tracks={tracks()} />
       </div>
     </Show>
   );

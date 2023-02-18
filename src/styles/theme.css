@@ -1,9 +1,8 @@
-@import "../../node_modules/open-props/gray.min.css";
-@import "../../node_modules/open-props/stone.min.css";
-@import "../../node_modules/open-props/fonts.min.css";
-@import "../../node_modules/open-props/sizes.min.css";
-@import "../../node_modules/open-props/borders.min.css";
-@import "../../node_modules/open-props/shadows.min.css";
+@import "open-props/colors.min.css";
+@import "open-props/fonts.min.css";
+@import "open-props/sizes.min.css";
+@import "open-props/borders.min.css";
+@import "open-props/shadows.min.css";
 
 :root {
   /* font */
@@ -19,20 +18,29 @@
   --font-size-8: 2rem;
 
   /* colors */
+  --black: #000;
+  --white: #fff;
+  --accent: var(--black);
   --text: #000;
+  --text-alt: #fff;
   --text-subtle: var(--gray-7);
-  --hover: var(--stone-2);
-  --hover-alt: var(--stone-4);
+  --hover: var(--stone-0);
+  --hover-alt: var(--stone-1);
 
   /* opacity */
   --opacity-disabled: 0.5;
 
+  /* outline */
+  --outline-focus: 2px solid var(--text);
+
+  /* shadow */
+  --inner-shadow-focus: var(--inner-shadow-3);
+
   /* size */
   --size-scrollbar-width: 3px;
 
-  --size-picture-sm: 56px;
-  --size-picture-md: 128px;
-  --size-picture-lg: 176px;
+  --size-cover-art-sm: 56px;
+  --size-cover-art-md: 128px;
 
   --size-title-bar-height: 32px;
   --size-title-bar-button-height: var(--size-title-bar-height);

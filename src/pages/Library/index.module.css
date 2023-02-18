@@ -1,9 +1,10 @@
 .container {
   display: grid;
   overflow-y: auto;
-  max-height: 100%;
+  align-content: start;
+  height: calc(100% - var(--size-title-bar-height));
+  margin-top: var(--size-title-bar-height);
+  padding: var(--size-3) var(--size-4);
   gap: var(--size-3);
-  padding: var(--size-3);
-  grid-template-columns: repeat(auto-fill, var(--size-picture-md));
-  grid-template-rows: repeat(auto-fill, auto);
+  grid-template-columns: repeat(auto-fill, var(--size-cover-art-md));
 }

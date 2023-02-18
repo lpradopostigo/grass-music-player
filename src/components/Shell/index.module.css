@@ -9,6 +9,7 @@
 .content-wrapper {
   min-height: 0;
   flex-grow: 1;
+  position: relative;
 }
 
 .mini-player {

@@ -1,25 +1,29 @@
-mod cover_art_repository;
-mod database;
-mod parser;
-mod tag_reader;
+use std::{
+    fs::read,
+    path::Path,
+};
+use super::{
+    parser::{
+        parse_dir,
+        parse_file,
+        Error as ParserError,
+        Track as ParserTrack,
+    },
+    database::{Database, Artist, ArtistCredit, ArtistCreditPart, Release, Track},
+    cover_art_repository::CoverArtRepository,
+};
 
-use cover_art_repository::CoverArtRepository;
-use database::Database;
-pub use database::{Artist, ArtistCredit, ArtistCreditPart, Release, Track};
-use parser::{parse_dir, parse_file, Error as ParserError, Track as ParserTrack};
-use std::fs::read;
-use std::path::Path;
 
-pub struct Library;
+pub struct LibraryMetadataRepository;
 
-impl Library {
+impl LibraryMetadataRepository {
     async fn index_track(track: &ParserTrack) {
         let new_track_artist_credit = ArtistCredit {
             id: track.id.clone(),
             name: track.artist_credit_name.clone(),
         };
 
-        if Database::add_artist_credit(&new_track_artist_credit)
+        if Database::insert_artist_credit(&new_track_artist_credit)
             .await
             .is_ok()
         {
@@ -28,13 +32,13 @@ impl Library {
                     id: artist.id.clone(),
                     name: artist.name.clone(),
                 };
-                Database::add_artist(&new_artist).await.ok();
+                Database::insert_artist(&new_artist).await.ok();
 
                 let new_artist_credit_part = ArtistCreditPart {
                     artist_credit_id: new_track_artist_credit.id.clone(),
                     artist_id: new_artist.id.clone(),
                 };
-                Database::add_artist_credit_part(&new_artist_credit_part)
+                Database::insert_artist_credit_part(&new_artist_credit_part)
                     .await
                     .ok();
             }
@@ -45,7 +49,7 @@ impl Library {
             name: track.release_artist_credit_name.clone(),
         };
 
-        if Database::add_artist_credit(&new_release_artist_credit)
+        if Database::insert_artist_credit(&new_release_artist_credit)
             .await
             .is_ok()
         {
@@ -54,7 +58,7 @@ impl Library {
                     artist_credit_id: new_release_artist_credit.id.clone(),
                     artist_id: artist.id.clone(),
                 };
-                Database::add_artist_credit_part(&new_artist_credit_part)
+                Database::insert_artist_credit_part(&new_artist_credit_part)
                     .await
                     .ok();
             }
@@ -67,7 +71,7 @@ impl Library {
                 total_tracks: track.release_total_tracks,
                 total_discs: track.release_total_discs,
             };
-            Database::add_release(&new_release).await.ok();
+            Database::insert_release(&new_release).await.ok();
         }
 
         let new_track = Track {
@@ -81,24 +85,42 @@ impl Library {
             path: track.path.clone(),
         };
 
-        Database::add_track(&new_track).await.ok();
+        Database::insert_track(&new_track).await.ok();
     }
 
     pub async fn setup() {
-        let repository_dir = CoverArtRepository::cover_art_dir();
-        if !repository_dir.exists() {
-            std::fs::create_dir_all(repository_dir).unwrap();
-        }
+        CoverArtRepository::setup();
+        Self::create_tables().await;
+    }
 
-        Database::migrate().await.unwrap();
+    async fn create_tables() {
+        Database::create_artist_table().await.unwrap();
+        Database::create_artist_credit_table().await.unwrap();
+        Database::create_artist_credit_part_table().await.unwrap();
+        Database::create_release_table().await.unwrap();
+        Database::create_track_table().await.unwrap();
+    }
+
+    async fn drop_tables() {
+        Database::drop_track_table().await.unwrap();
+        Database::drop_release_table().await.unwrap();
+        Database::drop_artist_credit_part_table().await.unwrap();
+        Database::drop_artist_credit_table().await.unwrap();
+        Database::drop_artist_table().await.unwrap();
+    }
+
+    pub async fn clear_data() {
+        Self::drop_tables().await;
+        Self::create_tables().await;
+        CoverArtRepository::clear_data();
     }
 
     pub async fn index_cover_art() {
-        let releases = Database::find_all_releases().await.unwrap();
+        let releases = Database::select_all_releases().await.unwrap();
         let release_ids: Vec<String> = releases.iter().map(|r| r.id.clone()).collect();
 
         for id in release_ids {
-            let tracks = Database::find_tracks_by_release_id(&id).await.unwrap();
+            let tracks = Database::select_tracks_by_release_id(&id).await.unwrap();
             match tracks.first() {
                 Some(track) => {
                     if CoverArtRepository::cover_art_exists(&id) {
@@ -109,13 +131,17 @@ impl Library {
                     let release_path = track_path.parent().unwrap();
                     let cover_art_path = release_path.join("cover.jpg");
                     if let Ok(cover_art) = read(cover_art_path) {
-                        CoverArtRepository::add_cover_art(&id, cover_art).unwrap();
+                        CoverArtRepository::add(&id, cover_art).unwrap();
                         continue;
                     }
                 }
                 None => continue,
             }
         }
+    }
+
+    pub fn clear_cover_art_data() {
+        CoverArtRepository::clear_data();
     }
 
     pub async fn add_file(path: &str) -> Result<(), ParserError> {
@@ -139,57 +165,51 @@ impl Library {
         parsing_errors
     }
 
-    pub fn thumbnail_path(release_id: &str) -> String {
-        CoverArtRepository::thumbnail_path(release_id)
-            .to_str()
-            .unwrap()
-            .to_string()
+    pub fn find_thumbnail(release_id: &str) -> Option<String> {
+        CoverArtRepository::find_thumbnail(release_id)
     }
 
-    pub fn picture_path(release_id: &str) -> String {
-        CoverArtRepository::picture_path(release_id)
-            .to_str()
-            .unwrap()
-            .to_string()
+    pub fn find_picture(release_id: &str) -> Option<String> {
+        CoverArtRepository::find_picture(release_id)
     }
 
     pub async fn find_release(release_id: &str) -> Option<Release> {
-        match Database::find_release(release_id).await {
+        match Database::select_release_by_id(release_id).await {
             Ok(release) => Some(release),
             Err(_) => None,
         }
     }
 
     pub async fn find_all_releases() -> Vec<Release> {
-        match Database::find_all_releases().await {
+        match Database::select_all_releases().await {
             Ok(releases) => releases,
             Err(_) => vec![],
         }
     }
 
     pub async fn find_track(track_id: &str) -> Option<Track> {
-        match Database::find_track(track_id).await {
+        match Database::select_track_by_id(track_id).await {
             Ok(track) => Some(track),
             Err(_) => None,
         }
     }
 
     pub async fn find_track_by_path(path: &str) -> Option<Track> {
-        match Database::find_track_by_path(path).await {
+        match Database::select_track_by_path(path).await {
             Ok(track) => Some(track),
             Err(_) => None,
         }
     }
 
     pub async fn find_tracks_by_release_id(release_id: &str) -> Vec<Track> {
-        match Database::find_tracks_by_release_id(release_id).await {
+        match Database::select_tracks_by_release_id(release_id).await {
             Ok(tracks) => tracks,
             Err(_) => vec![],
         }
     }
 
     pub async fn find_artist_credit(artist_credit_id: &str) -> Option<ArtistCredit> {
-        match Database::find_artist_credit(artist_credit_id).await {
+        match Database::select_artist_credit_by_id(artist_credit_id).await {
             Ok(artist_credit) => Some(artist_credit),
             Err(_) => None,
         }

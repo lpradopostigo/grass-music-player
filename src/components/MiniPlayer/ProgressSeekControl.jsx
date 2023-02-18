@@ -1,6 +1,6 @@
 import classes from "./ProgressSeekControl.module.css";
-import { usePlayerState } from "../../services/Player/context.jsx";
-import Player from "../../services/Player/index.js";
+import { usePlayerState } from "../../commands/Player/PlayerStateProvider.jsx";
+import Player from "../../commands/Player/index.js";
 
 const ProgressSeekControl = () => {
   const playerState = usePlayerState();

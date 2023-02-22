@@ -11,7 +11,7 @@ module.exports = {
     },
     sourceType: "module",
   },
-  ignorePatterns: ["postcss.config.js", "vite.config.js", ".eslintrc.js"],
+  ignorePatterns: ["postcss.config.js", "vite.config.js", ".eslintrc.js", "src-tauri/bindings/*"],
   plugins: ["@typescript-eslint", "solid"],
   rules: {
     "@typescript-eslint/consistent-type-definitions": ["error", "type"],

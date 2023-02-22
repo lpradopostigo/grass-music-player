@@ -1,4 +1,4 @@
-use super::tag_reader::{Error as TagReaderError, TagReader};
+use super::tag_reader::{CoverArt, Error as TagReaderError, TagReader};
 use std::fmt::Display;
 use walkdir::WalkDir;
 
@@ -12,7 +12,7 @@ pub struct Artist {
 pub struct Track {
     pub artists: Vec<Artist>,
     pub artist_credit_name: String,
-    pub cover_art: Option<Vec<u8>>,
+    pub cover_art: Option<CoverArt>,
     pub disc_number: u16,
     pub id: String,
     pub length: f64,
@@ -87,7 +87,7 @@ impl Display for Error {
 }
 
 pub fn parse_file(file_path: &str) -> Result<Track, Error> {
-    let tags = match TagReader::new().read_tags(file_path) {
+    let tag = match TagReader::read(file_path) {
         Ok(tag) => tag,
         Err(TagReaderError::CorruptedFile) => {
             return Err(Error::CorruptedFile(file_path.to_string()))
@@ -97,12 +97,27 @@ pub fn parse_file(file_path: &str) -> Result<Track, Error> {
         }
     };
 
-    let artist_ids = tags
-        .musicbrainz_artist_id
-        .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::Artists))?;
-    let artist_names = tags
-        .artists
-        .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::Artists))?;
+    let artist_ids = tag.musicbrainz_artist_id;
+
+    if artist_ids.is_empty() {
+        return Err(Error::ParsingFailed(file_path.to_string(), Field::Artists));
+    }
+
+    let artist_names = tag.artists;
+
+    if artist_names.is_empty() {
+        return Err(Error::ParsingFailed(file_path.to_string(), Field::Artists));
+    }
+
+    let release_artist_ids = tag.musicbrainz_album_artist_id;
+
+    if release_artist_ids.is_empty() {
+        return Err(Error::ParsingFailed(
+            file_path.to_string(),
+            Field::ReleaseArtists,
+        ));
+    }
+
     let artists = artist_ids
         .iter()
         .zip(artist_names.iter())
@@ -111,10 +126,6 @@ pub fn parse_file(file_path: &str) -> Result<Track, Error> {
             name: name.clone(),
         })
         .collect();
-
-    let release_artist_ids = tags
-        .musicbrainz_album_artist_id
-        .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::ReleaseArtists))?;
 
     let release_artists = release_artist_ids
         .iter()
@@ -128,40 +139,40 @@ pub fn parse_file(file_path: &str) -> Result<Track, Error> {
     let parsed_track = Track {
         artists,
         release_artists,
-        artist_credit_name: tags
+        artist_credit_name: tag
             .artist
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::Artists))?,
-        release_artist_credit_name: tags
+        release_artist_credit_name: tag
             .album_artist
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::ReleaseArtists))?,
-        disc_number: tags
+        disc_number: tag
             .disc_number
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::DiscNumber))?,
-        id: tags
+        id: tag
             .musicbrainz_track_id
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::Id))?,
-        name: tags
+        name: tag
             .title
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::Name))?,
-        track_number: tags
+        track_number: tag
             .track_number
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::TrackNumber))?,
-        length: tags.duration,
-        path: tags.path,
-        release_name: tags
+        length: tag.duration,
+        path: tag.path,
+        release_name: tag
             .album
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::ReleaseName))?,
-        cover_art: tags.cover_art,
-        release_date: tags
+        cover_art: tag.cover_art,
+        release_date: tag
             .date
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::Date))?,
-        release_id: tags
+        release_id: tag
             .musicbrainz_album_id
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::ReleaseId))?,
-        release_total_discs: tags
+        release_total_discs: tag
             .total_discs
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::TotalDiscs))?,
-        release_total_tracks: tags
+        release_total_tracks: tag
             .total_tracks
             .ok_or_else(|| Error::ParsingFailed(file_path.to_string(), Field::TotalTracks))?,
     };

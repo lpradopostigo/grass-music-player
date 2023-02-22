@@ -5,7 +5,7 @@ import {
   VsChromeMaximize,
   VsChromeMinimize,
 } from "solid-icons/vs";
-import { useTitleBarTheme } from "./TitleBarThemeProvider.jsx";
+import { useTitleBarTheme } from "./TitleBarThemeProvider";
 import clsx from "clsx";
 
 export default function TitleBar() {

@@ -4,14 +4,14 @@ import {
   IoPlayBackSharp,
   IoPlayForwardSharp,
 } from "solid-icons/io";
-import ProgressSeekControl from "./ProgressSeekControl.jsx";
+import ProgressSeekControl from "./ProgressSeekControl";
 import classes from "./index.module.css";
-import CoverArt from "../CoverArt/index.jsx";
-import { secondsToAudioDuration } from "../../utils/index.js";
-import Player from "../../commands/Player/index.js";
-import { createResource, Show } from "solid-js";
-import Library from "../../commands/Library.js";
-import { usePlayerState } from "../../commands/Player/PlayerStateProvider.jsx";
+import CoverArt from "../CoverArt";
+import { secondsToAudioDuration } from "../../utils";
+import Player from "../../commands/Player";
+import { createResource, JSX, Show } from "solid-js";
+import Library from "../../commands/Library";
+import { usePlayerState } from "../../providers/PlayerStateProvider";
 
 function MiniPlayer() {
   const playerState = usePlayerState();
@@ -19,7 +19,7 @@ function MiniPlayer() {
   const [track] = createResource(
     () => playerState.currentTrackPath,
     async (path) => {
-      if (!path) return null;
+      if (!path) return;
 
       const track = await Library.findTrackByPath(path);
       const release = await Library.findRelease(track.releaseId);
@@ -55,9 +55,9 @@ function MiniPlayer() {
 
         <Show when={track()} keyed>
           <div>
-            <div class={classes.name}>{track().name}</div>
-            <div class={classes.release}>{track().releaseName}</div>
-            <div class={classes.artist}>{track().artistCreditName}</div>
+            <div class={classes.name}>{track()!.name}</div>
+            <div class={classes.release}>{track()!.releaseName}</div>
+            <div class={classes.artist}>{track()!.artistCreditName}</div>
           </div>
         </Show>
       </div>
@@ -92,7 +92,7 @@ function MiniPlayer() {
   );
 }
 
-function Control(props) {
+function Control(props: { icon: JSX.Element; onClick?: () => void }) {
   return (
     <div onClick={() => props.onClick?.()} class={classes.control}>
       {props.icon}

@@ -1,16 +1,17 @@
 import classes from "./TrackList.module.css";
 import { For, onMount, Show } from "solid-js";
-import EqBars from "./EqBars.jsx";
-import { secondsToAudioDuration } from "../../utils/index.js";
-import Player from "../../commands/Player/index.js";
-import { usePlayerState } from "../../commands/Player/PlayerStateProvider.jsx";
+import EqBars from "./EqBars";
+import { secondsToAudioDuration } from "../../utils";
+import Player from "../../commands/Player";
+import { usePlayerState } from "../../providers/PlayerStateProvider";
 import { makeEventListener } from "@solid-primitives/event-listener";
 import clsx from "clsx";
+import { Track as TTrack } from "../../../src-tauri/bindings/Track";
 
-function TrackList(props) {
+function TrackList(props: TrackListProps) {
   const playerState = usePlayerState();
 
-  let containerEl = null;
+  let containerEl!: HTMLUListElement;
 
   onMount(() => {
     makeEventListener(containerEl, "keydown", (event) => {
@@ -24,24 +25,41 @@ function TrackList(props) {
       if (key === "ArrowUp") {
         event.preventDefault();
         const indexToFocus = focusedChildIndex - 1;
-        children.at(indexToFocus).focus();
-        children
-          .at(indexToFocus)
-          .scrollIntoView({ block: "center", behavior: "smooth" });
+        const elementToFocus = children.at(indexToFocus);
+
+        if (elementToFocus instanceof HTMLElement) {
+          elementToFocus.focus();
+          elementToFocus.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
       } else if (key === "ArrowDown") {
         event.preventDefault();
         const indexToFocus = (focusedChildIndex + 1) % children.length;
-        children[indexToFocus].focus();
-        children[indexToFocus].scrollIntoView({
-          block: "center",
-          behavior: "smooth",
-        });
+        const elementToFocus = children.at(indexToFocus);
+
+        if (elementToFocus instanceof HTMLElement) {
+          elementToFocus.focus();
+          elementToFocus.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
       } else if (key === "Enter") {
-        document.activeElement.click();
+        const activeElement = document.activeElement;
+
+        if (activeElement instanceof HTMLElement) {
+          activeElement.click();
+        }
       }
     });
 
-    containerEl.children[0].focus();
+    const [firstChild] = containerEl.children;
+
+    if (firstChild instanceof HTMLElement) {
+      firstChild.focus();
+    }
   });
 
   return (
@@ -70,7 +88,7 @@ function TrackList(props) {
   );
 }
 
-function Track(props) {
+function Track(props: TrackProps) {
   // const trackNumberWidth = createMemo(() => {
   //   const digits = Math.trunc(Math.log10(props.trackNumberDigits)) + 1;
   //   return isNaN(digits) ? undefined : `${Math.max(digits, 2)}ch`;
@@ -97,5 +115,17 @@ function Track(props) {
     </li>
   );
 }
+
+type TrackListProps = {
+  tracks: (Pick<TTrack, "path" | "trackNumber" | "name" | "length"> & {
+    artistCreditName: string;
+  })[];
+};
+
+type TrackProps = {
+  active: boolean;
+  artistCreditName: string;
+  onClick?: () => void;
+} & Pick<TTrack, "trackNumber" | "name" | "length">;
 
 export default TrackList;

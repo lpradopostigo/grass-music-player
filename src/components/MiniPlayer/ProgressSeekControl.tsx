@@ -1,10 +1,11 @@
 import classes from "./ProgressSeekControl.module.css";
-import { usePlayerState } from "../../commands/Player/PlayerStateProvider.jsx";
-import Player from "../../commands/Player/index.js";
+import { usePlayerState } from "../../providers/PlayerStateProvider";
+import Player from "../../commands/Player";
+import { JSX } from "solid-js";
 
-const ProgressSeekControl = () => {
+function ProgressSeekControl() {
   const playerState = usePlayerState();
-  const handleClick = (event) => {
+  const handleClick: JSX.EventHandler<HTMLDivElement, MouseEvent> = (event) => {
     const { width, left } = event.currentTarget.getBoundingClientRect();
     const { clientX } = event;
     const x = clientX - left;
@@ -33,17 +34,20 @@ const ProgressSeekControl = () => {
       </div>
     </div>
   );
-};
+}
 
-export function valueToPercentage(value, referenceValue) {
-  if (typeof value !== "number" || typeof referenceValue !== "number") return 0;
+function valueToPercentage(value: number, referenceValue: number) {
+  if (value === 0 || referenceValue === 0) {
+    return 0;
+  }
 
   return (value / referenceValue) * 100;
 }
 
-export function percentageToValue(percentage, referenceValue) {
-  if (typeof percentage !== "number" || typeof referenceValue !== "number")
+function percentageToValue(percentage: number, referenceValue: number) {
+  if (percentage === 0 || referenceValue === 0) {
     return 0;
+  }
 
   return (percentage * referenceValue) / 100;
 }

@@ -1,7 +1,7 @@
 import classes from "./index.module.css";
-import Library from "../../commands/Library.js";
+import Library from "../../commands/Library";
 import { open } from "@tauri-apps/api/dialog";
-import { useSettings } from "../../utils/SettingsProvider.jsx";
+import { useSettings } from "../../providers/SettingsProvider";
 
 function Settings() {
   const { settings, updateSettings } = useSettings();
@@ -14,8 +14,8 @@ function Settings() {
         onClick={async () => {
           await Library.scan(true);
           alert("done");
-          await Library.scanCoverArt();
-          alert("cover done");
+          // await Library.scanCoverArt();
+          // alert("cover done");
         }}
       >
         scan library now
@@ -41,9 +41,9 @@ function Settings() {
 
           <button
             onClick={async () => {
-              const selectedPath = await open({
+              const selectedPath = (await open({
                 directory: true,
-              });
+              })) as string | null;
 
               if (selectedPath) {
                 updateSettings({

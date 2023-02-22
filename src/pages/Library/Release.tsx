@@ -1,12 +1,11 @@
-import CoverArt from "../../components/CoverArt/index.jsx";
+import CoverArt from "../../components/CoverArt";
 import classes from "./Release.module.css";
 import { A } from "@solidjs/router";
 
-function Release(props) {
+function Release(props: ReleaseProps) {
   return (
     <A
       tabIndex={-1}
-      ref={props.ref}
       href={`/library/release/${props.id}`}
       class={classes.container}
     >
@@ -18,5 +17,12 @@ function Release(props) {
     </A>
   );
 }
+
+type ReleaseProps = {
+  id: string;
+  src?: string;
+  name: string;
+  artistCreditName: string;
+};
 
 export default Release;

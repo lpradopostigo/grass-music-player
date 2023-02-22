@@ -1,9 +1,9 @@
 import { useParams } from "@solidjs/router";
 import { createResource, Show } from "solid-js";
-import Library from "../../commands/Library.js";
+import Library from "../../commands/Library";
 import classes from "./index.module.css";
-import TrackList from "./TrackList.jsx";
-import { useTitleBarTheme } from "../../components/Shell/TitleBarThemeProvider.jsx";
+import TrackList from "./TrackList";
+import { useTitleBarTheme } from "../../components/Shell/TitleBarThemeProvider";
 
 function Release() {
   const params = useParams();
@@ -42,15 +42,15 @@ function Release() {
         <header
           class={classes.header}
           style={{
-            "background-image": `${gradient}, url(${release().pictureSrc})`,
+            "background-image": `${gradient}, url(${release()!.pictureSrc})`,
           }}
         >
-          <h1>{release().name}</h1>
-          <div class={classes.artistCredit}>{release().artistCreditName}</div>
-          <div class={classes.date}>{release().date}</div>
+          <h1>{release()!.name}</h1>
+          <div class={classes.artistCredit}>{release()!.artistCreditName}</div>
+          <div class={classes.date}>{release()!.date}</div>
         </header>
 
-        <TrackList tracks={tracks()} />
+        <TrackList tracks={tracks()!} />
       </div>
     </Show>
   );

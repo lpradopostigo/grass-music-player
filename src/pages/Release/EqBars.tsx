@@ -1,8 +1,7 @@
 import classes from "./EqBars.module.css";
 import clsx from "clsx";
-import { createMemo } from "solid-js";
 
-function EqBars(props) {
+function EqBars() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

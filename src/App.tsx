@@ -1,13 +1,13 @@
-import Shell from "./components/Shell/index.jsx";
+import Shell from "./components/Shell";
 import MiniPlayer from "./components/MiniPlayer";
-import NavigationBar from "./components/NavigationBar/index.jsx";
-import Library from "./pages/Library/index.jsx";
-import Release from "./pages/Release/index.jsx";
+import NavigationBar from "./components/NavigationBar";
+import Library from "./pages/Library";
+import Release from "./pages/Release";
 import { Routes, Route, Navigate } from "@solidjs/router";
-import PlayerStateProvider from "./commands/Player/PlayerStateProvider.jsx";
-import Settings from "./pages/Settings/index.jsx";
-import SettingsProvider from "./utils/SettingsProvider.jsx";
-import TitleBarThemeProvider from "./components/Shell/TitleBarThemeProvider.jsx";
+import PlayerStateProvider from "./providers/PlayerStateProvider";
+import Settings from "./pages/Settings";
+import SettingsProvider from "./providers/SettingsProvider";
+import TitleBarThemeProvider from "./components/Shell/TitleBarThemeProvider";
 
 const App = () => (
   <PlayerStateProvider>

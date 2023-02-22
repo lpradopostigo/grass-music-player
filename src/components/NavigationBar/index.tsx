@@ -5,6 +5,7 @@ import {
 } from "solid-icons/io";
 import classes from "./index.module.css";
 import { A } from "@solidjs/router";
+import { JSX } from "solid-js";
 
 function NavigationBar() {
   return (
@@ -16,7 +17,7 @@ function NavigationBar() {
   );
 }
 
-function Link(props) {
+function Link(props: { href: string; icon: JSX.Element }) {
   return (
     <A
       tabIndex={-1}

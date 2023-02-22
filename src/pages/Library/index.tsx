@@ -4,22 +4,19 @@ import {
   createResource,
   createSignal,
   For,
-  onMount,
 } from "solid-js";
-import LibraryService from "../../commands/Library.js";
-import Release from "./Release.jsx";
+import LibraryService from "../../commands/Library";
+import Release from "./Release";
 import classes from "./index.module.css";
-import {
-  createEventListener,
-  makeEventListener,
-} from "@solid-primitives/event-listener";
-import { useTitleBarTheme } from "../../components/Shell/TitleBarThemeProvider.jsx";
+import { createEventListener } from "@solid-primitives/event-listener";
+import { useTitleBarTheme } from "../../components/Shell/TitleBarThemeProvider";
 
 function Library() {
   const { setBackgroundIsDark } = useTitleBarTheme();
 
   const [releases] = createResource(async () => {
     const releases = await LibraryService.findAllReleases();
+
     return Promise.all(
       releases.map(async (release) => ({
         ...release,
@@ -30,31 +27,45 @@ function Library() {
       }))
     );
   });
-  const [containerEl, setContainerEl] = createSignal();
+  const [containerEl, setContainerEl] = createSignal<HTMLDivElement>();
 
   const gridSize = createMemo(() => {
-    if (!containerEl() || !releases()) return null;
+    const containerElValue = containerEl();
+    const releasesValue = releases();
 
-    const computedStyle = getComputedStyle(containerEl());
+    if (!containerElValue || !releasesValue) return { columns: 0, rows: 0 };
+
+    const computedStyle = getComputedStyle(containerElValue);
     const columns = computedStyle
       .getPropertyValue("grid-template-columns")
       .replace(" 0px", "")
       .split(" ").length;
 
-    const rows = Math.ceil(releases().length / columns);
+    const rows = Math.ceil(releasesValue.length / columns);
 
     return { columns, rows };
   });
 
   createEffect(() => {
-    if (!containerEl() || !releases()) return;
+    const containerElValue = containerEl();
+    const releasesValue = releases();
+    if (!containerElValue || !releasesValue) return;
 
     setBackgroundIsDark(false);
-    containerEl().children[0].focus();
+
+    const [firstChild] = containerElValue.children;
+
+    if (firstChild instanceof HTMLElement) {
+      firstChild.focus();
+    }
   });
 
   createEventListener(containerEl, "keydown", (event) => {
-    const children = Array.from(containerEl().children);
+    const containerElValue = containerEl();
+
+    if (!containerElValue) return;
+
+    const children = Array.from(containerElValue.children);
 
     const focusedChildIndex = children.findIndex(
       (child) => child === document.activeElement
@@ -64,10 +75,18 @@ function Library() {
 
     if (key === "ArrowRight") {
       const indexToFocus = (focusedChildIndex + 1) % children.length;
-      children[indexToFocus].focus();
+      const elementToFocus = children[indexToFocus];
+
+      if (elementToFocus instanceof HTMLElement) {
+        elementToFocus.focus();
+      }
     } else if (key === "ArrowLeft") {
       const indexToFocus = (focusedChildIndex - 1) % children.length;
-      children.at(indexToFocus).focus();
+      const elementToFocus = children.at(indexToFocus);
+
+      if (elementToFocus instanceof HTMLElement) {
+        elementToFocus.focus();
+      }
     } else if (key === "ArrowDown") {
       event.preventDefault();
       const { columns, rows } = gridSize();
@@ -85,11 +104,15 @@ function Library() {
         indexToFocus = focusedChildIndex + columns;
       }
 
-      children[indexToFocus].focus();
-      children[indexToFocus].scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      const elementToFocus = children[indexToFocus];
+
+      if (elementToFocus instanceof HTMLElement) {
+        elementToFocus.focus();
+        elementToFocus.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
     } else if (key === "ArrowUp") {
       event.preventDefault();
       const { columns } = gridSize();
@@ -100,25 +123,25 @@ function Library() {
         ? children.length - 1
         : focusedChildIndex - columns;
 
-      children[indexToFocus].focus();
-      children[indexToFocus].scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      const elementToFocus = children[indexToFocus];
+
+      if (elementToFocus instanceof HTMLElement) {
+        elementToFocus.focus();
+        elementToFocus.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
     }
   });
 
   return (
-    <div
-      tabIndex={0}
-      ref={(el) => setContainerEl(el)}
-      class={classes.container}
-    >
+    <div tabIndex={0} ref={setContainerEl} class={classes.container}>
       <For each={releases()}>
         {({ thumbnailSrc, name, artistCreditName, id }) => (
           <Release
             id={id}
-            src={thumbnailSrc}
+            src={thumbnailSrc ?? undefined}
             artistCreditName={artistCreditName}
             name={name}
           />

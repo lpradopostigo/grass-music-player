@@ -24,8 +24,9 @@ rusqlite = { version = "0.28.0", features = ["bundled"] }
 audiotags = {git = "https://github.com/lpradopostigo/audiotags.git", branch = "main"}
 tokio = { version = "1", features = ["full"] }
 walkdir = "2"
+lofty = {git ="https://github.com/Serial-ATA/lofty-rs.git", branch = "main"}
 image = { version = "0.24", features = ["webp-encoder"] }
-glob = "0.3"
+glob = "0.3.1"
 ts-rs= "6.2"
 [features]
 # by default Tauri runs in production mode

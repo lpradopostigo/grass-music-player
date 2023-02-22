@@ -6,10 +6,11 @@ import {
   useContext,
 } from "solid-js";
 import Settings from "../commands/Settings";
+import { Settings as TSettings } from "../../src-tauri/bindings/settings";
 
 type ContextProps = {
-  settings: Resource<Settings>;
-  updateSettings: (settings: Settings) => Promise<void>;
+  settings: Resource<TSettings>;
+  updateSettings: (settings: TSettings) => Promise<void>;
 };
 
 const SettingsContext = createContext<ContextProps>();

@@ -3,26 +3,32 @@
     windows_subsystem = "windows"
 )]
 
+mod entities;
 mod global;
-mod player_utils;
 mod services;
 
 use crate::global::{COVER_ART_DIR_PATH, SETTINGS_FILE_PATH};
-use crate::player_utils::PlayerEventController;
-use crate::services::{ArtistCredit, CoverArtManager, SettingsManager, Track};
+use crate::services::{
+    LibraryArtist, LibraryArtistsItem, LibraryManager, LibraryRelease, LibraryReleasesItem,
+    PlayerManager, PlayerTrack, PreferencesManager,
+};
 use rusqlite::Connection;
-use services::{LibraryManager, Release, Settings};
+use services::Preferences;
 use std::fs::create_dir;
-use tauri::{command, generate_context, generate_handler, Builder, Manager, State};
+use tauri::{command, generate_context, generate_handler, Builder, Manager, State, Window, Wry};
 use tokio::sync::Mutex;
 use window_shadows::set_shadow;
 
 fn main() {
-    grass_audio_rs::init(grass_audio_rs::SampleRate::Hz44100)
-        .expect("Failed to initialize audio player");
-
     Builder::default()
         .invoke_handler(generate_handler![
+            library_get_library_releases,
+            library_get_library_release,
+            library_get_library_artists,
+            library_get_library_artist,
+            library_get_player_track,
+            library_scan,
+            library_scan_cover_art,
             player_set_playlist,
             player_play,
             player_pause,
@@ -31,18 +37,8 @@ fn main() {
             player_skip_to_track,
             player_next,
             player_previous,
-            library_scan,
-            library_scan_cover_art,
-            library_find_release,
-            library_find_all_releases,
-            library_find_track,
-            library_find_track_by_path,
-            library_find_tracks_by_release_id,
-            library_find_thumbnail,
-            library_find_picture,
-            library_find_artist_credit,
-            settings_get,
-            settings_set,
+            preferences_get,
+            preferences_set,
         ])
         .setup(|app| {
             let app_data_dir_path = app.path_resolver().app_data_dir().unwrap();
@@ -53,7 +49,7 @@ fn main() {
 
             // setup global variables
             SETTINGS_FILE_PATH
-                .set(app_data_dir_path.join("settings.json"))
+                .set(app_data_dir_path.join("preferences.json"))
                 .unwrap();
             COVER_ART_DIR_PATH
                 .set(app_data_dir_path.join("cover-art"))
@@ -62,21 +58,18 @@ fn main() {
             // setup services
             let db_path = app_data_dir_path.join("grass.db");
             let db_connection = Connection::open(db_path).expect("Failed to open database");
-            SettingsManager::setup().expect("Failed to setup settings manager");
-            CoverArtManager::setup().expect("Failed to setup cover art manager");
+            PreferencesManager::setup().expect("Failed to setup settings manager");
             LibraryManager::new(&db_connection)
                 .setup()
                 .expect("Failed to setup library manager");
 
-            // setup tauri state
-            app.manage(Mutex::new(db_connection));
-
             let main_window = app.get_window("main").unwrap();
-
             #[cfg(any(windows, target_os = "macos"))]
             set_shadow(&main_window, true).unwrap();
+            PlayerManager::setup(main_window).expect("Failed to setup player manager");
 
-            PlayerEventController::setup(main_window);
+            // setup tauri state
+            app.manage(Mutex::new(db_connection));
 
             Ok(())
         })
@@ -90,74 +83,136 @@ fn main() {
 
 #[command]
 fn player_set_playlist(paths: Vec<String>) {
-    grass_audio_rs::set_playlist(&paths);
+    PlayerManager::set_playlist(&paths);
 }
 
 #[command]
 fn player_play() {
-    grass_audio_rs::play();
+    PlayerManager::play();
 }
 
 #[command]
 fn player_pause() {
-    grass_audio_rs::pause();
+    PlayerManager::pause();
 }
 
 #[command]
 fn player_stop() {
-    grass_audio_rs::stop();
+    PlayerManager::stop();
 }
 
 #[command]
 fn player_seek(seek_time: f64) {
-    grass_audio_rs::seek(seek_time);
+    PlayerManager::seek(seek_time);
 }
 
 #[command]
 fn player_skip_to_track(track_index: i16) {
-    grass_audio_rs::skip_to_track(track_index);
+    PlayerManager::skip_to_track(track_index);
 }
 
 #[command]
 fn player_next() {
-    grass_audio_rs::next();
+    PlayerManager::next();
 }
 
 #[command]
 fn player_previous() {
-    grass_audio_rs::previous();
+    PlayerManager::previous();
 }
 
-// settings commands
+// preferences commands
 
 #[command]
-fn settings_get() -> Settings {
-    SettingsManager::get()
+fn preferences_get() -> Result<Preferences, ()> {
+    PreferencesManager::get().map_err(|_| ())
 }
 
 #[command]
-fn settings_set(settings: Settings) {
-    SettingsManager::set(&settings).unwrap();
+fn preferences_set(preferences: Preferences) -> Result<(), ()> {
+    PreferencesManager::set(&preferences).map_err(|_| ())
 }
 
 // library commands
 
 #[command]
+async fn library_get_library_releases(
+    db_connection: State<'_, Mutex<Connection>>,
+) -> Result<Vec<LibraryReleasesItem>, ()> {
+    let db_connection = db_connection.lock().await;
+    let library_manager = LibraryManager::new(&db_connection);
+
+    library_manager.get_library_releases().map_err(|_| ())
+}
+
+#[command]
+async fn library_get_library_release(
+    db_connection: State<'_, Mutex<Connection>>,
+    release_id: String,
+) -> Result<LibraryRelease, ()> {
+    let db_connection = db_connection.lock().await;
+    let library_manager = LibraryManager::new(&db_connection);
+
+    library_manager
+        .get_library_release(&release_id)
+        .map_err(|_| ())
+}
+
+#[command]
+async fn library_get_library_artists(
+    db_connection: State<'_, Mutex<Connection>>,
+) -> Result<Vec<LibraryArtistsItem>, ()> {
+    let db_connection = db_connection.lock().await;
+    let library_manager = LibraryManager::new(&db_connection);
+
+    library_manager.get_library_artists().map_err(|_| ())
+}
+
+#[command]
+async fn library_get_library_artist(
+    db_connection: State<'_, Mutex<Connection>>,
+    artist_id: String,
+) -> Result<LibraryArtist, ()> {
+    let db_connection = db_connection.lock().await;
+    let library_manager = LibraryManager::new(&db_connection);
+
+    library_manager
+        .get_library_artist(&artist_id)
+        .map_err(|_| ())
+}
+
+#[command]
+async fn library_get_player_track(
+    db_connection: State<'_, Mutex<Connection>>,
+    track_path: String,
+) -> Result<PlayerTrack, ()> {
+    let db_connection = db_connection.lock().await;
+    let library_manager = LibraryManager::new(&db_connection);
+
+    library_manager
+        .get_player_track(&track_path)
+        .map_err(|_| ())
+}
+
+#[command]
 async fn library_scan(
     clear_data: bool,
     db_connection: State<'_, Mutex<Connection>>,
+    window: Window<Wry>,
 ) -> Result<(), ()> {
     let db_connection = db_connection.lock().await;
     let library_manager = LibraryManager::new(&db_connection);
 
     if clear_data {
-        library_manager.clear_data();
+        library_manager
+            .clear_data()
+            .expect("Failed to clear library data")
     }
 
-    let settings = SettingsManager::get();
+    let preferences = PreferencesManager::get().expect("Failed to get preferences");
 
-    if let Some(library_path) = settings.library_path {
-        let errors = library_manager.add_dir(&library_path);
+    if let Some(library_path) = preferences.library_path {
+        let errors = library_manager.add_dir(&library_path, window);
 
         for error in errors {
             println!("Error: {}", error);
@@ -169,96 +224,19 @@ async fn library_scan(
 }
 
 #[command]
-async fn library_scan_cover_art(
-    clear_data: bool,
-    db_connection: State<'_, Mutex<Connection>>,
-) -> Result<(), ()> {
+async fn library_scan_cover_art(db_connection: State<'_, Mutex<Connection>>) -> Result<(), ()> {
     let db_connection = db_connection.lock().await;
     let library_manager = LibraryManager::new(&db_connection);
-
-    if clear_data {
-        CoverArtManager::clear_data().map_err(|_| ())?;
-    }
-
-    library_manager.index_cover_art();
+    library_manager
+        .scan_cover_art()
+        .expect("Failed to scan cover art");
     Ok(())
 }
 
-#[command]
-async fn library_find_release(
-    release_id: String,
-    db_connection: State<'_, Mutex<Connection>>,
-) -> Result<Release, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
-
-    library_manager.find_release(&release_id).ok_or(())
-}
-
-#[command]
-async fn library_find_all_releases(
-    db_connection: State<'_, Mutex<Connection>>,
-) -> Result<Vec<Release>, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
-
-    Ok(library_manager.find_all_releases())
-}
-
-#[command]
-async fn library_find_track_by_path(
-    path: String,
-    db_connection: State<'_, Mutex<Connection>>,
-) -> Result<Track, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
-
-    library_manager.find_track_by_path(&path).ok_or(())
-}
-
-#[command]
-async fn library_find_track(
-    track_id: String,
-    db_connection: State<'_, Mutex<Connection>>,
-) -> Result<Track, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
-
-    library_manager.find_track(&track_id).ok_or(())
-}
-
-#[command]
-async fn library_find_tracks_by_release_id(
-    release_id: String,
-    db_connection: State<'_, Mutex<Connection>>,
-) -> Result<Vec<Track>, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
-
-    Ok(library_manager.find_tracks_by_release_id(&release_id))
-}
-
-#[command]
-async fn library_find_artist_credit(
-    artist_credit_id: String,
-    db_connection: State<'_, Mutex<Connection>>,
-) -> Result<ArtistCredit, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
-
-    library_manager
-        .find_artist_credit(&artist_credit_id)
-        .ok_or(())
-}
-
-#[command]
-fn library_find_thumbnail(release_id: String) -> Option<String> {
-    CoverArtManager::find_thumbnail(&release_id)
-        .map(|s| s.to_str().unwrap().to_string())
-}
-
-#[command]
-fn library_find_picture(release_id: String) -> Option<String> {
-    CoverArtManager::find_picture(&release_id)
-        .map(|s| s.to_str().unwrap().to_string())
-}
+// #[command]
+// fn library_get_preferred_cover_art_position(release_id: String) -> Option<CoverArtPosition> {
+//     match CoverArtManager::get_preferred_cover_art_position(&release_id) {
+//         Ok(position) => Some(position),
+//         Err(_) => None,
+//     }
+// }

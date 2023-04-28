@@ -1,4 +1,4 @@
-# Grass Music Player
+N# Grass Music Player
 An opinionated desktop music player with **gap-less playback** that aims to be **minimal and polished**.
 
 ## Project Status

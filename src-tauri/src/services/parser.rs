@@ -1,6 +1,6 @@
 use super::tag_reader::{CoverArt, Error as TagReaderError, TagReader};
 use std::fmt::Display;
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 pub const AUDIO_EXTENSIONS: [&str; 2] = ["mp3", "flac"];
 
@@ -180,32 +180,41 @@ pub fn parse_file(file_path: &str) -> Result<Track, Error> {
     Ok(parsed_track)
 }
 
-pub fn parse_dir(dir_path: &str) -> (Vec<Track>, Vec<Error>) {
+pub fn parse_dir<F>(dir_path: &str, progress_callback: F) -> (Vec<Track>, Vec<Error>)
+where
+    F: Fn((usize, usize)),
+{
     let mut parsed_tracks = Vec::new();
     let mut errors = Vec::new();
 
-    for entry in WalkDir::new(dir_path).into_iter().filter_map(|e| e.ok()) {
-        let is_file = entry.file_type().is_file();
-        let extension = entry.path().extension();
-
-        let is_audio_file = is_file
-            && match extension {
+    let is_audio_file = |x: &DirEntry| {
+        x.file_type().is_file()
+            && match x.path().extension() {
                 Some(ext) => AUDIO_EXTENSIONS.contains(&ext.to_str().unwrap()),
                 None => false,
-            };
+            }
+    };
 
-        if is_audio_file {
-            let file_path = entry.path().to_str().unwrap();
-            let parsed_track = match parse_file(file_path) {
-                Ok(parsed_track) => parsed_track,
-                Err(err) => {
-                    errors.push(err);
-                    continue;
-                }
-            };
+    let audio_files: Vec<DirEntry> = WalkDir::new(dir_path)
+        .into_iter()
+        .filter_map(|x| x.ok())
+        .filter(is_audio_file)
+        .collect();
 
-            parsed_tracks.push(parsed_track);
-        }
+    let audio_files_count = audio_files.len();
+
+    for (index, entry) in audio_files.into_iter().enumerate() {
+        progress_callback((index + 1, audio_files_count));
+        let file_path = entry.path().to_str().unwrap();
+        let parsed_track = match parse_file(file_path) {
+            Ok(parsed_track) => parsed_track,
+            Err(err) => {
+                errors.push(err);
+                continue;
+            }
+        };
+
+        parsed_tracks.push(parsed_track);
     }
 
     (parsed_tracks, errors)

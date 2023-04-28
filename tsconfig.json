@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
@@ -7,10 +8,7 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "strict": true,
-    "types": [
-      "vite/client"
-    ],
+    "types": ["vite/client","vite-plugin-solid-svg/types"],
     "noEmit": true,
     "isolatedModules": true
   }

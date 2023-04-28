@@ -47,14 +47,14 @@ impl<'a> LibraryManager<'a> {
         Ok(thumbnail)
     }
 
-    fn cover_art_is_added(release_id: &str) -> bool {
+    fn cover_art_is_indexed(release_id: &str) -> bool {
         Self::get_cover_art_src(release_id).is_some()
             && Self::get_thumbnail_src(release_id).is_some()
     }
 
-    fn add_cover_art(release_id: &str, data: &[u8], extension: &str) -> Result<()> {
-        if Self::cover_art_is_added(release_id) {
-            return Err(anyhow!("Cover art already added for {:?}", release_id));
+    fn index_cover_art(release_id: &str, data: &[u8], extension: &str) -> Result<()> {
+        if Self::cover_art_is_indexed(release_id) {
+            return Err(anyhow!("Cover art already indexed for {:?}", release_id));
         }
 
         let cover_art_dir_path = try_get_cover_art_dir_path();
@@ -305,7 +305,7 @@ impl<'a> LibraryManager<'a> {
             .collect::<Result<Vec<String>, _>>()?;
 
         for id in release_ids {
-            if LibraryManager::cover_art_is_added(&id) {
+            if LibraryManager::cover_art_is_indexed(&id) {
                 continue;
             }
 
@@ -321,7 +321,7 @@ impl<'a> LibraryManager<'a> {
             for extension in &EXTENSIONS {
                 let cover_art_path = release_path.join(format!("cover.{}", extension));
                 if let Ok(cover_art) = read(cover_art_path) {
-                    match LibraryManager::add_cover_art(&id, &cover_art, &extension.to_string()) {
+                    match LibraryManager::index_cover_art(&id, &cover_art, &extension.to_string()) {
                         Ok(_) => {}
                         Err(e) => println!("Failed to add cover art: {:?}", e),
                     };

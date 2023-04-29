@@ -64,6 +64,7 @@ fn main() {
                 .expect("Failed to setup library manager");
 
             let main_window = app.get_window("main").unwrap();
+
             #[cfg(any(windows, target_os = "macos"))]
             set_shadow(&main_window, true).unwrap();
             PlayerManager::setup(main_window).expect("Failed to setup player manager");

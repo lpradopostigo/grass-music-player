@@ -15,6 +15,7 @@ rust-version = "1.66"
 tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
+souvlaki= "0.6.0"
 anyhow = "1.0"
 serde_json = "1.0"
 window-shadows = "0.2.1"
@@ -22,7 +23,6 @@ grass-audio-rs = "0.2.1"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["api-all"] }
 rusqlite = { version = "0.28.0", features = ["bundled"] }
-audiotags = {git = "https://github.com/lpradopostigo/audiotags.git", branch = "main"}
 tokio = { version = "1", features = ["full"] }
 walkdir = "2"
 lofty = {git ="https://github.com/Serial-ATA/lofty-rs.git", branch = "main"}

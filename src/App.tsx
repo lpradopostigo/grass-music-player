@@ -12,10 +12,11 @@ import Release from "./features/library/Release";
 import Releases from "./features/library/Releases";
 import Artists from "./features/library/Artists";
 import Artist from "./features/library/Artist";
-import MiniPlayer from "./features/MiniPlayer";
+import MiniPlayer from "./features/mini-player/MiniPlayer";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import Preferences from "./features/preferences/Preferences";
 import GlobalStoreProvider from "./providers/GlobalStoreProvider";
+import Home from "./features/home/Home";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ function App() {
               }
             >
               <Route path="/" element={<Navigate href="/library" />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/library" element={<Library />}>
                 <Route
                   path="/"

@@ -11,6 +11,7 @@ function Artists() {
     {
       staleTime: Infinity,
       cacheTime: Infinity,
+      refetchOnWindowFocus: false,
     }
   );
 
@@ -23,7 +24,12 @@ function Artists() {
   );
 
   return (
-    <Grid ref={gridEl} class="p-4" columnSize="128px" data={artistsQuery.data}>
+    <Grid
+      ref={gridEl}
+      class="overflow-y-auto p-4"
+      columnSize="128px"
+      data={artistsQuery.data}
+    >
       {(props) => <Artist data={props.dataItem} />}
     </Grid>
   );

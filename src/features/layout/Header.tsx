@@ -1,17 +1,29 @@
 import { appWindow } from "@tauri-apps/api/window";
 import Icon from "../../components/Icon";
 import clsx from "clsx";
-import { A } from "@solidjs/router";
+import { useNavigate } from "@solidjs/router";
 import MenuBar from "../../components/MenuBar";
 
 function Header() {
+  const navigate = useNavigate();
+
+  function handleSearchInputKeyDown(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+      const value = (event.target as HTMLInputElement).value;
+
+      if (value.trim() === "") return;
+
+      navigate(`/search?query=${value}`);
+    }
+  }
+
   return (
     <div
-      class="flex w-full items-center justify-between pl-4"
+      class="flex w-full items-center justify-between"
       data-tauri-drag-region="true"
     >
       <MenuBar
-        class="py-2.5"
+        class="py-2.5 pl-4"
         data={[
           { href: "/home", label: "home" },
           { href: "/library", label: "library" },
@@ -20,11 +32,15 @@ function Header() {
         ]}
       />
 
-      <div class="relative">
+      <div class="relative flex-shrink">
         <div class="absolute grid h-full w-7 place-content-center">
           <Icon width="16" height="16" name="magnifying-glass" />
         </div>
-        <input class="py-0.5 pl-7 pr-0.5" type="text" />
+        <input
+          class="w-full py-0.5 pl-7 pr-0.5"
+          type="text"
+          onKeyDown={handleSearchInputKeyDown}
+        />
       </div>
 
       <WindowButtons />

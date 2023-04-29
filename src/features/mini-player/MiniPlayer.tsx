@@ -2,15 +2,15 @@ import CoverArt from "../../components/CoverArt";
 import { secondsToAudioDuration } from "../../utils";
 import PlayerCommands from "../../commands/PlayerCommands";
 import { Show } from "solid-js";
-import classes from "./ProgressSeekControl.module.css";
 import Icon from "../../components/Icon";
 import { useGlobalStore } from "../../providers/GlobalStoreProvider";
+import clsx from "clsx";
 
 function MiniPlayer() {
   const [globalData] = useGlobalStore();
 
   return (
-    <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] grid-rows-1 items-center gap-8 border-t border-gray-0 p-2 shadow-inner">
+    <div class="grid grid-cols-[minmax(0,3fr)_auto_minmax(0,7fr)] grid-rows-1 items-center gap-4 border-t border-gray-0 p-2 shadow-inner ">
       <div class="flex items-center gap-2">
         <CoverArt
           class="flex-shrink-0"
@@ -56,20 +56,21 @@ function MiniPlayer() {
         <Icon name="skip-forward" onClick={PlayerCommands.next} />
       </div>
 
-      <div class="text-right text-xs">
-        <span class="font-medium">
-          {secondsToAudioDuration(globalData.playerState.position)}
+      <div class="grid grid-cols-[6ch_1fr_6ch] items-center text-xs">
+        <span>{secondsToAudioDuration(globalData.playerState.position)}</span>
+        <SeekControl
+          current={globalData.playerState.position}
+          total={globalData.playerState.totalTime}
+        />
+        <span class="text-end">
+          {secondsToAudioDuration(globalData.playerState.totalTime)}
         </span>
-        <span class="mx-1">/</span>
-        <span>{secondsToAudioDuration(globalData.playerState.totalTime)}</span>
       </div>
     </div>
   );
 }
 
-function ProgressSeekControl() {
-  const playerState = usePlayerState();
-
+function SeekControl(props: SeekControlProps) {
   function handleClick(event: MouseEvent) {
     const { width, left } = (
       event.currentTarget as HTMLDivElement
@@ -77,28 +78,28 @@ function ProgressSeekControl() {
     const { clientX } = event;
     const x = clientX - left;
     const percent = valueToPercentage(x, width);
-    const seekTime = percentageToValue(percent, playerState.trackLength);
+    const seekTime = percentageToValue(percent, props.total);
     PlayerCommands.seek(seekTime);
   }
 
   return (
-    <div onClick={handleClick} class={classes.container}>
-      <div class={classes.track}>
+    <div onClick={handleClick} class={clsx("group relative h-4", props.class)}>
+      <div class="absolute bottom-0 top-0 my-auto h-1 w-full overflow-hidden rounded bg-gray-0 group-hover:scale-y-125 group-hover:bg-gray-1">
         <div
-          class={classes.progress}
+          class="h-full bg-black"
           style={{
-            width: `${valueToPercentage(
-              playerState.trackPosition,
-              playerState.trackLength
-            )}%`,
+            width: `${valueToPercentage(props.current, props.total)}%`,
           }}
-        >
-          <div class={classes.thumb} />
-        </div>
+        />
       </div>
     </div>
   );
 }
+
+type SeekControlProps = {
+  current: number;
+  total: number;
+} & Pick<ComponentCommonProps, "class">;
 
 function valueToPercentage(value: number, referenceValue: number) {
   if (value === 0 || referenceValue === 0) {

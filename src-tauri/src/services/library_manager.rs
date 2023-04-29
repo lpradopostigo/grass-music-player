@@ -401,24 +401,42 @@ impl<'a> LibraryManager<'a> {
         Ok(release)
     }
 
-    pub fn get_library_artists(&self) -> Result<Vec<LibraryArtistsItem>> {
-        let mut statement = self
-            .db_connection
-            .prepare("SELECT id, name FROM artist ORDER BY name")?;
-        let mut artists_iter = statement.query_map([], |row| {
-            let mut statement = self.db_connection.prepare(
-                "SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 LIMIT 3",
-            )?;
+    fn search_library_artists(
+        &self,
+        query: Option<&str>,
+        limit: bool,
+    ) -> Result<Vec<LibraryArtistsItem>> {
+        let sql = {
+            let mut sql = String::from("SELECT id, name FROM artist");
 
+            if let Some(query) = query {
+                sql.push_str(&format!(" WHERE artist.name LIKE '{}'", query));
+            }
+
+            sql.push_str(" ORDER BY artist.name");
+
+            if limit {
+                sql.push_str(" LIMIT 10");
+            }
+
+            sql
+        };
+
+        let mut artists_statement = self.db_connection.prepare(&sql)?;
+
+        let artists = artists_statement.query_map([], |row| {
             let artist_id: String = row.get(0)?;
 
-            let release_ids_iter = statement.query_map([&artist_id], |row| {
-                row.get(0)
-            })?;
-
-            let release_ids = release_ids_iter.collect::<Result<Vec<String>, _>>()?;
-
             let thumbnail_srcs = {
+                let mut release_ids_statement = self.db_connection.prepare(
+                    "SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 LIMIT 3",
+                )?;
+
+
+                let release_ids = release_ids_statement.query_map([&artist_id], |row| {
+                    row.get(0)
+                })?.collect::<Result<Vec<String>, _>>()?;
+
                 let mut srcs = Vec::new();
                 for release_id in release_ids {
                     let thumbnail_src = Self::get_thumbnail_src(&release_id);
@@ -434,9 +452,13 @@ impl<'a> LibraryManager<'a> {
                 name: row.get(1)?,
                 thumbnail_srcs,
             })
-        })?;
+        })?.collect::<Result<Vec<_>, _>>()?;
 
-        Ok(artists_iter.collect::<Result<Vec<_>, _>>()?)
+        Ok(artists)
+    }
+
+    pub fn get_library_artists(&self) -> Result<Vec<LibraryArtistsItem>> {
+        self.search_library_artists(None, false)
     }
 
     pub fn get_library_artist(&self, artist_id: &str) -> Result<LibraryArtist> {
@@ -492,6 +514,32 @@ impl<'a> LibraryManager<'a> {
         )?;
 
         Ok(track)
+    }
+
+    pub fn search(&self, query: &str) -> Result<SearchResult> {
+        let query = format!("%{}%", query.replace(' ', ""));
+
+        let mut releases_statement = self.db_connection.prepare(
+            "SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id WHERE replace('release'.name, ' ', '') like ?1 ORDER BY 'release'.name LIMIT 10",
+        )?;
+
+        let releases = releases_statement
+            .query_map([&query], |row| {
+                let release_id: String = row.get(0)?;
+                let thumbnail_src = Self::get_thumbnail_src(&release_id);
+                Ok(LibraryReleasesItem {
+                    id: release_id,
+                    name: row.get(1)?,
+                    artist_credit_name: row.get(2)?,
+                    thumbnail_src,
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(SearchResult {
+            releases,
+            artists: self.search_library_artists(Some(&query), true)?,
+        })
     }
 
     pub fn get_preferred_cover_art_position(release_id: &str) -> Result<CoverArtPosition> {
@@ -634,4 +682,12 @@ pub enum CoverArtPosition {
     Top,
     Center,
     Bottom,
+}
+
+#[derive(Serialize, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchResult {
+    releases: Vec<LibraryReleasesItem>,
+    artists: Vec<LibraryArtistsItem>,
 }

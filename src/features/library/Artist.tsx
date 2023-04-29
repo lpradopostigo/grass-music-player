@@ -18,7 +18,7 @@ function Artist() {
         <h1 class="px-4">{artistQuery.data!.name}</h1>
 
         <Grid
-          class="min-h-0 flex-1 p-4"
+          class="min-h-0 flex-1 overflow-y-auto p-4"
           data={artistQuery.data!.releases}
           columnSize="128px"
         >

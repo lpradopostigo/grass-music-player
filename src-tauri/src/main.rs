@@ -10,7 +10,7 @@ mod services;
 use crate::global::{COVER_ART_DIR_PATH, SETTINGS_FILE_PATH};
 use crate::services::{
     LibraryArtist, LibraryArtistsItem, LibraryManager, LibraryRelease, LibraryReleasesItem,
-    PlayerManager, PlayerTrack, PreferencesManager,
+    PlayerManager, PlayerTrack, PreferencesManager, SearchResult,
 };
 use rusqlite::Connection;
 use services::Preferences;
@@ -27,6 +27,7 @@ fn main() {
             library_get_library_artists,
             library_get_library_artist,
             library_get_player_track,
+            library_search,
             library_scan,
             library_scan_cover_art,
             player_set_playlist,
@@ -193,6 +194,17 @@ async fn library_get_player_track(
     library_manager
         .get_player_track(&track_path)
         .map_err(|_| ())
+}
+
+#[command]
+async fn library_search(
+    db_connection: State<'_, Mutex<Connection>>,
+    query: String,
+) -> Result<SearchResult, ()> {
+    let db_connection = db_connection.lock().await;
+    let library_manager = LibraryManager::new(&db_connection);
+
+    library_manager.search(&query).map_err(|_| ())
 }
 
 #[command]

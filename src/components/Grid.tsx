@@ -1,17 +1,7 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  JSX,
-  mergeProps,
-  on,
-  onMount,
-} from "solid-js";
+import { createEffect, createSignal, For, JSX, mergeProps } from "solid-js";
 import { mergeRefs, Ref } from "@solid-primitives/refs";
 import clsx from "clsx";
 import { Dynamic } from "solid-js/web";
-import { useWindowSize } from "@solid-primitives/resize-observer";
 
 function Grid<T>(props: GridProps<T>) {
   const localProps = mergeProps(
@@ -21,8 +11,6 @@ function Grid<T>(props: GridProps<T>) {
     },
     props
   );
-
-  const windowSize = useWindowSize();
 
   const [containerEl, setContainerEl] = createSignal<HTMLDivElement>();
 
@@ -58,7 +46,7 @@ function Grid<T>(props: GridProps<T>) {
   function handleKeyDown(event: KeyboardEvent) {
     const containerElValue = containerEl();
 
-    if (!(event.key in Key) || !containerElValue) return;
+    if (!(event.key in Key) || !containerElValue || event.altKey) return;
 
     event.preventDefault();
 
@@ -151,7 +139,7 @@ function Grid<T>(props: GridProps<T>) {
       onClick={handleClick}
       onContextMenu={handleClick}
       onKeyDown={handleKeyDown}
-      class={clsx("grid content-start gap-3 overflow-y-auto", localProps.class)}
+      class={clsx("grid content-start gap-3", localProps.class)}
       ref={mergeRefs(props.ref, setContainerEl)}
       style={{
         "grid-template-columns": `repeat(auto-fill, ${localProps.columnSize})`,

@@ -23,7 +23,12 @@ function Releases() {
   );
 
   return (
-    <Grid ref={gridEl} columnSize="128px" class="p-4" data={releasesQuery.data}>
+    <Grid
+      ref={gridEl}
+      columnSize="128px"
+      class="overflow-y-auto p-4"
+      data={releasesQuery.data}
+    >
       {(props) => <Release data={props.dataItem} />}
     </Grid>
   );

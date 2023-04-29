@@ -5,6 +5,7 @@ import { LibraryRelease } from "../../src-tauri/bindings/LibraryRelease";
 import { LibraryArtistsItem } from "../../src-tauri/bindings/LibraryArtistsItem";
 import { LibraryArtist } from "../../src-tauri/bindings/LibraryArtist";
 import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack";
+import { SearchResult } from "../../src-tauri/bindings/SearchResult";
 
 const LibraryCommands = {
   async getLibraryReleases(): Promise<LibraryReleasesItem[]> {
@@ -74,6 +75,24 @@ const LibraryCommands = {
     }
 
     return track;
+  },
+
+  async search(query: string): Promise<SearchResult> {
+    const result = await invoke<SearchResult>("library_search", { query });
+
+    for (const release of result.releases) {
+      if (release.thumbnailSrc) {
+        release.thumbnailSrc = convertFileSrc(release.thumbnailSrc);
+      }
+    }
+
+    for (const artist of result.artists) {
+      artist.thumbnailSrcs = artist.thumbnailSrcs.map((src) =>
+        convertFileSrc(src)
+      );
+    }
+
+    return result;
   },
 
   scan(clearData = false): Promise<void> {

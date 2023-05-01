@@ -1,10 +1,7 @@
-import { onMount } from "solid-js";
-import { invoke } from "@tauri-apps/api";
-
 function Home() {
   return (
     <div>
-      <h1>home</h1>
+      <h1>Now playing</h1>
       <button>aaaaaa</button>
     </div>
   );

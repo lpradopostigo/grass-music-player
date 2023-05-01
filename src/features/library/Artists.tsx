@@ -1,21 +1,19 @@
 import Grid from "../../components/Grid";
 import LibraryCommands from "../../commands/LibraryCommands";
 import Artist from "../../components/Artist";
-import useLastScrollPosition from "../../hooks/useLastScrollPosition";
 import { createQuery } from "@tanstack/solid-query";
+import useLastScrollPosition from "../../hooks/useLastScrollPosition";
 
 function Artists() {
   const artistsQuery = createQuery(
     () => ["library", "artists"],
     LibraryCommands.getLibraryArtists,
     {
-      staleTime: Infinity,
       cacheTime: Infinity,
-      refetchOnWindowFocus: false,
     }
   );
 
-  let gridEl!: HTMLDivElement;
+  let gridEl: HTMLDivElement | undefined;
 
   useLastScrollPosition(
     "/library/artists",
@@ -26,6 +24,8 @@ function Artists() {
   return (
     <Grid
       ref={gridEl}
+      saveIndexKey={"/library/artists"}
+      autofocus
       class="overflow-y-auto p-4"
       columnSize="128px"
       data={artistsQuery.data}

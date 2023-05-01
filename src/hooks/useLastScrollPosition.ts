@@ -1,11 +1,11 @@
-import { Accessor, createEffect, onMount } from "solid-js";
+import { Accessor, createEffect } from "solid-js";
 import { useBeforeLeave } from "@solidjs/router";
 
 const storage: Record<string, number> = {};
 
 function useLastScrollPosition(
   key: string,
-  element: Accessor<HTMLElement>,
+  element: Accessor<HTMLElement | undefined | null>,
   condition: Accessor<boolean>
 ) {
   let executed = false;

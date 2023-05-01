@@ -1,6 +1,7 @@
-import { A, Outlet, useLocation } from "@solidjs/router";
-import { Show } from "solid-js";
+import { Outlet, useLocation } from "@solidjs/router";
+import { Show, Suspense } from "solid-js";
 import MenuBar from "../../components/MenuBar";
+import Loader from "../../components/Loader";
 
 function Library() {
   const location = useLocation();
@@ -26,7 +27,9 @@ function Library() {
           ]}
         />
       </Show>
-      <Outlet />
+      <Suspense fallback={<Loader class="h-full" />}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 }

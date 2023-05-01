@@ -14,10 +14,11 @@ function Artist() {
 
   return (
     <div class="flex h-full flex-col">
-      <Show when={artistQuery.isSuccess}>
+      <Show when={artistQuery.data}>
         <h1 class="px-4">{artistQuery.data!.name}</h1>
 
         <Grid
+          autofocus
           class="min-h-0 flex-1 overflow-y-auto p-4"
           data={artistQuery.data!.releases}
           columnSize="128px"

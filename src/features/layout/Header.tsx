@@ -3,9 +3,13 @@ import Icon from "../../components/Icon";
 import clsx from "clsx";
 import { useNavigate } from "@solidjs/router";
 import MenuBar from "../../components/MenuBar";
+import { makeEventListener } from "@solid-primitives/event-listener";
+import { onMount } from "solid-js";
 
 function Header() {
   const navigate = useNavigate();
+
+  let inputEl: HTMLInputElement | undefined;
 
   function handleSearchInputKeyDown(event: KeyboardEvent) {
     if (event.key === "Enter") {
@@ -16,6 +20,18 @@ function Header() {
       navigate(`/search?query=${value}`);
     }
   }
+
+  onMount(() => {
+    makeEventListener(document, "keydown", (event) => {
+      if (event.target === inputEl) return;
+
+      const regex = /^[a-z0-9\W_]$/i;
+
+      if (regex.test(event.key)) {
+        inputEl!.focus();
+      }
+    });
+  });
 
   return (
     <div
@@ -37,6 +53,7 @@ function Header() {
           <Icon width="16" height="16" name="magnifying-glass" />
         </div>
         <input
+          ref={inputEl}
           class="w-full py-0.5 pl-7 pr-0.5"
           type="text"
           onKeyDown={handleSearchInputKeyDown}

@@ -13,7 +13,7 @@ function Release() {
   );
 
   return (
-    <Show when={releaseQuery.isSuccess}>
+    <Show when={releaseQuery.data}>
       <div class="flex h-full flex-col">
         <div
           class="bg-cover bg-center p-4 text-white"

@@ -2,6 +2,10 @@ import { createEffect, createSignal, For, JSX, mergeProps } from "solid-js";
 import { mergeRefs, Ref } from "@solid-primitives/refs";
 import clsx from "clsx";
 import { Dynamic } from "solid-js/web";
+import { useIsRouting } from "@solidjs/router";
+
+const savedIndices: Record<string, number> = {};
+let autoFocusIsPrevented = false;
 
 function Grid<T>(props: GridProps<T>) {
   const localProps = mergeProps(
@@ -14,18 +18,35 @@ function Grid<T>(props: GridProps<T>) {
 
   const [containerEl, setContainerEl] = createSignal<HTMLDivElement>();
 
-  createEffect(() => {
-    if (localProps.data.length === 0) return;
+  const isRouting = useIsRouting();
 
-    const containerElValue = containerEl()!;
+  createEffect(() => {
+    const containerElValue = containerEl();
+
+    if (!containerElValue || isRouting() || localProps.data.length === 0)
+      return;
+
+    const indexToFocus =
+      localProps.saveIndexKey && savedIndices[localProps.saveIndexKey]
+        ? savedIndices[localProps.saveIndexKey]
+        : 0;
 
     for (let index = 0; index < containerElValue.children.length; index++) {
-      const child = containerElValue.children[index];
+      const child = containerElValue.children[index] as HTMLElement;
 
-      if (child instanceof HTMLElement) {
-        child.tabIndex = index === 0 ? 0 : -1;
-        child.setAttribute("data-grid-item", "true");
+      if (index === indexToFocus) {
+        child.tabIndex = indexToFocus;
+
+        if (autoFocusIsPrevented) {
+          allowAutoFocus();
+        } else if (localProps.autofocus) {
+          child.focus();
+        }
+      } else {
+        child.tabIndex = -1;
       }
+
+      child.setAttribute("data-grid-item", "true");
     }
   });
 
@@ -46,9 +67,7 @@ function Grid<T>(props: GridProps<T>) {
   function handleKeyDown(event: KeyboardEvent) {
     const containerElValue = containerEl();
 
-    if (!(event.key in Key) || !containerElValue || event.altKey) return;
-
-    event.preventDefault();
+    if (!containerElValue || event.altKey) return;
 
     const children = Array.from(containerElValue.children) as HTMLElement[];
     const currentIndex = children.findIndex(
@@ -58,10 +77,13 @@ function Grid<T>(props: GridProps<T>) {
     const updateTabIndex = (nextIndex: number) => {
       children[currentIndex].tabIndex = -1;
       children[nextIndex].tabIndex = 0;
+      if (localProps.saveIndexKey) {
+        savedIndices[localProps.saveIndexKey] = nextIndex;
+      }
     };
 
     switch (event.key) {
-      case Key.ArrowLeft: {
+      case "ArrowLeft": {
         const nextIndex =
           currentIndex === 0 ? children.length - 1 : currentIndex - 1;
         updateTabIndex(nextIndex);
@@ -69,14 +91,16 @@ function Grid<T>(props: GridProps<T>) {
         break;
       }
 
-      case Key.ArrowRight: {
+      case "ArrowRight": {
         const nextIndex = (currentIndex + 1) % children.length;
         updateTabIndex(nextIndex);
         children[nextIndex].focus();
         break;
       }
 
-      case Key.ArrowDown: {
+      case "ArrowDown": {
+        event.preventDefault();
+
         const { columns, rows } = gridSize();
 
         const isLastRow = currentIndex >= (rows - 1) * columns;
@@ -100,7 +124,9 @@ function Grid<T>(props: GridProps<T>) {
         break;
       }
 
-      case Key.ArrowUp: {
+      case "ArrowUp": {
+        event.preventDefault();
+
         const { columns } = gridSize();
 
         const isFirstRow = currentIndex < columns;
@@ -120,12 +146,19 @@ function Grid<T>(props: GridProps<T>) {
   }
 
   function handleClick(event: MouseEvent) {
+    const containerElValue = containerEl()!;
+
     const clickedChild = (event.target as HTMLElement).closest(
-      "div[data-grid-item]"
+      "[data-grid-item]"
     ) as HTMLElement;
 
-    const lastActiveChild = containerEl()!.querySelector(
-      "div[data-grid-item][tabindex='0']"
+    if (localProps.saveIndexKey) {
+      savedIndices[localProps.saveIndexKey] =
+        Array.from(containerElValue.children).indexOf(clickedChild) ?? 0;
+    }
+
+    const lastActiveChild = containerElValue.querySelector(
+      "[data-grid-item][tabindex='0']"
     ) as HTMLElement;
 
     if (lastActiveChild && clickedChild) {
@@ -152,19 +185,23 @@ function Grid<T>(props: GridProps<T>) {
   );
 }
 
-const Key = {
-  ArrowLeft: "ArrowLeft",
-  ArrowRight: "ArrowRight",
-  ArrowDown: "ArrowDown",
-  ArrowUp: "ArrowUp",
-} as const;
+function preventAutoFocus() {
+  autoFocusIsPrevented = true;
+}
+
+function allowAutoFocus() {
+  autoFocusIsPrevented = false;
+}
 
 type GridProps<T> = {
   data?: T[];
   columnSize?: string;
+  saveIndexKey?: string;
+  autofocus?: boolean;
   ref?: Ref<HTMLDivElement>;
   children: (props: { dataItem: T }) => JSX.Element;
 } & Pick<ComponentCommonProps, "class">;
 
 export type { GridProps };
+export { preventAutoFocus, allowAutoFocus };
 export default Grid;

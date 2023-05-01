@@ -1,8 +1,6 @@
 import {
   FocusableElement,
   FocusManagerOptions,
-  isElementInScope,
-  isElementVisible,
   getFocusableTreeWalker,
   last,
 } from "./utils";
@@ -19,18 +17,18 @@ class FocusManager {
     this.#defaultOptions = defaultOptions;
   }
 
-  focusNext(opts: FocusManagerOptions = {}) {
+  focusNext(options: FocusManagerOptions = {}) {
     if (!this.#root) {
       return;
     }
-    let {
+    const {
       from,
       tabbable = this.#defaultOptions.tabbable,
       wrap = this.#defaultOptions.wrap,
       accept = this.#defaultOptions.accept,
-    } = opts;
-    let node = from || document.activeElement;
-    let walker = getFocusableTreeWalker(this.#root, {
+    } = options;
+    const node = from || document.activeElement;
+    const walker = getFocusableTreeWalker(this.#root, {
       tabbable,
       accept,
     });

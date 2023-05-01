@@ -67,6 +67,11 @@
     src: url("../assets/fonts/Inter-Black.ttf");
   }
 
+  ::selection {
+    @apply text-white;
+    background-color: #007aff;
+  }
+
   input[type="text"] {
     @apply rounded border border-gray-3;
   }

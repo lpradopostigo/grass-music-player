@@ -1,18 +1,27 @@
-import { Accessor, For, JSX, Show } from "solid-js";
+import { createEffect, createSignal, Index, JSX, Show } from "solid-js";
 import { secondsToAudioDuration } from "../../../utils";
 import PlayerCommands from "../../../commands/PlayerCommands";
 import clsx from "clsx";
-import { Track as TrackData } from "../../../../src-tauri/bindings/Track";
 import style from "./style.module.css";
 import { useGlobalStore } from "../../../providers/GlobalStoreProvider";
+import { LibraryReleaseTrack } from "../../../../src-tauri/bindings/LibraryReleaseTrack";
+import { useIsRouting } from "@solidjs/router";
 
 function TrackList(props: TrackListProps) {
   const [globalData] = useGlobalStore();
 
-  let containerEl!: HTMLUListElement;
+  const [containerEl, setContainerEl] = createSignal<HTMLUListElement>();
+
+  const isRouting = useIsRouting();
+
+  createEffect(() => {
+    const containerElValue = containerEl();
+    if (!containerElValue || isRouting()) return;
+    (containerElValue.children[0] as HTMLLIElement).focus();
+  });
 
   function handleKeyDown(event: KeyboardEvent) {
-    const children = Array.from(containerEl.children) as HTMLElement[];
+    const children = Array.from(containerEl()!.children) as HTMLElement[];
     const currentIndex = children.findIndex(
       (child) => child === document.activeElement
     );
@@ -54,36 +63,36 @@ function TrackList(props: TrackListProps) {
     }
   }
 
-  async function handleTrackClick(index: Accessor<number>) {
+  async function handleTrackClick(index: number) {
     await PlayerCommands.setPlaylist(props.data.map(({ path }) => path));
-    await PlayerCommands.skipToTrack(index());
+    await PlayerCommands.skipToTrack(index);
     await PlayerCommands.play();
   }
 
   return (
     <ul
-      ref={containerEl}
+      ref={setContainerEl}
       onKeyDown={handleKeyDown}
       class={clsx("overflow-y-auto", props.class)}
     >
-      <For each={props.data}>
+      <Index each={props.data}>
         {(track, index) => (
           <Track
             class={clsx(
-              index() !== props.data.length - 1 && "border-b border-gray-1"
+              index !== props.data.length - 1 && "border-b border-gray-1"
             )}
-            data={track}
+            data={track()}
             lastTrackNumber={props.data[props.data.length - 1].trackNumber}
             lastDiscNumber={props.data[props.data.length - 1].discNumber}
-            tabindex={index() === 0 ? 0 : -1}
+            tabindex={index === 0 ? 0 : -1}
             active={
-              globalData.playerState.path === track.path &&
+              globalData.playerState.path === track().path &&
               globalData.playerState.playbackState === "playing"
             }
             onClick={() => handleTrackClick(index)}
           />
         )}
-      </For>
+      </Index>
     </ul>
   );
 }
@@ -139,7 +148,7 @@ function Track(props: TrackProps) {
         </svg>
       </Show>
 
-      <div>
+      <div class="line-clamp-1">
         <span class="mr-2 font-semibold">{props.data.name}</span>
         <span class="text-sm">{props.data.artistCreditName}</span>
       </div>
@@ -158,21 +167,14 @@ function stringToPixels(str: string) {
 }
 
 type TrackListProps = {
-  data: (Pick<
-    TrackData,
-    "path" | "trackNumber" | "name" | "length" | "discNumber"
-  > & {
-    artistCreditName: string;
-  })[];
+  data: LibraryReleaseTrack[];
 } & Pick<ComponentCommonProps, "class">;
 
 type TrackProps = {
   lastTrackNumber: number;
   lastDiscNumber: number;
   active: boolean;
-  data: {
-    artistCreditName: string;
-  } & Pick<TrackData, "trackNumber" | "name" | "length" | "discNumber">;
+  data: LibraryReleaseTrack;
   onClick?: () => void;
 } & Pick<JSX.HTMLAttributes<HTMLDivElement>, "tabindex" | "class">;
 

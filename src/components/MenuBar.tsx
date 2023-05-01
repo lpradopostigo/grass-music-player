@@ -1,6 +1,7 @@
 import { For, createMemo } from "solid-js";
 import { A, useLocation, useResolvedPath } from "@solidjs/router";
 import clsx from "clsx";
+import { preventAutoFocus } from "./Grid";
 
 function MenuBar(props: MenuBarProps) {
   const location = useLocation();
@@ -8,7 +9,9 @@ function MenuBar(props: MenuBarProps) {
   let containerEl!: HTMLDivElement;
 
   function handleKeyDown(event: KeyboardEvent) {
-    const children = Array.from(containerEl.children) as HTMLElement[];
+    if (event.altKey) return;
+
+    const children = Array.from(containerEl.children) as HTMLAnchorElement[];
     const currentIndex = children.findIndex(
       (child) => child === document.activeElement
     );
@@ -17,16 +20,21 @@ function MenuBar(props: MenuBarProps) {
       case "ArrowLeft":
       case "ArrowUp": {
         event.preventDefault();
+        preventAutoFocus();
         const nextIndex =
           currentIndex === 0 ? children.length - 1 : currentIndex - 1;
         children[nextIndex].focus();
+        children[nextIndex].click();
         break;
       }
       case "ArrowRight":
       case "ArrowDown": {
         event.preventDefault();
+        preventAutoFocus();
         const nextIndex = (currentIndex + 1) % children.length;
         children[nextIndex].focus();
+        children[nextIndex].click();
+
         break;
       }
     }

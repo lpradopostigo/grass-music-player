@@ -19,7 +19,13 @@ import GlobalStoreProvider from "./providers/GlobalStoreProvider";
 import Home from "./features/home/Home";
 import Search from "./features/search/Search";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+    },
+  },
+});
 
 function App() {
   return (
@@ -49,6 +55,8 @@ function App() {
                   <Route path="/:id" element={<Artist />} />
                 </Route>
               </Route>
+
+              <Route path="playlists" element={<div>playlists</div>} />
               <Route path="/preferences" element={<Preferences />} />
 
               <Route path="/search" element={<Search />} />

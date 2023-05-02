@@ -67,6 +67,10 @@
     src: url("../assets/fonts/Inter-Black.ttf");
   }
 
+  :focus-visible {
+    @apply outline outline-1;
+  }
+
   ::selection {
     @apply text-white;
     background-color: #007aff;
@@ -105,7 +109,6 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply rounded;
-    background-color: rgb(99, 99, 102);
+    @apply rounded bg-gray-6;
   }
 }

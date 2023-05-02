@@ -7,10 +7,10 @@ function Artist(props: ArtistProps) {
   return (
     <A
       href={`/library/artists/${props.data.id}`}
-      class={clsx("w-cover-art-md", props.class)}
+      class={clsx("w-cover-art-md focus-visible:outline-offset-4", props.class)}
     >
       <CoverArt srcs={props.data.thumbnailSrcs} />
-      <div class="font-semibold mt-2 line-clamp-2 break-words">
+      <div class="mt-2 line-clamp-2 break-words font-semibold">
         {props.data.name}
       </div>
     </A>

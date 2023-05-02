@@ -104,7 +104,10 @@ function Track(props: TrackProps) {
   return (
     <li
       tabindex={props.tabindex}
-      class={clsx("grid items-center gap-3 px-4 py-2", props.class)}
+      class={clsx(
+        "grid items-center gap-3 px-4 py-2 focus-visible:outline-offset-[-4px]",
+        props.class
+      )}
       style={{
         "grid-template-columns": `${trackNumberWidth()}px 1fr auto`,
       }}
@@ -122,6 +125,7 @@ function Track(props: TrackProps) {
           xmlns="http://www.w3.org/2000/svg"
           width="100%"
           height="100%"
+          fill="currentColor"
           viewBox="0 0 24 24"
         >
           <rect

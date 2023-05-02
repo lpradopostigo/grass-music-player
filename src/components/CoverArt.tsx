@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, mergeProps, Show } from "solid-js";
+import { createEffect, For, mergeProps, Show } from "solid-js";
 import clsx from "clsx";
 import Icon from "./Icon";
 import { createVisibilityObserver } from "@solid-primitives/intersection-observer";

@@ -29,9 +29,13 @@ function GlobalStoreProvider(props: { children: JSX.Element }) {
     preferences: {
       libraryPath: null,
     },
+
+    scanState: null,
   });
 
-  const [preferences, { refetch }] = createResource(PreferencesCommands.get);
+  const [preferences, { refetch: refetchPreferences }] = createResource(
+    PreferencesCommands.get
+  );
 
   createEffect(() => {
     const preferencesValue = preferences();
@@ -54,13 +58,23 @@ function GlobalStoreProvider(props: { children: JSX.Element }) {
     }
   });
 
-  const promise = listen<PlayerState>("player:state", ({ payload }) => {
-    setState("playerState", payload);
-  });
+  const unlistenPlayerState = listen<PlayerState>(
+    "player:state",
+    ({ payload }) => {
+      setState("playerState", payload);
+    }
+  );
+
+  const unlistenScanState = listen<[number, number] | null>(
+    "library:scan-state",
+    ({ payload }) => {
+      setState("scanState", payload);
+    }
+  );
 
   onCleanup(async () => {
-    const unlisten = await promise;
-    unlisten();
+    (await unlistenPlayerState)();
+    (await unlistenScanState)();
   });
 
   return (
@@ -70,7 +84,7 @@ function GlobalStoreProvider(props: { children: JSX.Element }) {
         {
           async updatePreferences(preferences) {
             await PreferencesCommands.set(preferences);
-            refetch();
+            refetchPreferences();
           },
         },
       ]}
@@ -85,6 +99,7 @@ type GlobalStoreData = {
     track: PlayerTrack | null;
   };
   preferences: Preferences;
+  scanState: null | [number, number];
 };
 
 type GlobalStoreValue = [

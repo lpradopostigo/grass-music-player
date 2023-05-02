@@ -6,16 +6,19 @@ import { LibraryReleasesItem } from "../../src-tauri/bindings/LibraryReleasesIte
 function Release(props: ReleaseProps) {
   const srcs = () => (props.data.thumbnailSrc ? [props.data.thumbnailSrc] : []);
 
+  let containerEl: HTMLAnchorElement | undefined;
+
   return (
     <A
+      ref={containerEl}
       href={`/library/releases/${props.data.id}`}
-      class={clsx("w-cover-art-md", props.class)}
+      class={clsx("w-cover-art-md focus-visible:outline-offset-4", props.class)}
     >
-      <CoverArt srcs={srcs()} />
-      <div class="font-semibold mt-2 line-clamp-2 break-words">
+      <CoverArt parentElement={containerEl} srcs={srcs()} />
+      <div class="mt-2 line-clamp-2 break-words font-semibold">
         {props.data.name}
       </div>
-      <div class="text-sm line-clamp-2">{props.data.artistCreditName}</div>
+      <div class="line-clamp-2 text-sm">{props.data.artistCreditName}</div>
     </A>
   );
 }

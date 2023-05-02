@@ -14,7 +14,7 @@ function Library() {
         }
       >
         <MenuBar
-          class="w-min bg-gray-7 px-4 py-1 text-white "
+          class="w-min bg-gray-8 px-4 py-1 text-white "
           data={[
             {
               href: "/library/releases",

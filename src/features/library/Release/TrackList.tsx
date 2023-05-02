@@ -82,8 +82,6 @@ function TrackList(props: TrackListProps) {
               index !== props.data.length - 1 && "border-b border-gray-1"
             )}
             data={track()}
-            lastTrackNumber={props.data[props.data.length - 1].trackNumber}
-            lastDiscNumber={props.data[props.data.length - 1].discNumber}
             tabindex={index === 0 ? 0 : -1}
             active={
               globalData.playerState.path === track().path &&
@@ -98,61 +96,57 @@ function TrackList(props: TrackListProps) {
 }
 
 function Track(props: TrackProps) {
-  const trackNumberWidth = () =>
-    stringToPixels(`${props.lastDiscNumber}.${props.lastTrackNumber}`);
-
   return (
     <li
       tabindex={props.tabindex}
       class={clsx(
-        "grid items-center gap-3 px-4 py-2 focus-visible:outline-offset-[-4px]",
+        "flex items-center gap-3 px-4 py-2 focus-visible:outline-offset-[-4px]",
         props.class
       )}
-      style={{
-        "grid-template-columns": `${trackNumberWidth()}px 1fr auto`,
-      }}
       onClick={() => props.onClick?.()}
     >
-      <Show
-        when={props.active}
-        fallback={
-          <span class="text-xs">
-            {props.data.discNumber}.{props.data.trackNumber}
-          </span>
-        }
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="100%"
-          height="100%"
-          fill="currentColor"
-          viewBox="0 0 24 24"
+      <div class="w-5">
+        <Show
+          when={props.active}
+          fallback={
+            <span class="text-xs">
+              {props.data.discNumber}.{props.data.trackNumber}
+            </span>
+          }
         >
-          <rect
-            class={clsx(style["eq-bar"])}
-            x="4"
-            y="4"
-            width="3.7"
-            height="8"
-          />
-          <rect
-            class={clsx(style["eq-bar"])}
-            x="10.2"
-            y="4"
-            width="3.7"
-            height="16"
-          />
-          <rect
-            class={clsx(style["eq-bar"])}
-            x="16.3"
-            y="4"
-            width="3.7"
-            height="11"
-          />
-        </svg>
-      </Show>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16px"
+            height="16px"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <rect
+              class={clsx(style["eq-bar"])}
+              x="4"
+              y="4"
+              width="3.7"
+              height="8"
+            />
+            <rect
+              class={clsx(style["eq-bar"])}
+              x="10.2"
+              y="4"
+              width="3.7"
+              height="16"
+            />
+            <rect
+              class={clsx(style["eq-bar"])}
+              x="16.3"
+              y="4"
+              width="3.7"
+              height="11"
+            />
+          </svg>
+        </Show>
+      </div>
 
-      <div class="line-clamp-1">
+      <div class="line-clamp-1 flex-1">
         <span class="mr-2 font-semibold">{props.data.name}</span>
         <span class="text-sm">{props.data.artistCreditName}</span>
       </div>
@@ -162,21 +156,11 @@ function Track(props: TrackProps) {
   );
 }
 
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d")!;
-
-function stringToPixels(str: string) {
-  ctx.font = "0.6875rem Inter";
-  return ctx.measureText(str).width;
-}
-
 type TrackListProps = {
   data: LibraryReleaseTrack[];
 } & Pick<ComponentCommonProps, "class">;
 
 type TrackProps = {
-  lastTrackNumber: number;
-  lastDiscNumber: number;
   active: boolean;
   data: LibraryReleaseTrack;
   onClick?: () => void;

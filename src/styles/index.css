@@ -81,7 +81,11 @@
   }
 
   button {
-    @apply rounded-sm bg-black px-2 py-1 text-white;
+    @apply rounded bg-black px-2 py-1 text-white;
+  }
+
+  button:focus-visible {
+    @apply outline-offset-2;
   }
 
   :disabled {

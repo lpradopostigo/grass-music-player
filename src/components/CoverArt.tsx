@@ -68,6 +68,7 @@ function CoverArt(props: CoverArtProps) {
           class={clsx("grid place-content-center bg-black text-white", {
             "text-[24px]": localProps.size === "sm",
             "text-[40px]": localProps.size === "md",
+            "text-[64px]": localProps.size === "lg",
           })}
         >
           <Icon name="music-notes" />

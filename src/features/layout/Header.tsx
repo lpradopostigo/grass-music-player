@@ -25,7 +25,7 @@ function Header() {
     makeEventListener(document, "keydown", (event) => {
       if (event.target === inputEl) return;
 
-      const regex = /^[a-z0-9\W_]$/i;
+      const regex = /^[a-z0-9]$/i;
 
       if (regex.test(event.key)) {
         inputEl!.focus();
@@ -41,7 +41,6 @@ function Header() {
       <MenuBar
         class="py-2.5 pl-4"
         data={[
-          { href: "/home", label: "home" },
           { href: "/library", label: "library" },
           { href: "/playlists", label: "playlists" },
           { href: "/preferences", label: "preferences" },

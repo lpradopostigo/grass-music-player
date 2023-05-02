@@ -17,8 +17,7 @@ function MenuBar(props: MenuBarProps) {
     );
 
     switch (event.key) {
-      case "ArrowLeft":
-      case "ArrowUp": {
+      case "ArrowLeft": {
         event.preventDefault();
         preventAutoFocus();
         const nextIndex =
@@ -27,8 +26,7 @@ function MenuBar(props: MenuBarProps) {
         children[nextIndex].click();
         break;
       }
-      case "ArrowRight":
-      case "ArrowDown": {
+      case "ArrowRight": {
         event.preventDefault();
         preventAutoFocus();
         const nextIndex = (currentIndex + 1) % children.length;
@@ -62,8 +60,9 @@ function MenuBar(props: MenuBarProps) {
 
           return (
             <A
+              class={clsx("outline-[currentColor]", props.itemClass)}
               tabindex={isActive() ? 0 : -1}
-              activeClass="font-bold"
+              activeClass={clsx("font-bold", props.itemActiveClass)}
               href={item.href}
             >
               {item.label}
@@ -87,6 +86,8 @@ type MenuBarProps = {
     href: string;
     label: string;
   }[];
+  itemActiveClass?: string;
+  itemClass?: string;
 } & Pick<ComponentCommonProps, "class">;
 
 export default MenuBar;

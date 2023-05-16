@@ -1,3 +1,4 @@
+mod entities;
 mod library_manager;
 mod parser;
 mod player_manager;

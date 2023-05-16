@@ -3,7 +3,6 @@
     windows_subsystem = "windows"
 )]
 
-mod entities;
 mod global;
 mod services;
 

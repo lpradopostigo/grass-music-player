@@ -6,7 +6,7 @@ import useLastScrollPosition from "../../hooks/useLastScrollPosition";
 
 function Releases() {
   const releasesQuery = createQuery(
-    () => ["library", "releases"],
+    () => ["releases"],
     LibraryCommands.getLibraryReleases,
     {
       cacheTime: Infinity,
@@ -16,7 +16,7 @@ function Releases() {
   let gridEl: HTMLDivElement | undefined;
 
   useLastScrollPosition(
-    "/library/releases",
+    "/releases",
     () => gridEl,
     () => !!releasesQuery.data
   );
@@ -24,10 +24,10 @@ function Releases() {
   return (
     <Grid
       ref={gridEl}
-      saveIndexKey={"/library/releases"}
+      saveIndexKey={"/releases"}
       autofocus
       columnSize="128px"
-      class="overflow-y-auto p-4"
+      class="h-full overflow-y-auto p-4"
       data={releasesQuery.data}
     >
       {(props) => <Release data={props.dataItem} />}

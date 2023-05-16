@@ -3,7 +3,7 @@ import { Outlet } from "@solidjs/router";
 
 function Shell(props: ShellProps) {
   return (
-    <div class="flex flex-col h-full w-full">
+    <div class="flex h-full w-full flex-col">
       <header>{props.header}</header>
       <main class="min-h-0 grow">
         <Outlet />

@@ -1,8 +1,9 @@
+use super::entities::{Artist, ArtistCredit, ArtistCreditPart, Release, Track};
 use super::parser::{parse_dir, parse_file, Error as ParserError, Track as ParserTrack};
-use crate::entities::{Artist, ArtistCredit, ArtistCreditPart, Release, Track};
 use crate::global::try_get_cover_art_dir_path;
 use crate::services::tag_reader::CoverArtExtension;
 use anyhow::{anyhow, Result};
+use color_thief::{get_palette, ColorFormat};
 use image::imageops::FilterType;
 use rusqlite::Connection;
 use serde::Serialize;
@@ -466,9 +467,16 @@ impl<'a> LibraryManager<'a> {
             "SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON artist_credit.id = 'release'.artist_credit_id WHERE 'release'.id IN (SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)",
         )?;
 
+        let mut background_src = None;
+
         let releases_iter = releases_statement.query_map([&artist_id], |row| {
             let release_id: String = row.get(0)?;
             let thumbnail_src = Self::get_thumbnail_src(&release_id);
+
+            if background_src.is_none() && thumbnail_src.is_some() {
+                background_src = Self::get_cover_art_src(&release_id);
+            }
+
             Ok(LibraryReleasesItem {
                 id: release_id,
                 name: row.get(1)?,
@@ -488,6 +496,7 @@ impl<'a> LibraryManager<'a> {
                 id: row.get(0)?,
                 name: row.get(1)?,
                 releases,
+                background_src,
             })
         })?;
 
@@ -661,6 +670,7 @@ pub struct LibraryArtist {
     pub id: String,
     pub name: String,
     pub releases: Vec<LibraryReleasesItem>,
+    pub background_src: Option<String>,
 }
 
 #[derive(Serialize, TS)]

@@ -35,13 +35,14 @@ function Header() {
 
   return (
     <div
-      class="flex w-full items-center justify-between"
+      class="flex w-full items-center justify-between shadow"
       data-tauri-drag-region="true"
     >
       <MenuBar
         class="py-2.5 pl-4"
         data={[
-          { href: "/library", label: "library" },
+          { href: "/releases", label: "releases" },
+          { href: "/artists", label: "artists" },
           { href: "/playlists", label: "playlists" },
           { href: "/preferences", label: "preferences" },
         ]}

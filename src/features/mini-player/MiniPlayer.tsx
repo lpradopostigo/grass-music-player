@@ -23,11 +23,11 @@ function MiniPlayer() {
         />
 
         <Show when={globalData.playerState.track}>
-          <div>
-            <div class="line-clamp-1 font-semibold">
+          <div class="min-w-0">
+            <div class="truncate font-semibold">
               {globalData.playerState.track!.name}
             </div>
-            <div class="line-clamp-1 text-sm">
+            <div class="truncate text-sm">
               {globalData.playerState.track!.artistCreditName}
             </div>
           </div>

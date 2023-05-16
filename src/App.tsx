@@ -1,6 +1,5 @@
 import Shell from "./features/layout/Shell";
 import Header from "./features/layout/Header";
-import Library from "./features/library/Library";
 import {
   hashIntegration,
   Navigate,
@@ -39,26 +38,18 @@ function App() {
                 <Shell header={<Header />} miniPlayer={<MiniPlayer />} />
               }
             >
-              <Route path="/" element={<Navigate href="/library" />} />
+              <Route path="/" element={<Navigate href="/releases" />} />
               <Route path="/home" element={<Home />} />
-              <Route path="/library" element={<Library />}>
-                <Route
-                  path="/"
-                  element={<Navigate href="/library/releases" />}
-                />
-                <Route path="/releases">
-                  <Route path="/" element={<Releases />} />
-                  <Route path="/:id" element={<Release />} />
-                </Route>
-                <Route path="/artists">
-                  <Route path="/" element={<Artists />} />
-                  <Route path="/:id" element={<Artist />} />
-                </Route>
+              <Route path="/releases">
+                <Route path="/" element={<Releases />} />
+                <Route path="/:id" element={<Release />} />
               </Route>
-
+              <Route path="/artists">
+                <Route path="/" element={<Artists />} />
+                <Route path="/:id" element={<Artist />} />
+              </Route>
               <Route path="playlists" element={<div>playlists</div>} />
               <Route path="/preferences" element={<Preferences />} />
-
               <Route path="/search" element={<Search />} />
             </Route>
           </Routes>

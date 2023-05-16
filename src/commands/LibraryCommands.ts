@@ -60,6 +60,10 @@ const LibraryCommands = {
           release.thumbnailSrc = convertFileSrc(release.thumbnailSrc);
         }
       }
+
+      if (artist.backgroundSrc) {
+        artist.backgroundSrc = convertFileSrc(artist.backgroundSrc);
+      }
     }
 
     return artist;

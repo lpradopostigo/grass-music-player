@@ -6,7 +6,7 @@ import useLastScrollPosition from "../../hooks/useLastScrollPosition";
 
 function Artists() {
   const artistsQuery = createQuery(
-    () => ["library", "artists"],
+    () => ["artists"],
     LibraryCommands.getLibraryArtists,
     {
       cacheTime: Infinity,
@@ -16,7 +16,7 @@ function Artists() {
   let gridEl: HTMLDivElement | undefined;
 
   useLastScrollPosition(
-    "/library/artists",
+    "/artists",
     () => gridEl,
     () => !!artistsQuery.data
   );
@@ -24,9 +24,9 @@ function Artists() {
   return (
     <Grid
       ref={gridEl}
-      saveIndexKey={"/library/artists"}
+      saveIndexKey={"/artists"}
       autofocus
-      class="overflow-y-auto p-4"
+      class="h-full overflow-y-auto p-4"
       columnSize="128px"
       data={artistsQuery.data}
     >

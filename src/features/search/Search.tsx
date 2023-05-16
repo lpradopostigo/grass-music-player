@@ -15,28 +15,33 @@ function Search() {
   );
 
   return (
-    <div class="flex h-full flex-col">
-      <h1 class="ml-4">Search results</h1>
-
-      <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
-        <Show when={searchQuery.data?.releases.length}>
-          <div>
-            <h2>Releases</h2>
-            <Grid data={searchQuery.data?.releases} columnSize="128px">
-              {(item) => <Release data={item.dataItem} />}
-            </Grid>
+    <div class="flex h-full flex-col gap-8 overflow-y-auto">
+      <Show when={searchQuery.data?.releases.length}>
+        <div>
+          <div class="mt-4 w-min bg-black pl-4 pr-2  text-xl font-bold  text-white">
+            releases
           </div>
-        </Show>
+          <Grid
+            class="p-4"
+            data={searchQuery.data?.releases}
+            columnSize="128px"
+          >
+            {(item) => <Release data={item.dataItem} />}
+          </Grid>
+        </div>
+      </Show>
 
-        <Show when={searchQuery.data?.artists.length}>
-          <div>
-            <h2>Artists</h2>
-            <Grid data={searchQuery.data?.artists} columnSize="128px">
-              {(item) => <Artist data={item.dataItem} />}
-            </Grid>
+      <Show when={searchQuery.data?.artists.length}>
+        <div>
+          <div class="mt-4 w-min bg-black pl-4 pr-2 text-xl font-bold  text-white">
+            artists
           </div>
-        </Show>
-      </div>
+
+          <Grid class="p-4" data={searchQuery.data?.artists} columnSize="128px">
+            {(item) => <Artist data={item.dataItem} />}
+          </Grid>
+        </div>
+      </Show>
     </div>
   );
 }

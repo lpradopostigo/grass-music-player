@@ -9,8 +9,6 @@ function Preferences() {
 
   return (
     <div class="h-full">
-      <h1 class="ml-4">Preferences</h1>
-
       <div class="p-4">
         <div>
           <button

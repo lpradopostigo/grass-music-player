@@ -3,12 +3,13 @@ import { Show } from "solid-js";
 import LibraryCommands from "../../../commands/LibraryCommands";
 import TrackList from "./TrackList";
 import { createQuery } from "@tanstack/solid-query";
+import clsx from "clsx";
 
 function Release() {
   const params = useParams();
 
   const releaseQuery = createQuery(
-    () => ["library", "releases", params.id],
+    () => ["releases", params.id],
     () => LibraryCommands.getLibraryRelease(params.id)
   );
 
@@ -16,7 +17,7 @@ function Release() {
     <Show when={releaseQuery.data}>
       <div class="flex h-full flex-col">
         <div
-          class="bg-cover bg-center p-4 text-white"
+          class={clsx("bg-black bg-cover bg-center p-4 text-white")}
           style={{
             "background-image": `linear-gradient(rgba(0, 0, 0, 0.425), rgba(0,0,0, 0.425)), url(${
               releaseQuery.data!.coverArtSrc

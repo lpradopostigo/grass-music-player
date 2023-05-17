@@ -10,7 +10,7 @@ function Release() {
 
   const releaseQuery = createQuery(
     () => ["releases", params.id],
-    () => LibraryCommands.getLibraryRelease(params.id)
+    () => LibraryCommands.getRelease(params.id)
   );
 
   return (

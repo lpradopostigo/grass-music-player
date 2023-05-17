@@ -2,7 +2,7 @@ import { createMemo, Index } from "solid-js";
 import { A } from "@solidjs/router";
 import clsx from "clsx";
 import { preventAutoFocus } from "./Grid";
-import useRouteIsActive from "../utils/useRouteIsActive";
+import useRouteIsActive from "../hooks/useRouteIsActive";
 
 function MenuBar(props: MenuBarProps) {
   let containerEl!: HTMLDivElement;

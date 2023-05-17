@@ -4,8 +4,8 @@ import PlayerCommands from "../../../commands/PlayerCommands";
 import clsx from "clsx";
 import style from "./style.module.css";
 import { useGlobalStore } from "../../../providers/GlobalStoreProvider";
-import { LibraryReleaseTrack } from "../../../../src-tauri/bindings/LibraryReleaseTrack";
 import { useIsRouting } from "@solidjs/router";
+import { ReleaseTrack } from "../../../../src-tauri/bindings/ReleaseTrack";
 
 function TrackList(props: TrackListProps) {
   const [globalData] = useGlobalStore();
@@ -157,12 +157,12 @@ function Track(props: TrackProps) {
 }
 
 type TrackListProps = {
-  data: LibraryReleaseTrack[];
+  data: ReleaseTrack[];
 } & Pick<ComponentCommonProps, "class">;
 
 type TrackProps = {
   active: boolean;
-  data: LibraryReleaseTrack;
+  data: ReleaseTrack;
   onClick?: () => void;
 } & Pick<JSX.HTMLAttributes<HTMLDivElement>, "tabindex" | "class">;
 

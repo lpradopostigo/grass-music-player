@@ -7,7 +7,7 @@ import useLastScrollPosition from "../../hooks/useLastScrollPosition";
 function Releases() {
   const releasesQuery = createQuery(
     () => ["releases"],
-    LibraryCommands.getLibraryReleases,
+    LibraryCommands.getReleaseOverviews,
     {
       cacheTime: Infinity,
     }

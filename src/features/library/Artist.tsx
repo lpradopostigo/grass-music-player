@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { For, Show } from "solid-js";
+import { Show } from "solid-js";
 import LibraryCommands from "../../commands/LibraryCommands";
 import Grid from "../../components/Grid";
 import Release from "../../components/Release";
@@ -9,7 +9,7 @@ function Artist() {
   const params = useParams();
   const artistQuery = createQuery(
     () => ["artists", params.id],
-    () => LibraryCommands.getLibraryArtist(params.id)
+    () => LibraryCommands.getArtist(params.id)
   );
 
   return (

@@ -1,16 +1,16 @@
 import { invoke } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { LibraryReleasesItem } from "../../src-tauri/bindings/LibraryReleasesItem";
-import { LibraryRelease } from "../../src-tauri/bindings/LibraryRelease";
-import { LibraryArtistsItem } from "../../src-tauri/bindings/LibraryArtistsItem";
-import { LibraryArtist } from "../../src-tauri/bindings/LibraryArtist";
 import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack";
 import { SearchResult } from "../../src-tauri/bindings/SearchResult";
+import { ReleaseOverview } from "../../src-tauri/bindings/ReleaseOverview";
+import { Release } from "../../src-tauri/bindings/Release";
+import { ArtistOverview } from "../../src-tauri/bindings/ArtistOverview";
+import { Artist } from "../../src-tauri/bindings/Artist";
 
 const LibraryCommands = {
-  async getLibraryReleases(): Promise<LibraryReleasesItem[]> {
-    const releases = await invoke<LibraryReleasesItem[]>(
-      "library_get_library_releases"
+  async getReleaseOverviews(): Promise<ReleaseOverview[]> {
+    const releases = await invoke<ReleaseOverview[]>(
+      "library_get_release_overviews"
     );
 
     for (const release of releases) {
@@ -22,11 +22,10 @@ const LibraryCommands = {
     return releases;
   },
 
-  async getLibraryRelease(releaseId: string): Promise<LibraryRelease> {
-    const release = await invoke<LibraryRelease>(
-      "library_get_library_release",
-      { releaseId }
-    );
+  async getRelease(releaseId: string): Promise<Release> {
+    const release = await invoke<Release>("library_get_release", {
+      releaseId,
+    });
 
     if (release?.coverArtSrc) {
       release.coverArtSrc = convertFileSrc(release.coverArtSrc);
@@ -35,9 +34,9 @@ const LibraryCommands = {
     return release;
   },
 
-  async getLibraryArtists(): Promise<LibraryArtistsItem[]> {
-    const artists = await invoke<LibraryArtistsItem[]>(
-      "library_get_library_artists"
+  async getArtistOverviews(): Promise<ArtistOverview[]> {
+    const artists = await invoke<ArtistOverview[]>(
+      "library_get_artist_overviews"
     );
 
     for (const artist of artists) {
@@ -49,8 +48,8 @@ const LibraryCommands = {
     return artists;
   },
 
-  async getLibraryArtist(artistId: string): Promise<LibraryArtist> {
-    const artist = await invoke<LibraryArtist>("library_get_library_artist", {
+  async getArtist(artistId: string): Promise<Artist> {
+    const artist = await invoke<Artist>("library_get_artist", {
       artistId,
     });
 

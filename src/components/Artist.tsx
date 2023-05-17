@@ -1,7 +1,7 @@
 import { A } from "@solidjs/router";
 import clsx from "clsx";
 import CoverArt from "./CoverArt";
-import { LibraryArtistsItem } from "../../src-tauri/bindings/LibraryArtistsItem";
+import { ArtistOverview } from "../../src-tauri/bindings/ArtistOverview";
 
 function Artist(props: ArtistProps) {
   return (
@@ -18,7 +18,7 @@ function Artist(props: ArtistProps) {
 }
 
 type ArtistProps = {
-  data: LibraryArtistsItem;
+  data: ArtistOverview;
 } & Pick<ComponentCommonProps, "class">;
 
 export type { ArtistProps };

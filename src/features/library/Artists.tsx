@@ -7,7 +7,7 @@ import useLastScrollPosition from "../../hooks/useLastScrollPosition";
 function Artists() {
   const artistsQuery = createQuery(
     () => ["artists"],
-    LibraryCommands.getLibraryArtists,
+    LibraryCommands.getArtistOverviews,
     {
       cacheTime: Infinity,
     }

@@ -8,8 +8,8 @@ mod services;
 
 use crate::global::{COVER_ART_DIR_PATH, SETTINGS_FILE_PATH};
 use crate::services::{
-    LibraryArtist, LibraryArtistsItem, LibraryManager, LibraryRelease, LibraryReleasesItem,
-    PlayerManager, PlayerTrack, PreferencesManager, SearchResult,
+    Artist, ArtistOverview, LibraryManager, PlayerManager, PlayerTrack, PreferencesManager,
+    Release, ReleaseOverview, SearchResult,
 };
 use rusqlite::Connection;
 use services::Preferences;
@@ -21,10 +21,10 @@ use window_shadows::set_shadow;
 fn main() {
     Builder::default()
         .invoke_handler(generate_handler![
-            library_get_library_releases,
-            library_get_library_release,
-            library_get_library_artists,
-            library_get_library_artist,
+            library_get_release_overviews,
+            library_get_release,
+            library_get_artist_overviews,
+            library_get_artist,
             library_get_player_track,
             library_search,
             library_scan,
@@ -137,49 +137,45 @@ fn preferences_set(preferences: Preferences) -> Result<(), ()> {
 // library commands
 
 #[command]
-async fn library_get_library_releases(
+async fn library_get_release_overviews(
     db_connection: State<'_, Mutex<Connection>>,
-) -> Result<Vec<LibraryReleasesItem>, ()> {
+) -> Result<Vec<ReleaseOverview>, ()> {
     let db_connection = db_connection.lock().await;
     let library_manager = LibraryManager::new(&db_connection);
 
-    library_manager.get_library_releases().map_err(|_| ())
+    library_manager.get_release_overviews().map_err(|_| ())
 }
 
 #[command]
-async fn library_get_library_release(
+async fn library_get_release(
     db_connection: State<'_, Mutex<Connection>>,
     release_id: String,
-) -> Result<LibraryRelease, ()> {
+) -> Result<Release, ()> {
     let db_connection = db_connection.lock().await;
     let library_manager = LibraryManager::new(&db_connection);
 
-    library_manager
-        .get_library_release(&release_id)
-        .map_err(|_| ())
+    library_manager.get_release(&release_id).map_err(|_| ())
 }
 
 #[command]
-async fn library_get_library_artists(
+async fn library_get_artist_overviews(
     db_connection: State<'_, Mutex<Connection>>,
-) -> Result<Vec<LibraryArtistsItem>, ()> {
+) -> Result<Vec<ArtistOverview>, ()> {
     let db_connection = db_connection.lock().await;
     let library_manager = LibraryManager::new(&db_connection);
 
-    library_manager.get_library_artists().map_err(|_| ())
+    library_manager.get_artists_overviews().map_err(|_| ())
 }
 
 #[command]
-async fn library_get_library_artist(
+async fn library_get_artist(
     db_connection: State<'_, Mutex<Connection>>,
     artist_id: String,
-) -> Result<LibraryArtist, ()> {
+) -> Result<Artist, ()> {
     let db_connection = db_connection.lock().await;
     let library_manager = LibraryManager::new(&db_connection);
 
-    library_manager
-        .get_library_artist(&artist_id)
-        .map_err(|_| ())
+    library_manager.get_artist(&artist_id).map_err(|_| ())
 }
 
 #[command]

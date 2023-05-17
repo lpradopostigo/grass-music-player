@@ -4,7 +4,7 @@ use ts_rs::TS;
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct Artist {
+pub struct DbArtist {
     pub id: String,
     pub name: String,
 }
@@ -12,7 +12,7 @@ pub struct Artist {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct ArtistCredit {
+pub struct DbArtistCredit {
     pub id: String,
     pub name: String,
 }
@@ -20,7 +20,7 @@ pub struct ArtistCredit {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct ArtistCreditPart {
+pub struct DbArtistCreditPart {
     pub artist_credit_id: String,
     pub artist_id: String,
 }
@@ -28,7 +28,7 @@ pub struct ArtistCreditPart {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct Release {
+pub struct DbRelease {
     pub id: String,
     pub artist_credit_id: String,
     pub name: String,
@@ -40,7 +40,7 @@ pub struct Release {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct Track {
+pub struct DbTrack {
     pub id: String,
     pub release_id: String,
     pub artist_credit_id: String,

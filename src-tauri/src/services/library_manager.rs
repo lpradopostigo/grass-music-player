@@ -1,4 +1,4 @@
-use super::entities::{Artist, ArtistCredit, ArtistCreditPart, Release, Track};
+use super::db_entities::{DbArtist, DbArtistCredit, DbArtistCreditPart, DbRelease, DbTrack};
 use super::parser::{parse_dir, parse_file, Error as ParserError, Track as ParserTrack};
 use crate::global::try_get_cover_art_dir_path;
 use crate::services::tag_reader::CoverArtExtension;
@@ -32,6 +32,49 @@ pub struct LibraryManager<'a> {
 }
 
 impl<'a> LibraryManager<'a> {
+    pub fn new(db_connection: &'a Connection) -> Self {
+        Self { db_connection }
+    }
+
+    pub fn setup(&self) -> Result<()> {
+        self.db_connection
+            .execute(include_str!("../../sql/artist.sql"), [])?;
+        self.db_connection
+            .execute(include_str!("../../sql/artist_credit.sql"), [])?;
+        self.db_connection
+            .execute(include_str!("../../sql/artist_credit_part.sql"), [])?;
+        self.db_connection
+            .execute(include_str!("../../sql/release.sql"), [])?;
+        self.db_connection
+            .execute(include_str!("../../sql/track.sql"), [])?;
+
+        let cover_art_dir_path = try_get_cover_art_dir_path();
+
+        if !cover_art_dir_path.exists() {
+            create_dir_all(cover_art_dir_path)?;
+        }
+        Ok(())
+    }
+
+    pub fn clear_data(&self) -> Result<()> {
+        self.db_connection.execute("DELETE FROM track", [])?;
+        self.db_connection.execute("DELETE FROM release", [])?;
+        self.db_connection
+            .execute("DELETE FROM artist_credit_part", [])?;
+        self.db_connection
+            .execute("DELETE FROM artist_credit", [])?;
+        self.db_connection.execute("DELETE FROM artist", [])?;
+
+        let cover_art_dir_path = try_get_cover_art_dir_path();
+
+        if cover_art_dir_path.exists() {
+            remove_dir_all(&cover_art_dir_path)?;
+            create_dir(cover_art_dir_path)?;
+        }
+
+        Ok(())
+    }
+
     fn create_thumbnail(data: &[u8]) -> Result<Vec<u8>> {
         let original_image = image::load_from_memory(data)?;
 
@@ -103,7 +146,7 @@ impl<'a> LibraryManager<'a> {
     }
 
     fn index_track(&self, track: &ParserTrack) {
-        let new_track_artist_credit = ArtistCredit {
+        let new_track_artist_credit = DbArtistCredit {
             id: track.id.clone(),
             name: track.artist_credit_name.clone(),
         };
@@ -117,7 +160,7 @@ impl<'a> LibraryManager<'a> {
             .is_ok()
         {
             for artist in &track.artists {
-                let new_artist = Artist {
+                let new_artist = DbArtist {
                     id: artist.id.clone(),
                     name: artist.name.clone(),
                 };
@@ -128,7 +171,7 @@ impl<'a> LibraryManager<'a> {
                     )
                     .ok();
 
-                let new_artist_credit_part = ArtistCreditPart {
+                let new_artist_credit_part = DbArtistCreditPart {
                     artist_credit_id: new_track_artist_credit.id.clone(),
                     artist_id: new_artist.id.clone(),
                 };
@@ -140,7 +183,7 @@ impl<'a> LibraryManager<'a> {
             }
         }
 
-        let new_release_artist_credit = ArtistCredit {
+        let new_release_artist_credit = DbArtistCredit {
             id: track.release_id.clone(),
             name: track.release_artist_credit_name.clone(),
         };
@@ -157,7 +200,7 @@ impl<'a> LibraryManager<'a> {
             .is_ok()
         {
             for artist in &track.release_artists {
-                let new_artist_credit_part = ArtistCreditPart {
+                let new_artist_credit_part = DbArtistCreditPart {
                     artist_credit_id: new_release_artist_credit.id.clone(),
                     artist_id: artist.id.clone(),
                 };
@@ -167,7 +210,7 @@ impl<'a> LibraryManager<'a> {
                 ).ok();
             }
 
-            let new_release = Release {
+            let new_release = DbRelease {
                 id: track.release_id.clone(),
                 artist_credit_id: new_release_artist_credit.id.clone(),
                 name: track.release_name.clone(),
@@ -189,7 +232,7 @@ impl<'a> LibraryManager<'a> {
             ).ok();
         }
 
-        let new_track = Track {
+        let new_track = DbTrack {
             id: track.id.clone(),
             name: track.name.clone(),
             length: track.length,
@@ -213,49 +256,6 @@ impl<'a> LibraryManager<'a> {
                 new_track.path
              )
         ).ok();
-    }
-
-    pub fn new(db_connection: &'a Connection) -> Self {
-        Self { db_connection }
-    }
-
-    pub fn setup(&self) -> Result<()> {
-        self.db_connection
-            .execute(include_str!("../../sql/artist.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/artist_credit.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/artist_credit_part.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/release.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/track.sql"), [])?;
-
-        let cover_art_dir_path = try_get_cover_art_dir_path();
-
-        if !cover_art_dir_path.exists() {
-            create_dir_all(cover_art_dir_path)?;
-        }
-        Ok(())
-    }
-
-    pub fn clear_data(&self) -> Result<()> {
-        self.db_connection.execute("DELETE FROM track", [])?;
-        self.db_connection.execute("DELETE FROM release", [])?;
-        self.db_connection
-            .execute("DELETE FROM artist_credit_part", [])?;
-        self.db_connection
-            .execute("DELETE FROM artist_credit", [])?;
-        self.db_connection.execute("DELETE FROM artist", [])?;
-
-        let cover_art_dir_path = try_get_cover_art_dir_path();
-
-        if cover_art_dir_path.exists() {
-            remove_dir_all(&cover_art_dir_path)?;
-            create_dir(cover_art_dir_path)?;
-        }
-
-        Ok(())
     }
 
     pub fn add_file(&self, path: &str) -> Result<(), ParserError> {
@@ -333,79 +333,52 @@ impl<'a> LibraryManager<'a> {
         Ok(())
     }
 
-    pub fn get_library_releases(&self) -> Result<Vec<LibraryReleasesItem>> {
-        let mut statement = self.db_connection.prepare(
-            "SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release'
-            INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id
-            ORDER BY 'release'.name",
-        )?;
-        let release_iter = statement.query_map([], |row| {
-            let release_id: String = row.get(0)?;
-            let thumbnail_src = Self::get_thumbnail_src(&release_id);
-
-            Ok(LibraryReleasesItem {
-                id: release_id,
-                name: row.get(1)?,
-                artist_credit_name: row.get(2)?,
-                thumbnail_src,
-            })
-        })?;
-        let mut releases = Vec::new();
-        for release in release_iter {
-            releases.push(release?);
-        }
-        Ok(releases)
-    }
-
-    pub fn get_library_release(&self, release_id: &str) -> Result<LibraryRelease> {
-        let release = self.db_connection.query_row("SELECT 'release'.id, 'release'.artist_credit_id, artist_credit.name, 'release'.name, 'release'.date, 'release'.total_tracks, 'release'.total_discs FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id WHERE 'release'.id = ?1", [&release_id], |row|{
-            let release_id: String = row.get(0)?;
-
-            let mut statement = self.db_connection.prepare(
-                "SELECT track.id, track.release_id, track.name, track.length, track.track_number, track.disc_number, track.path, artist_credit.name FROM track
-                INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id
-                WHERE track.release_id = ?1
-                ORDER BY track.disc_number, track.track_number",
-            )?;
-
-            let track_iter = statement.query_map([&release_id], |row| {
-                Ok(LibraryReleaseTrack {
-                    id: row.get(0)?,
-                    release_id: row.get(1)?,
-                    name: row.get(2)?,
-                    length: row.get(3)?,
-                    track_number: row.get(4)?,
-                    disc_number: row.get(5)?,
-                    path: row.get(6)?,
-                    artist_credit_name: row.get(7)?,
-                })
-            })?;
-
-            let tracks = track_iter.collect::<Result<Vec<_>, _>>()?;
-
-            let cover_art_src = Self::get_cover_art_src(&release_id);
-
-            Ok(LibraryRelease {
-                id: release_id,
-                artist_credit_id: row.get(1)?,
-                artist_credit_name: row.get(2)?,
-                name: row.get(3)?,
-                date: row.get(4)?,
-                total_tracks: row.get(5)?,
-                total_discs: row.get(6)?,
-                tracks,
-                cover_art_src,
-            })
-        })?;
-
-        Ok(release)
-    }
-
-    fn search_library_artists(
+    fn search_release_overviews(
         &self,
         query: Option<&str>,
         limit: bool,
-    ) -> Result<Vec<LibraryArtistsItem>> {
+    ) -> Result<Vec<ReleaseOverview>> {
+        let sql = {
+            let mut sql = String::from(
+                "SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id",
+            );
+
+            if let Some(query) = query {
+                sql.push_str(&format!(" WHERE 'release'.name LIKE '{}'", query));
+            }
+
+            sql.push_str(" ORDER BY 'release'.name");
+
+            if limit {
+                sql.push_str(" LIMIT 10");
+            }
+
+            sql
+        };
+
+        let mut releases_statement = self.db_connection.prepare(&sql)?;
+
+        let releases = releases_statement
+            .query_map([], |row| {
+                let release_id: String = row.get(0)?;
+                let thumbnail_src = Self::get_thumbnail_src(&release_id);
+                Ok(ReleaseOverview {
+                    id: release_id,
+                    name: row.get(1)?,
+                    artist_credit_name: row.get(2)?,
+                    thumbnail_src,
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(releases)
+    }
+
+    fn search_artist_overviews(
+        &self,
+        query: Option<&str>,
+        limit: bool,
+    ) -> Result<Vec<ArtistOverview>> {
         let sql = {
             let mut sql = String::from("SELECT id, name FROM artist");
 
@@ -447,7 +420,7 @@ impl<'a> LibraryManager<'a> {
                 srcs
             };
 
-            Ok(LibraryArtistsItem {
+            Ok(ArtistOverview {
                 id: artist_id,
                 name: row.get(1)?,
                 thumbnail_srcs,
@@ -457,11 +430,59 @@ impl<'a> LibraryManager<'a> {
         Ok(artists)
     }
 
-    pub fn get_library_artists(&self) -> Result<Vec<LibraryArtistsItem>> {
-        self.search_library_artists(None, false)
+    pub fn get_release_overviews(&self) -> Result<Vec<ReleaseOverview>> {
+        self.search_release_overviews(None, false)
     }
 
-    pub fn get_library_artist(&self, artist_id: &str) -> Result<LibraryArtist> {
+    pub fn get_release(&self, release_id: &str) -> Result<Release> {
+        let release = self.db_connection.query_row("SELECT 'release'.id, 'release'.artist_credit_id, artist_credit.name, 'release'.name, 'release'.date, 'release'.total_tracks, 'release'.total_discs FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id WHERE 'release'.id = ?1", [&release_id], |row|{
+            let release_id: String = row.get(0)?;
+
+            let mut statement = self.db_connection.prepare(
+                "SELECT track.id, track.release_id, track.name, track.length, track.track_number, track.disc_number, track.path, artist_credit.name FROM track
+                INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id
+                WHERE track.release_id = ?1
+                ORDER BY track.disc_number, track.track_number",
+            )?;
+
+            let track_iter = statement.query_map([&release_id], |row| {
+                Ok(ReleaseTrack {
+                    id: row.get(0)?,
+                    release_id: row.get(1)?,
+                    name: row.get(2)?,
+                    length: row.get(3)?,
+                    track_number: row.get(4)?,
+                    disc_number: row.get(5)?,
+                    path: row.get(6)?,
+                    artist_credit_name: row.get(7)?,
+                })
+            })?;
+
+            let tracks = track_iter.collect::<Result<Vec<_>, _>>()?;
+
+            let cover_art_src = Self::get_cover_art_src(&release_id);
+
+            Ok(Release {
+                id: release_id,
+                artist_credit_id: row.get(1)?,
+                artist_credit_name: row.get(2)?,
+                name: row.get(3)?,
+                date: row.get(4)?,
+                total_tracks: row.get(5)?,
+                total_discs: row.get(6)?,
+                tracks,
+                cover_art_src,
+            })
+        })?;
+
+        Ok(release)
+    }
+
+    pub fn get_artists_overviews(&self) -> Result<Vec<ArtistOverview>> {
+        self.search_artist_overviews(None, false)
+    }
+
+    pub fn get_artist(&self, artist_id: &str) -> Result<Artist> {
         let mut releases_statement = self.db_connection.prepare(
             "SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON artist_credit.id = 'release'.artist_credit_id WHERE 'release'.id IN (SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)",
         )?;
@@ -476,7 +497,7 @@ impl<'a> LibraryManager<'a> {
                 background_src = Self::get_cover_art_src(&release_id);
             }
 
-            Ok(LibraryReleasesItem {
+            Ok(ReleaseOverview {
                 id: release_id,
                 name: row.get(1)?,
                 artist_credit_name: row.get(2)?,
@@ -491,7 +512,7 @@ impl<'a> LibraryManager<'a> {
             .prepare("SELECT id, name FROM artist WHERE id = ?1")?;
 
         let artist = artist_statement.query_row([&artist_id], |row| {
-            Ok(LibraryArtist {
+            Ok(Artist {
                 id: row.get(0)?,
                 name: row.get(1)?,
                 releases,
@@ -527,26 +548,9 @@ impl<'a> LibraryManager<'a> {
     pub fn search(&self, query: &str) -> Result<SearchResult> {
         let query = format!("%{}%", query.replace(' ', ""));
 
-        let mut releases_statement = self.db_connection.prepare(
-            "SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id WHERE replace('release'.name, ' ', '') like ?1 ORDER BY 'release'.name LIMIT 10",
-        )?;
-
-        let releases = releases_statement
-            .query_map([&query], |row| {
-                let release_id: String = row.get(0)?;
-                let thumbnail_src = Self::get_thumbnail_src(&release_id);
-                Ok(LibraryReleasesItem {
-                    id: release_id,
-                    name: row.get(1)?,
-                    artist_credit_name: row.get(2)?,
-                    thumbnail_src,
-                })
-            })?
-            .collect::<Result<Vec<_>, _>>()?;
-
         Ok(SearchResult {
-            releases,
-            artists: self.search_library_artists(Some(&query), true)?,
+            releases: self.search_release_overviews(Some(&query), true)?,
+            artists: self.search_artist_overviews(Some(&query), true)?,
         })
     }
 
@@ -617,7 +621,7 @@ impl<'a> LibraryManager<'a> {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct LibraryReleasesItem {
+pub struct ReleaseOverview {
     pub id: String,
     pub name: String,
     pub artist_credit_name: String,
@@ -627,7 +631,7 @@ pub struct LibraryReleasesItem {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct LibraryReleaseTrack {
+pub struct ReleaseTrack {
     pub id: String,
     pub release_id: String,
     pub name: String,
@@ -641,7 +645,7 @@ pub struct LibraryReleaseTrack {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct LibraryRelease {
+pub struct Release {
     pub id: String,
     pub artist_credit_id: String,
     pub artist_credit_name: String,
@@ -649,14 +653,14 @@ pub struct LibraryRelease {
     pub date: String,
     pub total_tracks: u16,
     pub total_discs: u16,
-    pub tracks: Vec<LibraryReleaseTrack>,
+    pub tracks: Vec<ReleaseTrack>,
     pub cover_art_src: Option<String>,
 }
 
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct LibraryArtistsItem {
+pub struct ArtistOverview {
     pub id: String,
     pub name: String,
     pub thumbnail_srcs: Vec<String>,
@@ -665,10 +669,10 @@ pub struct LibraryArtistsItem {
 #[derive(Serialize, TS)]
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
-pub struct LibraryArtist {
+pub struct Artist {
     pub id: String,
     pub name: String,
-    pub releases: Vec<LibraryReleasesItem>,
+    pub releases: Vec<ReleaseOverview>,
     pub background_src: Option<String>,
 }
 
@@ -697,6 +701,6 @@ pub enum CoverArtPosition {
 #[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchResult {
-    releases: Vec<LibraryReleasesItem>,
-    artists: Vec<LibraryArtistsItem>,
+    releases: Vec<ReleaseOverview>,
+    artists: Vec<ArtistOverview>,
 }

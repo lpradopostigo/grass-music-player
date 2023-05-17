@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { useNavigate } from "@solidjs/router";
 import MenuBar from "../../components/MenuBar";
 import { makeEventListener } from "@solid-primitives/event-listener";
-import { onMount } from "solid-js";
+import { createSignal, onCleanup, onMount } from "solid-js";
 
 function Header() {
   const navigate = useNavigate();
@@ -28,7 +28,9 @@ function Header() {
       const regex = /^[a-z0-9]$/i;
 
       if (regex.test(event.key)) {
+        event.preventDefault();
         inputEl!.focus();
+        inputEl!.value += event.key;
       }
     });
   });
@@ -66,10 +68,26 @@ function Header() {
 }
 
 function WindowButtons() {
+  const [windowIsMaximized, setWindowIsMaximized] = createSignal(false);
+
+  const unlisten = appWindow.onResized(async () => {
+    const isMaximized = await appWindow.isMaximized();
+    setWindowIsMaximized(isMaximized);
+  });
+
+  onCleanup(async () => {
+    (await unlisten)();
+  });
+
   return (
     <div class="flex self-start">
       <WindowButton onClick={appWindow.minimize} type="minimize" />
-      <WindowButton onClick={appWindow.maximize} type="maximize" />
+      <WindowButton
+        onClick={
+          windowIsMaximized() ? appWindow.unmaximize : appWindow.maximize
+        }
+        type={windowIsMaximized() ? "restore" : "maximize"}
+      />
       <WindowButton onClick={appWindow.close} type="close" />
     </div>
   );
@@ -77,7 +95,7 @@ function WindowButtons() {
 
 function WindowButton(props: {
   onClick: () => void;
-  type: "minimize" | "maximize" | "close";
+  type: "minimize" | "maximize" | "close" | "restore";
 }) {
   return (
     <div

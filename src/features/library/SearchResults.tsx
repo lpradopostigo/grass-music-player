@@ -6,7 +6,7 @@ import Release from "../../components/Release";
 import { Show } from "solid-js";
 import Artist from "../../components/Artist";
 
-function Search() {
+function SearchResults() {
   const [params] = useSearchParams();
 
   const searchQuery = createQuery(
@@ -46,4 +46,4 @@ function Search() {
   );
 }
 
-export default Search;
+export default SearchResults;

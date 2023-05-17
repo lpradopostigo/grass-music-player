@@ -3,7 +3,6 @@ use super::parser::{parse_dir, parse_file, Error as ParserError, Track as Parser
 use crate::global::try_get_cover_art_dir_path;
 use crate::services::tag_reader::CoverArtExtension;
 use anyhow::{anyhow, Result};
-use color_thief::{get_palette, ColorFormat};
 use image::imageops::FilterType;
 use rusqlite::Connection;
 use serde::Serialize;

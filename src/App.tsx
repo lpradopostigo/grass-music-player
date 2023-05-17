@@ -16,7 +16,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import Preferences from "./features/preferences/Preferences";
 import GlobalStoreProvider from "./providers/GlobalStoreProvider";
 import Home from "./features/home/Home";
-import Search from "./features/search/Search";
+import SearchResults from "./features/library/SearchResults";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,7 +50,7 @@ function App() {
               </Route>
               <Route path="playlists" element={<div>playlists</div>} />
               <Route path="/preferences" element={<Preferences />} />
-              <Route path="/search" element={<Search />} />
+              <Route path="/search" element={<SearchResults />} />
             </Route>
           </Routes>
         </QueryClientProvider>

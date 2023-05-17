@@ -1,11 +1,10 @@
-import { For, createMemo } from "solid-js";
-import { A, useLocation, useResolvedPath } from "@solidjs/router";
+import { createMemo, Index } from "solid-js";
+import { A } from "@solidjs/router";
 import clsx from "clsx";
 import { preventAutoFocus } from "./Grid";
+import useRouteIsActive from "../utils/useRouteIsActive";
 
 function MenuBar(props: MenuBarProps) {
-  const location = useLocation();
-
   let containerEl!: HTMLDivElement;
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -38,47 +37,50 @@ function MenuBar(props: MenuBarProps) {
     }
   }
 
+  const activeRouteIndex = () => {
+    for (const [index, { href }] of props.data.entries()) {
+      const routeIsActive = useRouteIsActive(href);
+      if (routeIsActive()) return index;
+    }
+
+    return -1;
+  };
+
   return (
     <div
       ref={containerEl}
       onKeyDown={handleKeyDown}
       class={clsx("flex gap-2 uppercase", props.class)}
     >
-      <For each={props.data}>
-        {(item) => {
-          const to = useResolvedPath(() => item.href);
-          const isActive = createMemo(() => {
-            const toValue = to();
-            if (toValue === undefined) return false;
-            const path = normalizePath(
-              toValue.split(/[?#]/, 1)[0]
-            ).toLowerCase();
-            return normalizePath(location.pathname)
-              .toLowerCase()
-              .startsWith(path);
-          });
+      <Index each={props.data}>
+        {(item, index) => {
+          const tabIndex = () => {
+            const activeRouteIndexValue = activeRouteIndex();
+
+            if (
+              (activeRouteIndexValue === -1 && index === 0) ||
+              activeRouteIndexValue === index
+            ) {
+              return 0;
+            }
+
+            return -1;
+          };
 
           return (
             <A
               class={clsx("outline-[currentColor]", props.itemClass)}
-              tabindex={isActive() ? 0 : -1}
+              tabindex={tabIndex()}
               activeClass={clsx("font-bold", props.itemActiveClass)}
-              href={item.href}
+              href={item().href}
             >
-              {item.label}
+              {item().label}
             </A>
           );
         }}
-      </For>
+      </Index>
     </div>
   );
-}
-
-const trimPathRegex = /^\/+|(\/)\/+$/g;
-
-function normalizePath(path: string, omitSlash = false) {
-  const s = path.replace(trimPathRegex, "$1");
-  return s ? (omitSlash || /^[?#]/.test(s) ? s : "/" + s) : "";
 }
 
 type MenuBarProps = {

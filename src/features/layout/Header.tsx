@@ -1,25 +1,30 @@
 import { appWindow } from "@tauri-apps/api/window";
 import Icon from "../../components/Icon";
 import clsx from "clsx";
-import { useNavigate } from "@solidjs/router";
+import { useLocation, useNavigate, useSearchParams } from "@solidjs/router";
 import MenuBar from "../../components/MenuBar";
 import { makeEventListener } from "@solid-primitives/event-listener";
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { debounce } from "@solid-primitives/scheduled";
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [params] = useSearchParams();
 
   let inputEl: HTMLInputElement | undefined;
+  const debouncedNavigate = debounce((query: string) => {
+    navigate(`/search?query=${query}`);
+  }, 250);
 
-  function handleSearchInputKeyDown(event: KeyboardEvent) {
-    if (event.key === "Enter") {
-      const value = (event.target as HTMLInputElement).value;
-
-      if (value.trim() === "") return;
-
-      navigate(`/search?query=${value}`);
+  createEffect(() => {
+    if (location.pathname === "/search") {
+      inputEl!.value = params.query;
+      return;
     }
-  }
+
+    inputEl!.value = "";
+  });
 
   onMount(() => {
     makeEventListener(document, "keydown", (event) => {
@@ -28,12 +33,15 @@ function Header() {
       const regex = /^[a-z0-9]$/i;
 
       if (regex.test(event.key)) {
-        event.preventDefault();
         inputEl!.focus();
-        inputEl!.value += event.key;
       }
     });
   });
+
+  function handleSearchInput(event: InputEvent) {
+    const value = (event.target as HTMLInputElement).value;
+    debouncedNavigate(value);
+  }
 
   return (
     <div
@@ -58,7 +66,7 @@ function Header() {
           ref={inputEl}
           class="w-full py-0.5 pl-7 pr-0.5"
           type="text"
-          onKeyDown={handleSearchInputKeyDown}
+          onInput={handleSearchInput}
         />
       </div>
 

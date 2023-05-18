@@ -104,6 +104,10 @@
     cursor: default;
   }
 
+  button {
+    cursor: default;
+  }
+
   ::-webkit-scrollbar {
     width: 5px;
   }

@@ -15,7 +15,7 @@ function SearchResults() {
   );
 
   return (
-    <div class="flex h-full flex-col gap-8 overflow-y-auto">
+    <div class="flex h-full flex-col overflow-y-auto">
       <Show when={searchQuery.data?.releases.length}>
         <div>
           <div class="mt-4 w-min bg-black pl-4 pr-2  text-xl font-bold  text-white">

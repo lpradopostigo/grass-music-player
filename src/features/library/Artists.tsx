@@ -1,8 +1,8 @@
-import Grid from "../../components/Grid";
 import LibraryCommands from "../../commands/LibraryCommands";
 import Artist from "../../components/Artist";
 import { createQuery } from "@tanstack/solid-query";
 import useLastScrollPosition from "../../hooks/useLastScrollPosition";
+import Grid from "../../components/Grid";
 
 function Artists() {
   const artistsQuery = createQuery(
@@ -24,14 +24,16 @@ function Artists() {
   return (
     <Grid
       ref={gridEl}
-      saveIndexKey={"/artists"}
+      focusedItemPositionKey={"/artists"}
       autofocus
       class="h-full overflow-y-auto p-4"
-      columnSize="128px"
-      data={artistsQuery.data}
-    >
-      {(props) => <Artist data={props.dataItem} />}
-    </Grid>
+      data={[
+        {
+          groupData: artistsQuery.data,
+          item: (props) => <Artist data={props.dataItem} />,
+        },
+      ]}
+    />
   );
 }
 

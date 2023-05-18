@@ -1,4 +1,4 @@
-import { createMemo, Index } from "solid-js";
+import { Index } from "solid-js";
 import { A } from "@solidjs/router";
 import clsx from "clsx";
 import { preventAutoFocus } from "./Grid";

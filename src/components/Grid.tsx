@@ -1,188 +1,248 @@
-import { createEffect, createSignal, For, JSX, mergeProps } from "solid-js";
-import { mergeRefs, Ref } from "@solid-primitives/refs";
+import { createEffect, createSignal, For, Index, JSX, Show } from "solid-js";
 import clsx from "clsx";
+import { mergeRefs, Ref } from "@solid-primitives/refs";
 import { Dynamic } from "solid-js/web";
 import { useIsRouting } from "@solidjs/router";
 
-const savedIndices: Record<string, number> = {};
+const savedPositions: Record<string, number> = {};
 let autoFocusIsPrevented = false;
 
-function Grid<T>(props: GridProps<T>) {
-  const localProps = mergeProps(
-    {
-      data: [] as T[],
-      columnSize: "1fr",
-    },
-    props
-  );
-
+function Grid(props: GridGroupProps) {
   const [containerEl, setContainerEl] = createSignal<HTMLDivElement>();
-
   const isRouting = useIsRouting();
 
   createEffect(() => {
     const containerElValue = containerEl();
 
-    if (!containerElValue || isRouting() || localProps.data.length === 0)
-      return;
+    if (!containerElValue || isRouting() || props.data?.length === 0) return;
 
-    const indexToFocus =
-      localProps.saveIndexKey && savedIndices[localProps.saveIndexKey]
-        ? savedIndices[localProps.saveIndexKey]
-        : 0;
+    const allGridItems = containerElValue.querySelectorAll(
+      "[data-grid-group-items] > *"
+    ) as NodeListOf<HTMLElement>;
 
-    for (let index = 0; index < containerElValue.children.length; index++) {
-      const child = containerElValue.children[index] as HTMLElement;
+    const savedPosition = props.focusedItemPositionKey
+      ? savedPositions[props.focusedItemPositionKey]
+      : null;
+
+    const indexToFocus = savedPosition ?? 0;
+
+    for (let index = 0; index < allGridItems.length; index++) {
+      const child = allGridItems[index] as HTMLElement;
 
       if (index === indexToFocus) {
         child.tabIndex = indexToFocus;
 
         if (autoFocusIsPrevented) {
           allowAutoFocus();
-        } else if (localProps.autofocus) {
+        } else if (props.autofocus) {
           child.focus();
         }
       } else {
         child.tabIndex = -1;
       }
-
-      child.setAttribute("data-grid-item", "true");
     }
   });
 
-  const gridSize = () => {
-    const containerElValue = containerEl();
-    if (!containerElValue || localProps.data.length === 0)
-      return { columns: 0, rows: 0 };
-
-    const computedStyle = getComputedStyle(containerElValue);
-    const columns = computedStyle
-      .getPropertyValue("grid-template-columns")
-      .replace(" 0px", "")
-      .split(" ").length;
-    const rows = Math.ceil(localProps.data.length / columns);
-    return { columns, rows };
-  };
-
   function handleKeyDown(event: KeyboardEvent) {
-    const containerElValue = containerEl();
+    if (event.altKey) return;
 
-    if (!containerElValue || event.altKey) return;
+    const gridGroups = Array.from(
+      containerEl()!.querySelectorAll("[data-grid-group-items]")
+    ) as HTMLDivElement[];
 
-    const children = Array.from(containerElValue.children) as HTMLElement[];
-    const currentIndex = children.findIndex(
+    const gridGroupIndex = gridGroups.findIndex((group) =>
+      group.contains(event.target as HTMLElement)
+    );
+
+    const gridGroupChildren = Array.from(
+      gridGroups[gridGroupIndex].children
+    ) as HTMLElement[];
+
+    const gridGroupItemIndex = gridGroupChildren.findIndex(
       (child) => child === document.activeElement
     );
 
-    const updateTabIndex = (nextIndex: number) => {
-      children[currentIndex].tabIndex = -1;
-      children[nextIndex].tabIndex = 0;
-      if (localProps.saveIndexKey) {
-        savedIndices[localProps.saveIndexKey] = nextIndex;
+    function handleNextItemFocus(
+      nextGroupIndex: number,
+      nextItemIndex: number
+    ) {
+      (
+        gridGroups[nextGroupIndex].children[nextItemIndex] as HTMLElement
+      ).focus();
+
+      (
+        gridGroups[nextGroupIndex].children[nextItemIndex] as HTMLElement
+      ).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      (
+        gridGroups[gridGroupIndex].children[gridGroupItemIndex] as HTMLElement
+      ).tabIndex = -1;
+      (
+        gridGroups[nextGroupIndex].children[nextItemIndex] as HTMLElement
+      ).tabIndex = 0;
+
+      if (props.focusedItemPositionKey) {
+        savedPositions[props.focusedItemPositionKey] =
+          (nextGroupIndex + 1) * nextItemIndex;
       }
-    };
+    }
 
     switch (event.key) {
       case "ArrowLeft": {
-        const nextIndex =
-          currentIndex === 0 ? children.length - 1 : currentIndex - 1;
-        updateTabIndex(nextIndex);
-        children[nextIndex].focus();
+        let nextGroupIndex;
+        let nextItemIndex;
+
+        if (gridGroupItemIndex === 0) {
+          if (gridGroupIndex === 0) {
+            nextGroupIndex = gridGroups.length - 1;
+          } else {
+            nextGroupIndex = gridGroupIndex - 1;
+          }
+          nextItemIndex = gridGroups[nextGroupIndex].children.length - 1;
+        } else {
+          nextGroupIndex = gridGroupIndex;
+          nextItemIndex = gridGroupItemIndex - 1;
+        }
+
+        handleNextItemFocus(nextGroupIndex, nextItemIndex);
+
         break;
       }
 
       case "ArrowRight": {
-        const nextIndex = (currentIndex + 1) % children.length;
-        updateTabIndex(nextIndex);
-        children[nextIndex].focus();
+        let nextGroupIndex;
+        let nextItemIndex;
+
+        if (gridGroupItemIndex === gridGroupChildren.length - 1) {
+          if (gridGroupIndex === gridGroups.length - 1) {
+            nextGroupIndex = 0;
+          } else {
+            nextGroupIndex = gridGroupIndex + 1;
+          }
+          nextItemIndex = 0;
+        } else {
+          nextGroupIndex = gridGroupIndex;
+          nextItemIndex = gridGroupItemIndex + 1;
+        }
+
+        handleNextItemFocus(nextGroupIndex, nextItemIndex);
+
         break;
       }
 
       case "ArrowDown": {
         event.preventDefault();
+        const { columns, rows } = getGridSize(gridGroups[gridGroupIndex]);
 
-        const { columns, rows } = gridSize();
+        const noChildBelowGroupRow =
+          gridGroupItemIndex + columns >= gridGroupChildren.length;
 
-        const isLastRow = currentIndex >= (rows - 1) * columns;
-        const noChildBelow = currentIndex + columns >= children.length;
+        const isLastGroup = gridGroupIndex === gridGroups.length - 1;
+        const isGroupLastRow = gridGroupItemIndex >= (rows - 1) * columns;
 
-        let nextIndex;
-        if (isLastRow) {
-          nextIndex = 0;
-        } else if (noChildBelow) {
-          nextIndex = children.length - 1;
+        let nextGroupIndex;
+        let nextItemIndex;
+
+        if (isGroupLastRow) {
+          if (isLastGroup) {
+            nextGroupIndex = 0;
+            nextItemIndex = 0;
+          } else {
+            nextGroupIndex = gridGroupIndex + 1;
+            nextItemIndex = 0;
+          }
+        } else if (noChildBelowGroupRow) {
+          nextGroupIndex = gridGroupIndex;
+          nextItemIndex =
+            gridGroupItemIndex - (gridGroupItemIndex % columns) + columns;
         } else {
-          nextIndex = currentIndex + columns;
+          nextGroupIndex = gridGroupIndex;
+          nextItemIndex = gridGroupItemIndex + columns;
         }
 
-        children[nextIndex].focus();
-        children[nextIndex].scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-        updateTabIndex(nextIndex);
+        handleNextItemFocus(nextGroupIndex, nextItemIndex);
+
         break;
       }
 
       case "ArrowUp": {
         event.preventDefault();
+        const { columns } = getGridSize(gridGroups[gridGroupIndex]);
 
-        const { columns } = gridSize();
+        const noChildAboveGroupRow = gridGroupItemIndex - columns < 0;
 
-        const isFirstRow = currentIndex < columns;
+        const isFirstGroup = gridGroupIndex === 0;
 
-        const nextIndex = isFirstRow
-          ? children.length - 1
-          : currentIndex - columns;
+        let nextGroupIndex;
+        let nextItemIndex;
 
-        children[nextIndex].focus();
-        children[nextIndex].scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-        updateTabIndex(nextIndex);
+        if (noChildAboveGroupRow) {
+          if (isFirstGroup) {
+            nextGroupIndex = gridGroups.length - 1;
+            nextItemIndex = gridGroups[nextGroupIndex].children.length - 1;
+          } else {
+            nextGroupIndex = gridGroupIndex - 1;
+            nextItemIndex = gridGroups[nextGroupIndex].children.length - 1;
+          }
+        } else {
+          nextGroupIndex = gridGroupIndex;
+          nextItemIndex = gridGroupItemIndex - columns;
+        }
+
+        handleNextItemFocus(nextGroupIndex, nextItemIndex);
+
+        break;
       }
-    }
-  }
-
-  function handleClick(event: MouseEvent) {
-    const containerElValue = containerEl()!;
-
-    const clickedChild = (event.target as HTMLElement).closest(
-      "[data-grid-item]"
-    ) as HTMLElement;
-
-    if (localProps.saveIndexKey) {
-      savedIndices[localProps.saveIndexKey] =
-        Array.from(containerElValue.children).indexOf(clickedChild) ?? 0;
-    }
-
-    const lastActiveChild = containerElValue.querySelector(
-      "[data-grid-item][tabindex='0']"
-    ) as HTMLElement;
-
-    if (lastActiveChild && clickedChild) {
-      lastActiveChild.tabIndex = -1;
-      clickedChild.tabIndex = 0;
     }
   }
 
   return (
     <div
-      onClick={handleClick}
-      onContextMenu={handleClick}
+      ref={mergeRefs(setContainerEl, props.ref)}
+      class={clsx("flex flex-col gap-4", props.class)}
       onKeyDown={handleKeyDown}
-      class={clsx("grid content-start gap-3", localProps.class)}
-      ref={mergeRefs(props.ref, setContainerEl)}
-      style={{
-        "grid-template-columns": `repeat(auto-fill, ${localProps.columnSize})`,
-      }}
     >
-      <For each={localProps.data}>
-        {(item) => <Dynamic component={localProps.children} dataItem={item} />}
+      <For each={props.data}>
+        {(group) => (
+          <Show when={group.groupData?.length !== 0}>
+            <div>
+              <Show when={group.groupLabel}>
+                <div class="w-min bg-black pl-4 pr-2 text-xl font-bold text-white">
+                  {group.groupLabel}
+                </div>
+              </Show>
+              <div
+                data-grid-group-items="true"
+                class={clsx("grid content-start gap-3", props.gridClass)}
+                style={{
+                  "grid-template-columns": `repeat(auto-fill, 128px)`,
+                }}
+              >
+                <For each={group.groupData}>
+                  {(dataItem) => (
+                    <Dynamic component={group.item} dataItem={dataItem} />
+                  )}
+                </For>
+              </div>
+            </div>
+          </Show>
+        )}
       </For>
     </div>
   );
+}
+
+function getGridSize(element: HTMLDivElement) {
+  const computedStyle = getComputedStyle(element);
+  const columns = computedStyle
+    .getPropertyValue("grid-template-columns")
+    .replace(" 0px", "")
+    .split(" ").length;
+  const rows = Math.ceil(element.children.length / columns);
+  return { columns, rows };
 }
 
 function preventAutoFocus() {
@@ -193,15 +253,25 @@ function allowAutoFocus() {
   autoFocusIsPrevented = false;
 }
 
-type GridProps<T> = {
-  data?: T[];
-  columnSize?: string;
-  saveIndexKey?: string;
+type GridGroupProps = {
+  data?: {
+    groupData?: any[];
+    item: (props: { dataItem: any }) => JSX.Element;
+    groupLabel?: string;
+  }[];
+  /** The key used to save the focused item position across app navigation. */
+  focusedItemPositionKey?: string;
+  /**
+   * If true and autofocus is not prevented, will focus the saved item position
+   * on mount if none is saved, will focus the first item.
+   */
   autofocus?: boolean;
+  gridClass?: ComponentCommonProps["class"];
   ref?: Ref<HTMLDivElement>;
-  children: (props: { dataItem: T }) => JSX.Element;
 } & Pick<ComponentCommonProps, "class">;
 
-export type { GridProps };
 export { preventAutoFocus, allowAutoFocus };
+
+export type { GridGroupProps };
+
 export default Grid;

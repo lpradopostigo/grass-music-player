@@ -9,7 +9,10 @@ function Release(props: ReleaseProps) {
   return (
     <A
       href={`/releases/${props.data.id}`}
-      class={clsx("w-cover-art-md focus-visible:outline-offset-4", props.class)}
+      class={clsx(
+        "w-cover-art-md scroll-m-3 focus-visible:outline-offset-4",
+        props.class
+      )}
     >
       <CoverArt srcs={srcs()} />
       <div class="mt-2 line-clamp-2 break-words font-semibold">

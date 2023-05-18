@@ -1,9 +1,9 @@
 import { useParams } from "@solidjs/router";
 import { Show } from "solid-js";
 import LibraryCommands from "../../commands/LibraryCommands";
-import Grid from "../../components/Grid";
 import Release from "../../components/Release";
 import { createQuery } from "@tanstack/solid-query";
+import Grid from "../../components/Grid";
 
 function Artist() {
   const params = useParams();
@@ -27,11 +27,13 @@ function Artist() {
         <Grid
           autofocus
           class="min-h-0 flex-1 overflow-y-auto p-4"
-          data={artistQuery.data!.releases}
-          columnSize="128px"
-        >
-          {(props) => <Release data={props.dataItem} />}
-        </Grid>
+          data={[
+            {
+              groupData: artistQuery.data!.releases,
+              item: (props) => <Release data={props.dataItem} />,
+            },
+          ]}
+        />
       </Show>
     </div>
   );

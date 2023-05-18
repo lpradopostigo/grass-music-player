@@ -1,8 +1,8 @@
 import LibraryCommands from "../../commands/LibraryCommands";
-import Grid from "../../components/Grid";
 import Release from "../../components/Release";
 import { createQuery } from "@tanstack/solid-query";
 import useLastScrollPosition from "../../hooks/useLastScrollPosition";
+import Grid from "../../components/Grid";
 
 function Releases() {
   const releasesQuery = createQuery(
@@ -24,14 +24,16 @@ function Releases() {
   return (
     <Grid
       ref={gridEl}
-      saveIndexKey={"/releases"}
+      focusedItemPositionKey={"/releases"}
       autofocus
-      columnSize="128px"
       class="h-full overflow-y-auto p-4"
-      data={releasesQuery.data}
-    >
-      {(props) => <Release data={props.dataItem} />}
-    </Grid>
+      data={[
+        {
+          groupData: releasesQuery.data,
+          item: (props) => <Release data={props.dataItem} />,
+        },
+      ]}
+    />
   );
 }
 

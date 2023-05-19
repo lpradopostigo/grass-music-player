@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, Index, JSX, Show } from "solid-js";
+import { createEffect, createSignal, For, JSX, Show } from "solid-js";
 import clsx from "clsx";
 import { mergeRefs, Ref } from "@solid-primitives/refs";
 import { Dynamic } from "solid-js/web";
@@ -43,6 +43,7 @@ function Grid(props: GridGroupProps) {
     }
   });
 
+  // eslint-disable-next-line complexity
   function handleKeyDown(event: KeyboardEvent) {
     if (event.altKey) return;
 
@@ -91,45 +92,50 @@ function Grid(props: GridGroupProps) {
     }
 
     switch (event.key) {
-      case "ArrowLeft": {
-        let nextGroupIndex;
-        let nextItemIndex;
+      case "Home": {
+        event.preventDefault();
+        handleNextItemFocus(0, 0);
+        break;
+      }
 
+      case "End": {
+        event.preventDefault();
+        handleNextItemFocus(
+          gridGroups.length - 1,
+          gridGroups[gridGroups.length - 1].children.length - 1
+        );
+        break;
+      }
+
+      case "ArrowLeft": {
+        // try to focus the previous item in the same group
+        let nextGroupIndex = gridGroupIndex;
+        let nextItemIndex = gridGroupItemIndex - 1;
+
+        // if there is no previous item in the same group, focus the last item in the previous group
         if (gridGroupItemIndex === 0) {
-          if (gridGroupIndex === 0) {
-            nextGroupIndex = gridGroups.length - 1;
-          } else {
-            nextGroupIndex = gridGroupIndex - 1;
-          }
+          nextGroupIndex =
+            gridGroupIndex === 0 ? gridGroups.length - 1 : gridGroupIndex - 1;
           nextItemIndex = gridGroups[nextGroupIndex].children.length - 1;
-        } else {
-          nextGroupIndex = gridGroupIndex;
-          nextItemIndex = gridGroupItemIndex - 1;
         }
 
         handleNextItemFocus(nextGroupIndex, nextItemIndex);
-
         break;
       }
 
       case "ArrowRight": {
-        let nextGroupIndex;
-        let nextItemIndex;
+        // try to focus the next item in the same group
+        let nextGroupIndex = gridGroupIndex;
+        let nextItemIndex = gridGroupItemIndex + 1;
 
+        // if there is no next item in the same group, focus the first item in the next group
         if (gridGroupItemIndex === gridGroupChildren.length - 1) {
-          if (gridGroupIndex === gridGroups.length - 1) {
-            nextGroupIndex = 0;
-          } else {
-            nextGroupIndex = gridGroupIndex + 1;
-          }
+          nextGroupIndex =
+            gridGroupIndex === gridGroups.length - 1 ? 0 : gridGroupIndex + 1;
           nextItemIndex = 0;
-        } else {
-          nextGroupIndex = gridGroupIndex;
-          nextItemIndex = gridGroupItemIndex + 1;
         }
 
         handleNextItemFocus(nextGroupIndex, nextItemIndex);
-
         break;
       }
 
@@ -143,28 +149,23 @@ function Grid(props: GridGroupProps) {
         const isLastGroup = gridGroupIndex === gridGroups.length - 1;
         const isGroupLastRow = gridGroupItemIndex >= (rows - 1) * columns;
 
-        let nextGroupIndex;
-        let nextItemIndex;
+        // try to focus the next item in the same column of the same group
+        let nextGroupIndex = gridGroupIndex;
+        let nextItemIndex = gridGroupItemIndex + columns;
 
-        if (isGroupLastRow) {
-          if (isLastGroup) {
-            nextGroupIndex = 0;
-            nextItemIndex = 0;
-          } else {
-            nextGroupIndex = gridGroupIndex + 1;
-            nextItemIndex = 0;
-          }
-        } else if (noChildBelowGroupRow) {
-          nextGroupIndex = gridGroupIndex;
-          nextItemIndex =
-            gridGroupItemIndex - (gridGroupItemIndex % columns) + columns;
-        } else {
-          nextGroupIndex = gridGroupIndex;
-          nextItemIndex = gridGroupItemIndex + columns;
+        if (noChildBelowGroupRow && !isGroupLastRow) {
+          nextItemIndex = gridGroups[nextGroupIndex].children.length - 1;
+        } else if (isGroupLastRow) {
+          nextGroupIndex = isLastGroup ? 0 : gridGroupIndex + 1;
+
+          nextItemIndex = gridGroups[nextGroupIndex].children[
+            gridGroupItemIndex % columns
+          ]
+            ? gridGroupItemIndex % columns
+            : gridGroups[nextGroupIndex].children.length - 1;
         }
 
         handleNextItemFocus(nextGroupIndex, nextItemIndex);
-
         break;
       }
 
@@ -172,28 +173,31 @@ function Grid(props: GridGroupProps) {
         event.preventDefault();
         const { columns } = getGridSize(gridGroups[gridGroupIndex]);
 
-        const noChildAboveGroupRow = gridGroupItemIndex - columns < 0;
+        const isGroupFirstRow = gridGroupItemIndex < columns;
 
-        const isFirstGroup = gridGroupIndex === 0;
+        // try to focus the previous item in the same column of the same group
+        let nextGroupIndex = gridGroupIndex;
+        let nextItemIndex = gridGroupItemIndex - columns;
 
-        let nextGroupIndex;
-        let nextItemIndex;
+        if (isGroupFirstRow) {
+          nextGroupIndex =
+            gridGroupIndex === 0 ? gridGroups.length - 1 : gridGroupIndex - 1;
 
-        if (noChildAboveGroupRow) {
-          if (isFirstGroup) {
-            nextGroupIndex = gridGroups.length - 1;
-            nextItemIndex = gridGroups[nextGroupIndex].children.length - 1;
-          } else {
-            nextGroupIndex = gridGroupIndex - 1;
-            nextItemIndex = gridGroups[nextGroupIndex].children.length - 1;
-          }
-        } else {
-          nextGroupIndex = gridGroupIndex;
-          nextItemIndex = gridGroupItemIndex - columns;
+          const nextGroupLength = gridGroups[nextGroupIndex].children.length;
+
+          const nextGroupLastRowColumns =
+            nextGroupLength % columns === 0
+              ? columns
+              : nextGroupLength % columns;
+
+          nextItemIndex =
+            nextGroupLastRowColumns - 1 < gridGroupItemIndex
+              ? nextGroupLength - 1
+              : nextGroupLength -
+                (nextGroupLastRowColumns - gridGroupItemIndex);
         }
 
         handleNextItemFocus(nextGroupIndex, nextItemIndex);
-
         break;
       }
     }
@@ -242,6 +246,7 @@ function getGridSize(element: HTMLDivElement) {
     .replace(" 0px", "")
     .split(" ").length;
   const rows = Math.ceil(element.children.length / columns);
+
   return { columns, rows };
 }
 

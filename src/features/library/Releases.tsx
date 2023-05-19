@@ -24,12 +24,12 @@ function Releases() {
   return (
     <Grid
       ref={gridEl}
-      focusedItemPositionKey={"/releases"}
+      storageKey={"/releases"}
       autofocus
       class="h-full overflow-y-auto p-4"
       data={[
         {
-          groupData: releasesQuery.data,
+          subGridData: releasesQuery.data,
           item: (props) => <Release data={props.dataItem} />,
         },
       ]}

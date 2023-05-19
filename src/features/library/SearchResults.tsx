@@ -16,16 +16,16 @@ function SearchResults() {
   return (
     <Grid
       class="h-full overflow-y-auto py-4"
-      gridClass="p-4"
+      subGridClass="p-4"
       data={[
         {
-          groupData: searchQuery.data?.releases,
-          groupLabel: "releases",
+          subGridData: searchQuery.data?.releases,
+          subGridLabel: "releases",
           item: (item) => <Release data={item.dataItem} />,
         },
         {
-          groupData: searchQuery.data?.artists,
-          groupLabel: "artists",
+          subGridData: searchQuery.data?.artists,
+          subGridLabel: "artists",
           item: (item) => <Artist data={item.dataItem} />,
         },
       ]}

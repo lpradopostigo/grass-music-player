@@ -24,12 +24,12 @@ function Artists() {
   return (
     <Grid
       ref={gridEl}
-      focusedItemPositionKey={"/artists"}
+      storageKey={"/artists"}
       autofocus
       class="h-full overflow-y-auto p-4"
       data={[
         {
-          groupData: artistsQuery.data,
+          subGridData: artistsQuery.data,
           item: (props) => <Artist data={props.dataItem} />,
         },
       ]}

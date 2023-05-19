@@ -3,11 +3,15 @@ import clsx from "clsx";
 import { mergeRefs, Ref } from "@solid-primitives/refs";
 import { Dynamic } from "solid-js/web";
 import { useIsRouting } from "@solidjs/router";
+import {
+  autoFocusIsPrevented,
+  savedPositions,
+  allowAutoFocus,
+  preventAutoFocus,
+  getGridSize,
+} from "./utils";
 
-const savedPositions: Record<string, number> = {};
-let autoFocusIsPrevented = false;
-
-function Grid(props: GridGroupProps) {
+function Grid(props: GridProps) {
   const [containerEl, setContainerEl] = createSignal<HTMLDivElement>();
   const isRouting = useIsRouting();
 
@@ -20,8 +24,8 @@ function Grid(props: GridGroupProps) {
       "[data-grid-group-items] > *"
     ) as NodeListOf<HTMLElement>;
 
-    const savedPosition = props.focusedItemPositionKey
-      ? savedPositions[props.focusedItemPositionKey]
+    const savedPosition = props.storageKey
+      ? savedPositions[props.storageKey]
       : null;
 
     const indexToFocus = savedPosition ?? 0;
@@ -40,8 +44,27 @@ function Grid(props: GridGroupProps) {
       } else {
         child.tabIndex = -1;
       }
+
+      child.setAttribute("data-grid-item", "true");
     }
   });
+
+  function handleClick(event: MouseEvent) {
+    const clickedGridItem = (event.target as HTMLElement).closest(
+      "[data-grid-item]"
+    ) as HTMLElement | null;
+
+    if (!clickedGridItem) return;
+
+    const allGridItems = containerEl()!.querySelectorAll(
+      "[data-grid-group-items] > *"
+    ) as NodeListOf<HTMLElement>;
+
+    if (props.storageKey) {
+      savedPositions[props.storageKey] =
+        Array.from(allGridItems).indexOf(clickedGridItem);
+    }
+  }
 
   // eslint-disable-next-line complexity
   function handleKeyDown(event: KeyboardEvent) {
@@ -85,9 +108,8 @@ function Grid(props: GridGroupProps) {
         gridGroups[nextGroupIndex].children[nextItemIndex] as HTMLElement
       ).tabIndex = 0;
 
-      if (props.focusedItemPositionKey) {
-        savedPositions[props.focusedItemPositionKey] =
-          (nextGroupIndex + 1) * nextItemIndex;
+      if (props.storageKey) {
+        savedPositions[props.storageKey] = (nextGroupIndex + 1) * nextItemIndex;
       }
     }
 
@@ -205,29 +227,30 @@ function Grid(props: GridGroupProps) {
 
   return (
     <div
+      onClick={handleClick}
       ref={mergeRefs(setContainerEl, props.ref)}
       class={clsx("flex flex-col gap-4", props.class)}
       onKeyDown={handleKeyDown}
     >
       <For each={props.data}>
-        {(group) => (
-          <Show when={group.groupData?.length !== 0}>
+        {(subGrid) => (
+          <Show when={subGrid.subGridData?.length !== 0}>
             <div>
-              <Show when={group.groupLabel}>
+              <Show when={subGrid.subGridLabel}>
                 <div class="w-min bg-black pl-4 pr-2 text-xl font-bold text-white">
-                  {group.groupLabel}
+                  {subGrid.subGridData}
                 </div>
               </Show>
               <div
                 data-grid-group-items="true"
-                class={clsx("grid content-start gap-3", props.gridClass)}
+                class={clsx("grid content-start gap-3", props.subGridClass)}
                 style={{
                   "grid-template-columns": `repeat(auto-fill, 128px)`,
                 }}
               >
-                <For each={group.groupData}>
+                <For each={subGrid.subGridData}>
                   {(dataItem) => (
-                    <Dynamic component={group.item} dataItem={dataItem} />
+                    <Dynamic component={subGrid.item} dataItem={dataItem} />
                   )}
                 </For>
               </div>
@@ -239,44 +262,23 @@ function Grid(props: GridGroupProps) {
   );
 }
 
-function getGridSize(element: HTMLDivElement) {
-  const computedStyle = getComputedStyle(element);
-  const columns = computedStyle
-    .getPropertyValue("grid-template-columns")
-    .replace(" 0px", "")
-    .split(" ").length;
-  const rows = Math.ceil(element.children.length / columns);
-
-  return { columns, rows };
-}
-
-function preventAutoFocus() {
-  autoFocusIsPrevented = true;
-}
-
-function allowAutoFocus() {
-  autoFocusIsPrevented = false;
-}
-
-type GridGroupProps = {
+type GridProps = {
   data?: {
-    groupData?: any[];
+    subGridData?: any[];
     item: (props: { dataItem: any }) => JSX.Element;
-    groupLabel?: string;
+    subGridLabel?: string;
   }[];
   /** The key used to save the focused item position across app navigation. */
-  focusedItemPositionKey?: string;
+  storageKey?: string;
   /**
    * If true and autofocus is not prevented, will focus the saved item position
    * on mount if none is saved, will focus the first item.
    */
   autofocus?: boolean;
-  gridClass?: ComponentCommonProps["class"];
+  subGridClass?: ComponentCommonProps["class"];
   ref?: Ref<HTMLDivElement>;
 } & Pick<ComponentCommonProps, "class">;
 
 export { preventAutoFocus, allowAutoFocus };
-
-export type { GridGroupProps };
-
+export type { GridProps };
 export default Grid;

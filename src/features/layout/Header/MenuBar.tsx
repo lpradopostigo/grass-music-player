@@ -1,10 +1,16 @@
 import { Index } from "solid-js";
 import { A } from "@solidjs/router";
-import clsx from "clsx";
-import { preventAutoFocus } from "./Grid";
-import useRouteIsActive from "../hooks/useRouteIsActive";
+import { preventAutoFocus } from "../../../components/Grid";
+import useRouteIsActive from "../../../hooks/useRouteIsActive";
 
-function MenuBar(props: MenuBarProps) {
+const data = [
+  { href: "/releases", label: "releases" },
+  { href: "/artists", label: "artists" },
+  { href: "/playlists", label: "playlists" },
+  { href: "/preferences", label: "preferences" },
+];
+
+function MenuBar() {
   let containerEl!: HTMLDivElement;
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -38,7 +44,7 @@ function MenuBar(props: MenuBarProps) {
   }
 
   const activeRouteIndex = () => {
-    for (const [index, { href }] of props.data.entries()) {
+    for (const [index, { href }] of data.entries()) {
       const routeIsActive = useRouteIsActive(href);
       if (routeIsActive()) return index;
     }
@@ -50,9 +56,9 @@ function MenuBar(props: MenuBarProps) {
     <div
       ref={containerEl}
       onKeyDown={handleKeyDown}
-      class={clsx("flex gap-2 uppercase", props.class)}
+      class="flex gap-2 py-2.5 pl-4 uppercase"
     >
-      <Index each={props.data}>
+      <Index each={data}>
         {(item, index) => {
           const tabIndex = () => {
             const activeRouteIndexValue = activeRouteIndex();
@@ -68,12 +74,7 @@ function MenuBar(props: MenuBarProps) {
           };
 
           return (
-            <A
-              class={clsx("outline-[currentColor]", props.itemClass)}
-              tabindex={tabIndex()}
-              activeClass={clsx("font-bold", props.itemActiveClass)}
-              href={item().href}
-            >
+            <A tabindex={tabIndex()} activeClass="font-bold" href={item().href}>
               {item().label}
             </A>
           );
@@ -82,14 +83,5 @@ function MenuBar(props: MenuBarProps) {
     </div>
   );
 }
-
-type MenuBarProps = {
-  data: {
-    href: string;
-    label: string;
-  }[];
-  itemActiveClass?: string;
-  itemClass?: string;
-} & Pick<ComponentCommonProps, "class">;
 
 export default MenuBar;

@@ -15,6 +15,7 @@ function SearchResults() {
 
   return (
     <Grid
+      autofocus
       class="h-full overflow-y-auto py-4"
       subGridClass="p-4"
       data={[

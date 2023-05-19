@@ -238,7 +238,7 @@ function Grid(props: GridProps) {
             <div>
               <Show when={subGrid.subGridLabel}>
                 <div class="w-min bg-black pl-4 pr-2 text-xl font-bold text-white">
-                  {subGrid.subGridData}
+                  {subGrid.subGridLabel}
                 </div>
               </Show>
               <div

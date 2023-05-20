@@ -23,7 +23,7 @@ function PlaybackInfo() {
         />
         <div class="min-w-0">
           <A
-            class="truncate font-semibold hover:underline"
+            class="block truncate font-semibold hover:underline"
             href={`/releases/${globalData.playerState.track!.releaseId}`}
           >
             {globalData.playerState.track!.name}

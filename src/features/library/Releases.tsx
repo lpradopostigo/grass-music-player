@@ -1,8 +1,8 @@
-import LibraryCommands from "../../commands/LibraryCommands";
-import Release from "../../components/Release";
+import LibraryCommands from "../../commands/LibraryCommands.ts";
+import Release from "../../components/Release.tsx";
 import { createQuery } from "@tanstack/solid-query";
-import useLastScrollPosition from "../../hooks/useLastScrollPosition";
-import Grid from "../../components/Grid";
+import useLastScrollPosition from "../../hooks/useLastScrollPosition.ts";
+import Grid from "../../components/Grid.tsx";
 
 function Releases() {
   const releasesQuery = createQuery(

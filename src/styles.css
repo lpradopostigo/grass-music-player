@@ -16,55 +16,55 @@
   @font-face {
     font-family: "Inter";
     font-weight: 100;
-    src: url("../assets/fonts/Inter-Thin.ttf");
+    src: url("assets/fonts/Inter-Thin.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 200;
-    src: url("../assets/fonts/Inter-ExtraLight.ttf");
+    src: url("assets/fonts/Inter-ExtraLight.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 300;
-    src: url("../assets/fonts/Inter-Light.ttf");
+    src: url("assets/fonts/Inter-Light.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 400;
-    src: url("../assets/fonts/Inter-Regular.ttf");
+    src: url("assets/fonts/Inter-Regular.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 500;
-    src: url("../assets/fonts/Inter-Medium.ttf");
+    src: url("assets/fonts/Inter-Medium.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 600;
-    src: url("../assets/fonts/Inter-SemiBold.ttf");
+    src: url("assets/fonts/Inter-SemiBold.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 700;
-    src: url("../assets/fonts/Inter-Bold.ttf");
+    src: url("assets/fonts/Inter-Bold.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 800;
-    src: url("../assets/fonts/Inter-ExtraBold.ttf");
+    src: url("assets/fonts/Inter-ExtraBold.ttf");
   }
 
   @font-face {
     font-family: "Inter";
     font-weight: 900;
-    src: url("../assets/fonts/Inter-Black.ttf");
+    src: url("assets/fonts/Inter-Black.ttf");
   }
 
   :focus-visible {
@@ -77,15 +77,7 @@
   }
 
   input[type="text"] {
-    @apply rounded border border-gray-3;
-  }
-
-  button {
-    @apply rounded bg-black px-2 py-1 text-white;
-  }
-
-  button:focus-visible {
-    @apply outline-offset-2;
+    @apply border border-gray-3 placeholder:text-gray-5 focus-visible:outline-offset-0;
   }
 
   :disabled {
@@ -118,5 +110,15 @@
 
   ::-webkit-scrollbar-thumb {
     @apply rounded bg-gray-6;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply rounded bg-black px-2 py-1 text-white focus-visible:outline-offset-2;
+  }
+
+  .disabled {
+    @apply opacity-50;
   }
 }

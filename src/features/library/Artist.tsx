@@ -1,9 +1,9 @@
 import { useParams } from "@solidjs/router";
 import { Show } from "solid-js";
-import LibraryCommands from "../../commands/LibraryCommands";
-import Release from "../../components/Release";
+import LibraryCommands from "../../commands/LibraryCommands.ts";
+import Release from "../../components/Release.tsx";
 import { createQuery } from "@tanstack/solid-query";
-import Grid from "../../components/Grid";
+import Grid from "../../components/Grid.tsx";
 
 function Artist() {
   const params = useParams();

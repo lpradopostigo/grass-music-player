@@ -1,7 +1,7 @@
 import { A } from "@solidjs/router";
 import clsx from "clsx";
-import CoverArt from "./CoverArt";
-import { ArtistOverview } from "../../src-tauri/bindings/ArtistOverview";
+import CoverArt from "./CoverArt.tsx";
+import { ArtistOverview } from "../../src-tauri/bindings/ArtistOverview.ts";
 
 function Artist(props: ArtistProps) {
   return (

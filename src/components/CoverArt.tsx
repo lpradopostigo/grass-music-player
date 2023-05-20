@@ -1,6 +1,6 @@
 import { createEffect, For, mergeProps, Show } from "solid-js";
 import clsx from "clsx";
-import Icon from "./Icon";
+import Icon from "./Icon.tsx";
 import { createVisibilityObserver } from "@solid-primitives/intersection-observer";
 
 function CoverArt(props: CoverArtProps) {

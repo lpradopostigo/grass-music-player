@@ -1,11 +1,11 @@
 import { invoke } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
-import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack";
-import { SearchResult } from "../../src-tauri/bindings/SearchResult";
-import { ReleaseOverview } from "../../src-tauri/bindings/ReleaseOverview";
-import { Release } from "../../src-tauri/bindings/Release";
-import { ArtistOverview } from "../../src-tauri/bindings/ArtistOverview";
-import { Artist } from "../../src-tauri/bindings/Artist";
+import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack.ts";
+import { SearchResult } from "../../src-tauri/bindings/SearchResult.ts";
+import { ReleaseOverview } from "../../src-tauri/bindings/ReleaseOverview.ts";
+import { Release } from "../../src-tauri/bindings/Release.ts";
+import { ArtistOverview } from "../../src-tauri/bindings/ArtistOverview.ts";
+import { Artist } from "../../src-tauri/bindings/Artist.ts";
 
 const LibraryCommands = {
   async getReleaseOverviews(): Promise<ReleaseOverview[]> {

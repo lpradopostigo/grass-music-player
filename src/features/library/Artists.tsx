@@ -1,8 +1,8 @@
-import LibraryCommands from "../../commands/LibraryCommands";
-import Artist from "../../components/Artist";
+import LibraryCommands from "../../commands/LibraryCommands.ts";
+import Artist from "../../components/Artist.tsx";
 import { createQuery } from "@tanstack/solid-query";
-import useLastScrollPosition from "../../hooks/useLastScrollPosition";
-import Grid from "../../components/Grid";
+import useLastScrollPosition from "../../hooks/useLastScrollPosition.ts";
+import Grid from "../../components/Grid.tsx";
 
 function Artists() {
   const artistsQuery = createQuery(

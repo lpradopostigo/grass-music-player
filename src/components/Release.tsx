@@ -1,7 +1,7 @@
-import CoverArt from "./CoverArt";
+import CoverArt from "./CoverArt.tsx";
 import clsx from "clsx";
 import { A } from "@solidjs/router";
-import { ReleaseOverview } from "../../src-tauri/bindings/ReleaseOverview";
+import { ReleaseOverview } from "../../src-tauri/bindings/ReleaseOverview.ts";
 
 function Release(props: ReleaseProps) {
   const srcs = () => (props.data.thumbnailSrc ? [props.data.thumbnailSrc] : []);

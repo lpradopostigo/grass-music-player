@@ -537,7 +537,6 @@ impl<'a> LibraryManager<'a> {
                     release_name: row.get(2)?,
                     name: row.get(3)?,
                     artist_credit_name: row.get(4)?,
-
                 })
             },
         )?;

@@ -1,6 +1,6 @@
 import { JSX, Suspense } from "solid-js";
 import { Outlet } from "@solidjs/router";
-import Loader from "../../components/Loader";
+import Loader from "../../components/Loader.tsx";
 
 function Shell(props: ShellProps) {
   return (

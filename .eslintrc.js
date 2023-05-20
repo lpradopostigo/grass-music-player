@@ -36,15 +36,16 @@ module.exports = {
     "@typescript-eslint/explicit-member-accessibility": "off",
     "import/prefer-default-export": "error",
     "import/exports-last": "error",
-    "import/no-named-as-default": "off"
+    "import/no-named-as-default": "off",
+    "import/extensions": ["error", "ignorePackages"],
   },
 
-  "overrides": [
+  overrides: [
     {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "no-undef": "off"
-      }
-    }
-  ]
+      files: ["*.ts", "*.tsx"],
+      rules: {
+        "no-undef": "off",
+      },
+    },
+  ],
 };

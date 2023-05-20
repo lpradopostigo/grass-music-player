@@ -3,13 +3,6 @@ import clsx from "clsx";
 import { mergeRefs, Ref } from "@solid-primitives/refs";
 import { Dynamic } from "solid-js/web";
 import { useIsRouting } from "@solidjs/router";
-import {
-  autoFocusIsPrevented,
-  savedPositions,
-  allowAutoFocus,
-  preventAutoFocus,
-  getGridSize,
-} from "./utils";
 
 function Grid(props: GridProps) {
   const [containerEl, setContainerEl] = createSignal<HTMLDivElement>();
@@ -260,6 +253,28 @@ function Grid(props: GridProps) {
       </For>
     </div>
   );
+}
+
+const savedPositions: Record<string, number> = {};
+let autoFocusIsPrevented = false;
+
+function getGridSize(element: HTMLDivElement) {
+  const computedStyle = getComputedStyle(element);
+  const columns = computedStyle
+    .getPropertyValue("grid-template-columns")
+    .replace(" 0px", "")
+    .split(" ").length;
+  const rows = Math.ceil(element.children.length / columns);
+
+  return { columns, rows };
+}
+
+function preventAutoFocus() {
+  autoFocusIsPrevented = true;
+}
+
+function allowAutoFocus() {
+  autoFocusIsPrevented = false;
 }
 
 type GridProps = {

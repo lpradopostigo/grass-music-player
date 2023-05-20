@@ -7,12 +7,12 @@ import {
   useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { Preferences } from "../../src-tauri/bindings/Preferences";
-import { PlayerState } from "../../src-tauri/bindings/PlayerState";
-import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack";
+import { Preferences } from "../../src-tauri/bindings/Preferences.ts";
+import { PlayerState } from "../../src-tauri/bindings/PlayerState.ts";
+import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack.ts";
 import { listen } from "@tauri-apps/api/event";
-import LibraryCommands from "../commands/LibraryCommands";
-import PreferencesCommands from "../commands/PreferencesCommands";
+import LibraryCommands from "../commands/LibraryCommands.ts";
+import PreferencesCommands from "../commands/PreferencesCommands.ts";
 
 const GlobalStoreContext = createContext<GlobalStoreValue>();
 

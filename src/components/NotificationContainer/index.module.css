@@ -1,9 +1,0 @@
-.container {
-  position: absolute;
-  min-height: var(--size-8);
-  min-width: 30%;
-  background-color: var(--white);
-  box-shadow: var(--shadow-4);
-  top: var(--size-title-bar-height);
-  right: var(--size-2);
-}

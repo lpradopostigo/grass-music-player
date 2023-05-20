@@ -1,7 +1,7 @@
 import { Index } from "solid-js";
 import { A } from "@solidjs/router";
-import { preventAutoFocus } from "../../../components/Grid";
-import useRouteIsActive from "../../../hooks/useRouteIsActive";
+import { preventAutoFocus } from "../../../components/Grid.tsx";
+import useRouteIsActive from "../../../hooks/useRouteIsActive.ts";
 
 const data = [
   { href: "/releases", label: "releases" },
@@ -56,7 +56,7 @@ function MenuBar() {
     <div
       ref={containerEl}
       onKeyDown={handleKeyDown}
-      class="flex gap-2 py-2.5 pl-4 uppercase"
+      class="flex gap-2 py-2.5 uppercase"
     >
       <Index each={data}>
         {(item, index) => {

@@ -1,7 +1,7 @@
 import { createSignal, onCleanup } from "solid-js";
 import { appWindow } from "@tauri-apps/api/window";
 import clsx from "clsx";
-import Icon from "../../../components/Icon";
+import Icon from "../../../components/Icon.tsx";
 
 function WindowButtons() {
   const [windowIsMaximized, setWindowIsMaximized] = createSignal(false);

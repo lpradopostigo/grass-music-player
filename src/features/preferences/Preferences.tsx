@@ -1,6 +1,6 @@
-import LibraryCommands from "../../commands/LibraryCommands";
+import LibraryCommands from "../../commands/LibraryCommands.ts";
 import { open } from "@tauri-apps/api/dialog";
-import { useGlobalStore } from "../../providers/GlobalStoreProvider";
+import { useGlobalStore } from "../../providers/GlobalStoreProvider.tsx";
 import { useQueryClient } from "@tanstack/solid-query";
 
 function Preferences() {
@@ -12,7 +12,7 @@ function Preferences() {
       <div class="p-4">
         <div>
           <button
-            class="mr-2"
+            class="btn mr-2"
             disabled={!globalData.preferences.libraryPath}
             onClick={async () => {
               const startTime = performance.now();
@@ -29,6 +29,7 @@ function Preferences() {
           </button>
 
           <button
+            class="btn"
             disabled={!globalData.preferences.libraryPath}
             onClick={async () => {
               const startTime = performance.now();
@@ -58,6 +59,7 @@ function Preferences() {
             />
 
             <button
+              class="btn"
               disabled={globalData.preferences.libraryPath === undefined}
               onClick={async () => {
                 const selectedPath = (await open({

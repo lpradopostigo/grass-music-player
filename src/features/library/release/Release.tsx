@@ -1,7 +1,7 @@
 import { useParams } from "@solidjs/router";
 import { Show } from "solid-js";
-import LibraryCommands from "../../../commands/LibraryCommands";
-import TrackList from "./TrackList";
+import LibraryCommands from "../../../commands/LibraryCommands.ts";
+import TrackList from "./TrackList.tsx";
 import { createQuery } from "@tanstack/solid-query";
 import clsx from "clsx";
 

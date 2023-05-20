@@ -1,11 +1,11 @@
 import { createEffect, createSignal, Index, JSX, Show } from "solid-js";
-import { secondsToAudioDuration } from "../../../utils";
-import PlayerCommands from "../../../commands/PlayerCommands";
+import { secondsToAudioDuration } from "../../../utils/misc.ts";
+import PlayerCommands from "../../../commands/PlayerCommands.ts";
 import clsx from "clsx";
 import style from "./style.module.css";
-import { useGlobalStore } from "../../../providers/GlobalStoreProvider";
+import { useGlobalStore } from "../../../providers/GlobalStoreProvider.tsx";
 import { useIsRouting } from "@solidjs/router";
-import { ReleaseTrack } from "../../../../src-tauri/bindings/ReleaseTrack";
+import { ReleaseTrack } from "../../../../src-tauri/bindings/ReleaseTrack.ts";
 
 function TrackList(props: TrackListProps) {
   const [globalData] = useGlobalStore();

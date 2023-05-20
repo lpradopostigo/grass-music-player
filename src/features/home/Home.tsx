@@ -1,5 +1,3 @@
-import CoverArt from "../../components/CoverArt";
-
 function Home() {
   return (
     <div>

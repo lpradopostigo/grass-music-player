@@ -27,7 +27,7 @@ function Grid(props: GridProps) {
       const child = allGridItems[index] as HTMLElement;
 
       if (index === indexToFocus) {
-        child.tabIndex = indexToFocus;
+        child.tabIndex = 0;
 
         if (autoFocusIsPrevented) {
           allowAutoFocus();

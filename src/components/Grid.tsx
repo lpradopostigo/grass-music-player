@@ -227,7 +227,7 @@ function Grid(props: GridProps) {
     >
       <For each={props.data}>
         {(subGrid) => (
-          <Show when={subGrid.subGridData?.length !== 0}>
+          <Show when={subGrid.subGridData && subGrid.subGridData.length !== 0}>
             <div>
               <Show when={subGrid.subGridLabel}>
                 <div class="w-min bg-black pl-4 pr-2 text-xl font-bold text-white">

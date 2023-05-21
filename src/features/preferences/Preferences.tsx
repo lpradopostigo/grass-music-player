@@ -2,10 +2,15 @@ import LibraryCommands from "../../commands/LibraryCommands.ts";
 import { open } from "@tauri-apps/api/dialog";
 import { useGlobalStore } from "../../providers/GlobalStoreProvider.tsx";
 import { useQueryClient } from "@tanstack/solid-query";
+import { createEffect } from "solid-js";
 
 function Preferences() {
   const [globalData, { updatePreferences }] = useGlobalStore();
   const queryClient = useQueryClient();
+
+  createEffect(() => {
+    console.log(globalData.scanState);
+  });
 
   return (
     <div class="h-full">

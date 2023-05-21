@@ -35,7 +35,7 @@ function Search() {
   const [query, setQuery] = createSignal("");
 
   const searchQuery = createQuery(
-    () => ["search", query().trim()],
+    () => ["library", "search", query().trim()],
     () => LibraryCommands.search(query()),
     {
       keepPreviousData: true,

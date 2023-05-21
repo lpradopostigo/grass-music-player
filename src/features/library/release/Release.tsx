@@ -9,7 +9,7 @@ function Release() {
   const params = useParams();
 
   const releaseQuery = createQuery(
-    () => ["releases", params.id],
+    () => ["library", "releases", params.id],
     () => LibraryCommands.getRelease(params.id)
   );
 

@@ -8,7 +8,7 @@ import Grid from "../../components/Grid.tsx";
 function Artist() {
   const params = useParams();
   const artistQuery = createQuery(
-    () => ["artists", params.id],
+    () => ["library", "artists", params.id],
     () => LibraryCommands.getArtist(params.id)
   );
 

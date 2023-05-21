@@ -1,14 +1,12 @@
+use anyhow::{bail, Result};
 use lofty::{read_from_path, Accessor, AudioFile, ItemKey, MimeType, TaggedFileExt};
 use std::fmt::Display;
 
 pub struct TagReader;
 
 impl TagReader {
-    pub fn read(path: &str) -> Result<Tag, Error> {
-        let tagged_file = match read_from_path(path) {
-            Ok(tagged_file) => tagged_file,
-            Err(_) => return Err(Error::NotProcessable),
-        };
+    pub fn read(path: &str) -> Result<Tag> {
+        let tagged_file = read_from_path(path)?;
 
         let file_properties = tagged_file.properties();
 
@@ -48,7 +46,7 @@ impl TagReader {
                 let extension = match picture.mime_type() {
                     MimeType::Jpeg => CoverArtExtension::Jpeg,
                     MimeType::Png => CoverArtExtension::Png,
-                    _ => return Err(Error::NotProcessable),
+                    _ => bail!("Unsupported cover art format"),
                 };
 
                 Some(CoverArt {
@@ -82,6 +80,7 @@ impl TagReader {
     }
 }
 
+#[derive(Debug)]
 pub struct Tag {
     pub album: Option<String>,
     pub album_artist: Option<String>,
@@ -103,16 +102,13 @@ pub struct Tag {
     pub year: Option<u16>,
 }
 
+#[derive(Debug)]
 pub struct CoverArt {
     pub data: Vec<u8>,
     pub extension: CoverArtExtension,
 }
 
-pub enum Error {
-    NotProcessable,
-    CorruptedFile,
-}
-
+#[derive(Debug)]
 pub enum CoverArtExtension {
     Jpeg,
     Png,

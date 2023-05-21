@@ -23,14 +23,30 @@ function PlaybackInfo() {
         />
         <div class="min-w-0">
           <A
-            class="block truncate font-semibold hover:underline"
+            class="block max-w-min truncate font-semibold hover:underline"
             href={`/releases/${globalData.playerState.track!.releaseId}`}
           >
             {globalData.playerState.track!.name}
           </A>
-          <div class="truncate text-sm">
-            {globalData.playerState.track!.artistCreditName}
-          </div>
+
+          <Show
+            when={globalData.playerState.track!.artists.length > 1}
+            fallback={
+              <A
+                class="block max-w-min truncate text-sm hover:underline"
+                href={`/artists/${globalData.playerState.track!.artists[0].id}`}
+              >
+                {globalData.playerState.track!.artistCreditName}
+              </A>
+            }
+          >
+            <A
+              class="block max-w-min truncate text-sm hover:underline"
+              href={`/artists/${globalData.playerState.track!.artists[0].id}`}
+            >
+              {globalData.playerState.track!.artistCreditName}
+            </A>
+          </Show>
         </div>
       </Show>
     </div>

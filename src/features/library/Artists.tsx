@@ -6,7 +6,7 @@ import Grid from "../../components/Grid.tsx";
 
 function Artists() {
   const artistsQuery = createQuery(
-    () => ["artists"],
+    () => ["library", "artists"],
     LibraryCommands.getArtistOverviews,
     {
       cacheTime: Infinity,

@@ -6,7 +6,7 @@ import Grid from "../../components/Grid.tsx";
 
 function Releases() {
   const releasesQuery = createQuery(
-    () => ["releases"],
+    () => ["library", "releases"],
     LibraryCommands.getReleaseOverviews,
     {
       cacheTime: Infinity,

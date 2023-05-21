@@ -545,7 +545,7 @@ impl<'a> LibraryManager<'a> {
     }
 
     pub fn search(&self, query: &str) -> Result<SearchResult> {
-        let query = format!("%{}%", query.replace(' ', ""));
+        let query = format!("%{}%", query.trim());
 
         Ok(SearchResult {
             releases: self.search_release_overviews(Some(&query), true)?,

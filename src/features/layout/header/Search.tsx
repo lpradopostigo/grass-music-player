@@ -1,11 +1,5 @@
 import Icon from "../../../components/Icon.tsx";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  Show,
-} from "solid-js";
+import { createMemo, createSignal, createUniqueId, Show } from "solid-js";
 import { createEventListener } from "@solid-primitives/event-listener";
 import { normalizeProps, useMachine } from "@zag-js/solid";
 import * as dialog from "@zag-js/dialog";

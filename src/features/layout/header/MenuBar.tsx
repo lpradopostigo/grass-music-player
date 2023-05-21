@@ -1,7 +1,6 @@
 import { Index } from "solid-js";
-import { A } from "@solidjs/router";
-import { preventAutoFocus } from "../../../components/Grid.tsx";
-import useRouteIsActive from "../../../hooks/useRouteIsActive.ts";
+import { A, useNavigate } from "@solidjs/router";
+import { createEventListener } from "@solid-primitives/event-listener";
 
 const data = [
   { href: "/releases", label: "releases" },
@@ -11,74 +10,36 @@ const data = [
 ];
 
 function MenuBar() {
-  let containerEl!: HTMLDivElement;
+  const navigate = useNavigate();
 
-  function handleKeyDown(event: KeyboardEvent) {
-    if (event.altKey) return;
+  createEventListener(
+    () => document,
+    "keydown",
+    (event) => {
+      if (
+        (event.target as HTMLElement | null)?.closest(
+          "[role=dialog],[role=alertdialog]"
+        )
+      )
+        return;
 
-    const children = Array.from(containerEl.children) as HTMLAnchorElement[];
-    const currentIndex = children.findIndex(
-      (child) => child === document.activeElement
-    );
+      const index = Number(event.key);
+      const item = data[index - 1];
 
-    switch (event.key) {
-      case "ArrowLeft": {
-        event.preventDefault();
-        preventAutoFocus();
-        const nextIndex =
-          currentIndex === 0 ? children.length - 1 : currentIndex - 1;
-        children[nextIndex].focus();
-        children[nextIndex].click();
-        break;
-      }
-      case "ArrowRight": {
-        event.preventDefault();
-        preventAutoFocus();
-        const nextIndex = (currentIndex + 1) % children.length;
-        children[nextIndex].focus();
-        children[nextIndex].click();
-
-        break;
+      if (!isNaN(index) && item) {
+        navigate(item.href);
       }
     }
-  }
-
-  const activeRouteIndex = () => {
-    for (const [index, { href }] of data.entries()) {
-      const routeIsActive = useRouteIsActive(href);
-      if (routeIsActive()) return index;
-    }
-
-    return -1;
-  };
+  );
 
   return (
-    <div
-      ref={containerEl}
-      onKeyDown={handleKeyDown}
-      class="flex gap-2 py-2.5 uppercase"
-    >
+    <div class="flex gap-2 py-2.5 uppercase">
       <Index each={data}>
-        {(item, index) => {
-          const tabIndex = () => {
-            const activeRouteIndexValue = activeRouteIndex();
-
-            if (
-              (activeRouteIndexValue === -1 && index === 0) ||
-              activeRouteIndexValue === index
-            ) {
-              return 0;
-            }
-
-            return -1;
-          };
-
-          return (
-            <A tabindex={tabIndex()} activeClass="font-bold" href={item().href}>
-              {item().label}
-            </A>
-          );
-        }}
+        {(item) => (
+          <A tabIndex={-1} activeClass="font-bold" href={item().href}>
+            {item().label}
+          </A>
+        )}
       </Index>
     </div>
   );

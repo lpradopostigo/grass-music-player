@@ -10,6 +10,19 @@ import HistoryProvider from "./providers/HistoryProvider.tsx";
 // disable native context menu
 document.addEventListener("contextmenu", (event) => event.preventDefault());
 
+document.addEventListener("keydown", (event) => {
+  if (
+    (event.target as HTMLElement | null)?.closest(
+      "[role=dialog],[role=alertdialog]"
+    )
+  )
+    return;
+
+  if (event.key === "Escape") {
+    history.back();
+  }
+});
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -220,7 +220,7 @@ async fn library_scan(
     let preferences = PreferencesManager::get().expect("Failed to get preferences");
 
     if let Some(library_path) = preferences.library_path {
-        let errors = library_manager.add_dir(&library_path, window);
+        let errors = library_manager.scan_dir(&library_path, window);
 
         for error in errors {
             println!("Error: {}", error);
@@ -232,19 +232,22 @@ async fn library_scan(
 }
 
 #[command]
-async fn library_scan_cover_art(db_connection: State<'_, Mutex<Connection>>) -> Result<(), ()> {
+async fn library_scan_cover_art(
+    clear_data: bool,
+    db_connection: State<'_, Mutex<Connection>>,
+    window: Window<Wry>,
+) -> Result<(), ()> {
     let db_connection = db_connection.lock().await;
     let library_manager = LibraryManager::new(&db_connection);
+
+    if clear_data {
+        library_manager
+            .clear_cover_art_data()
+            .expect("Failed to clear cover art data")
+    }
+
     library_manager
-        .scan_cover_art()
+        .scan_cover_art(window)
         .expect("Failed to scan cover art");
     Ok(())
 }
-
-// #[command]
-// fn library_get_preferred_cover_art_position(release_id: String) -> Option<CoverArtPosition> {
-//     match CoverArtManager::get_preferred_cover_art_position(&release_id) {
-//         Ok(position) => Some(position),
-//         Err(_) => None,
-//     }
-// }

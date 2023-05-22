@@ -2,17 +2,18 @@ import clsx from "clsx";
 import PlayerCommands from "../../commands/PlayerCommands.ts";
 import Icon from "../../components/Icon.tsx";
 import { secondsToAudioDuration } from "../../utils/misc.ts";
-import { useGlobalStore } from "../../providers/GlobalStoreProvider.tsx";
+import { useGlobalData } from "../../contexts/GlobalDataContext.tsx";
 
 function PlaybackControls() {
-  const [globalData] = useGlobalStore();
+  const { playerState } = useGlobalData();
 
-  const noTrackIsPlaying = () => !globalData.playerState.track;
+  const noTrackIsPlaying = () => !playerState.track;
 
   return (
     <>
       <div class="flex items-center gap-3">
         <button
+          data-no-style="true"
           onClick={PlayerCommands.previous}
           disabled={noTrackIsPlaying()}
           tabIndex={-1}
@@ -21,9 +22,10 @@ function PlaybackControls() {
         </button>
 
         <button
+          data-no-style="true"
           tabIndex={-1}
           onClick={() =>
-            globalData.playerState.playbackState === "playing"
+            playerState.playbackState === "playing"
               ? PlayerCommands.pause()
               : PlayerCommands.play()
           }
@@ -31,7 +33,7 @@ function PlaybackControls() {
           <Icon
             class="text-[36px]"
             name={
-              globalData.playerState.playbackState === "playing"
+              playerState.playbackState === "playing"
                 ? "pause-circle"
                 : "play-circle"
             }
@@ -39,6 +41,7 @@ function PlaybackControls() {
         </button>
 
         <button
+          data-no-style="true"
           tabIndex={-1}
           onClick={PlayerCommands.next}
           disabled={noTrackIsPlaying()}
@@ -49,15 +52,15 @@ function PlaybackControls() {
 
       <div class="grid grid-cols-[6ch_1fr_6ch] items-center text-xs">
         <span class={clsx(noTrackIsPlaying() && "disabled")}>
-          {secondsToAudioDuration(globalData.playerState.position)}
+          {secondsToAudioDuration(playerState.position)}
         </span>
         <SeekControl
           disabled={noTrackIsPlaying()}
-          current={globalData.playerState.position}
-          total={globalData.playerState.totalTime}
+          current={playerState.position}
+          total={playerState.totalTime}
         />
         <span class={clsx("text-end", noTrackIsPlaying() && "disabled")}>
-          {secondsToAudioDuration(globalData.playerState.totalTime)}
+          {secondsToAudioDuration(playerState.totalTime)}
         </span>
       </div>
     </>

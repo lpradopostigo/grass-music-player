@@ -65,7 +65,12 @@ function Search() {
 
   return (
     <>
-      <button {...api().triggerProps} class="ml-4" tabIndex={-1}>
+      <button
+        {...api().triggerProps}
+        class="ml-4"
+        tabIndex={-1}
+        data-no-style="true"
+      >
         <Icon width="16" height="16" name="magnifying-glass" />
       </button>
 
@@ -86,9 +91,10 @@ function Search() {
                       <Icon width="16" height="16" name="magnifying-glass" />
                     </div>
                     <input
+                      data-no-style="true"
                       spellcheck={false}
-                      class="w-full border-none py-1.5 pl-8 pr-1.5 focus-visible:outline-none"
-                      type="text"
+                      class="w-full py-1.5 pl-8 pr-1.5 placeholder:text-gray-5 focus-visible:outline-none"
+                      type="search"
                       placeholder="search for releases, artists, etc"
                       onInput={(event) =>
                         debouncedSetQuery(

@@ -4,7 +4,7 @@
 
 @layer base {
   #root {
-    @apply text-base;
+    font-size: theme("fontSize.base");
     height: 100vh;
     width: 100vw;
     overflow: hidden;
@@ -68,28 +68,79 @@
   }
 
   :focus-visible {
-    @apply outline outline-1;
+    outline-style: solid;
+    outline-width: theme("outlineWidth.1");
+    outline-offset: theme("outlineOffset.1");
   }
 
   ::selection {
-    @apply text-white;
     background-color: #007aff;
+    color: theme("colors.white");
   }
 
-  input[type="text"] {
-    @apply border border-gray-3 placeholder:text-gray-5 focus-visible:outline-offset-0;
+  button:not([data-no-style]) {
+    border-radius: theme("borderRadius.sm");
+    padding: theme("padding.1") theme("padding.2");
+    border: theme("borderWidth.DEFAULT") solid theme("colors.gray.4");
+    font-weight: theme("fontWeight.medium");
+  }
+
+  button:not([data-no-style]):hover {
+    border-color: theme("colors.gray.6");
+  }
+
+  button[data-variant="primary"]:not([data-no-style]) {
+    background-color: theme("colors.black");
+    color: theme("colors.white");
+  }
+
+  button[data-variant="primary"]:not([data-no-style]):hover {
+    border-color: theme("colors.gray.6");
+  }
+
+  button[data-size="sm"]:not([data-no-style]) {
+    padding: theme("padding.[0.5]") theme("padding.2");
+  }
+
+  button:not([data-no-style]):focus-visible {
+    outline-offset: theme("outlineOffset.2");
+  }
+
+  input[type="text"]:not([data-no-style]),
+  input[type="search"]:not([data-no-style]) {
+    border-radius: theme("borderRadius.sm");
+    border-width: theme("borderWidth.DEFAULT");
+    border-color: theme("borderColor.gray.4");
+    padding: theme("padding.[0.5]") theme("padding.1");
+  }
+
+  input[type="text"]:not([data-no-style]):hover,
+  input[type="search"]:not([data-no-style]):hover {
+    border-color: theme("borderColor.gray.6");
+  }
+
+  input[type="text"]:not([data-no-style])::placeholder,
+  input[type="search"]:not([data-no-style])::placeholder {
+    color: theme("colors.gray.5");
+  }
+
+  input[type="text"]:not([data-no-style]):focus-visible,
+  input[type="search"]:not([data-no-style]):focus-visible {
+    outline-offset: theme("outlineOffset.0");
   }
 
   :disabled {
-    @apply opacity-50;
+    opacity: theme("opacity.50");
   }
 
   h1 {
-    @apply text-4xl font-bold;
+    font-weight: theme("fontWeight.bold");
+    font-size: theme("fontSize.4xl");
   }
 
   h2 {
-    @apply text-3xl font-bold;
+    font-weight: theme("fontWeight.bold");
+    font-size: theme("fontSize.3xl");
   }
 
   a {
@@ -109,16 +160,13 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply rounded bg-gray-6;
+    background-color: theme("colors.gray.6");
+    border-radius: theme("borderRadius.DEFAULT");
   }
 }
 
 @layer components {
-  .btn {
-    @apply rounded bg-black px-2 py-1 text-white focus-visible:outline-offset-2;
-  }
-
   .disabled {
-    @apply opacity-50;
+    opacity: theme("opacity.50");
   }
 }

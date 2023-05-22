@@ -1,89 +1,144 @@
 import LibraryCommands from "../../commands/LibraryCommands.ts";
 import { open } from "@tauri-apps/api/dialog";
-import { useGlobalStore } from "../../providers/GlobalStoreProvider.tsx";
+import { useGlobalData } from "../../contexts/GlobalDataContext.tsx";
 import { useQueryClient } from "@tanstack/solid-query";
-import { createEffect } from "solid-js";
+import { createMemo, createUniqueId, Show } from "solid-js";
+import { normalizeProps, useMachine } from "@zag-js/solid";
+import * as dialog from "@zag-js/dialog";
+import { Portal } from "solid-js/web";
+import Loader from "../../components/Loader.tsx";
 
 function Preferences() {
-  const [globalData, { updatePreferences }] = useGlobalStore();
+  const { updatePreferences, scanState, preferences } = useGlobalData();
   const queryClient = useQueryClient();
 
-  createEffect(() => {
-    console.log(globalData.scanState);
-  });
+  const [state, send] = useMachine(
+    dialog.machine({
+      id: createUniqueId(),
+      role: "alertdialog",
+      closeOnEsc: false,
+      closeOnOutsideClick: false,
+    })
+  );
+
+  const api = createMemo(() => dialog.connect(state, send, normalizeProps));
+
+  async function handleScanClick(type: "normal" | "full" | "onlyCoverArt") {
+    api().open();
+
+    switch (type) {
+      case "normal":
+        await LibraryCommands.scan();
+        await LibraryCommands.scanCoverArt();
+        break;
+
+      case "full":
+        await LibraryCommands.scan(true);
+        await LibraryCommands.scanCoverArt();
+        break;
+
+      case "onlyCoverArt":
+        await LibraryCommands.scanCoverArt(true);
+        break;
+    }
+
+    queryClient.invalidateQueries(["library"]);
+    api().close();
+  }
+
+  async function handleSelectPathClick() {
+    const selectedPath = (await open({
+      directory: true,
+    })) as string | null;
+
+    if (selectedPath) {
+      await updatePreferences({
+        libraryPath: selectedPath,
+      });
+    }
+  }
 
   return (
-    <div class="h-full">
-      <div class="p-4">
-        <div>
-          <button
-            class="btn mr-2"
-            disabled={!globalData.preferences.libraryPath}
-            onClick={async () => {
-              const startTime = performance.now();
+    <>
+      <Show when={api().isOpen}>
+        <Portal>
+          <div class="absolute top-0 h-full w-full">
+            <div
+              {...api().backdropProps}
+              class="flex h-full w-full items-center justify-center bg-black bg-opacity-40"
+            >
+              <div {...api().containerProps} class="w-64 bg-white">
+                <div {...api().contentProps} class="flex h-full flex-col">
+                  <div
+                    {...api().titleProps}
+                    class="bg-black p-2 font-semibold text-white"
+                  >
+                    {scanState.kind === "coverArt"
+                      ? "scanning cover art"
+                      : "scanning tags"}
+                  </div>
+                  <div class="flex flex-col items-center gap-4 p-4">
+                    <div {...api().descriptionProps}>
+                      {scanState.progress?.[0]} of {scanState.progress?.[1]}
+                    </div>
+                    <Loader />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      </Show>
 
-              await LibraryCommands.scan(true);
-              queryClient.invalidateQueries(["library"]);
-              const endTime = performance.now();
-
-              // await Library.scanCoverArt();
-              alert(`done in ${endTime - startTime}ms`);
-            }}
-          >
-            scan library now
-          </button>
-
-          <button
-            class="btn"
-            disabled={!globalData.preferences.libraryPath}
-            onClick={async () => {
-              const startTime = performance.now();
-              await LibraryCommands.scanCoverArt();
-              queryClient.invalidateQueries(["library"]);
-              const endTime = performance.now();
-
-              alert(`done in ${endTime - startTime}ms`);
-            }}
-          >
-            scan cover art now
-          </button>
-        </div>
-        <div class="mt-3">
-          <label class="block" for="library-path">
-            library
-          </label>
+      <div class="h-full">
+        <div class="p-4">
           <div>
-            <input
-              id="library-path"
-              type="text"
-              class="mr-2 px-1 py-0.5"
-              value={globalData.preferences.libraryPath ?? ""}
-              onChange={() => {
-                console.log("change");
-              }}
-            />
+            <label class="block text-sm font-semibold" for="library-path">
+              library location
+            </label>
+            <div class="flex items-center gap-2">
+              <input
+                id="library-path"
+                type="text"
+                value={preferences.libraryPath ?? ""}
+              />
+
+              <button
+                data-size="sm"
+                disabled={!preferences.libraryPath}
+                onClick={handleSelectPathClick}
+              >
+                select
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 flex gap-2">
+            <button
+              data-variant="primary"
+              disabled={!preferences.libraryPath}
+              onClick={() => handleScanClick("normal")}
+            >
+              scan
+            </button>
 
             <button
-              class="btn"
-              disabled={globalData.preferences.libraryPath === undefined}
-              onClick={async () => {
-                const selectedPath = (await open({
-                  directory: true,
-                })) as string | null;
-
-                if (selectedPath) {
-                  updatePreferences({
-                    libraryPath: selectedPath,
-                  });
-                }
-              }}
+              disabled={!preferences.libraryPath}
+              onClick={() => handleScanClick("full")}
             >
-              select
+              full scan
+            </button>
+
+            <button
+              disabled={!preferences.libraryPath}
+              onClick={() => handleScanClick("onlyCoverArt")}
+            >
+              rescan cover art
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

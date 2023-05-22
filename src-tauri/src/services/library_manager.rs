@@ -65,6 +65,12 @@ impl<'a> LibraryManager<'a> {
             .execute("DELETE FROM artist_credit", [])?;
         self.db_connection.execute("DELETE FROM artist", [])?;
 
+        self.clear_cover_art_data()?;
+
+        Ok(())
+    }
+
+    pub fn clear_cover_art_data(&self) -> Result<()> {
         let cover_art_dir_path = try_get_cover_art_dir_path();
 
         if cover_art_dir_path.exists() {
@@ -271,7 +277,7 @@ impl<'a> LibraryManager<'a> {
         ).ok();
     }
 
-    pub fn add_file(&self, path: &str) -> Result<(), ParserError> {
+    pub fn scan_file(&self, path: &str) -> Result<(), ParserError> {
         let parsed_track = Parser::parse_file(path)?;
         self.db_connection
             .execute("BEGIN TRANSACTION", [])
@@ -284,10 +290,16 @@ impl<'a> LibraryManager<'a> {
         Ok(())
     }
 
-    pub fn add_dir(&self, path: &str, window: Window<Wry>) -> Vec<ParserError> {
+    pub fn scan_dir(&self, path: &str, window: Window<Wry>) -> Vec<ParserError> {
         let (parsed_tracks, parsing_errors) = Parser::parse_dir(path, |progress| {
             window
-                .emit("library:scan-state", progress)
+                .emit(
+                    "library:scan-state",
+                    ScanState {
+                        kind: ScanStateKind::CoverArt,
+                        progress: Some(progress),
+                    },
+                )
                 .expect("Failed to emit scan state")
         });
 
@@ -304,20 +316,34 @@ impl<'a> LibraryManager<'a> {
             .expect("Failed to commit transaction");
 
         window
-            .emit("library:scan-state", None::<()>)
+            .emit(
+                "library:scan-state",
+                ScanState {
+                    kind: ScanStateKind::Idle,
+                    progress: None,
+                },
+            )
             .expect("Failed to emit scan state");
 
         parsing_errors
     }
 
-    pub fn scan_cover_art(&self) -> Result<()> {
+    pub fn scan_cover_art(&self, window: Window<Wry>) -> Result<()> {
         let mut release_ids_statement = self.db_connection.prepare("SELECT id FROM release")?;
 
         let release_ids = release_ids_statement
             .query_map([], |row| row.get(0))?
             .collect::<Result<Vec<String>, _>>()?;
 
-        for id in release_ids {
+        for (index, id) in release_ids.iter().enumerate() {
+            window.emit(
+                "library:scan-state",
+                ScanState {
+                    kind: ScanStateKind::CoverArt,
+                    progress: Some((index + 1, release_ids.len())),
+                },
+            )?;
+
             if LibraryManager::cover_art_is_indexed(&id) {
                 continue;
             }
@@ -342,6 +368,14 @@ impl<'a> LibraryManager<'a> {
                 }
             }
         }
+
+        window.emit(
+            "library:scan-state",
+            ScanState {
+                kind: ScanStateKind::Idle,
+                progress: None,
+            },
+        )?;
 
         Ok(())
     }
@@ -720,6 +754,23 @@ pub struct PlayerTrack {
     pub artist_credit_name: String,
     pub artists: Vec<DbArtist>,
     pub thumbnail_src: Option<String>,
+}
+
+#[derive(Serialize, TS, Clone)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct ScanState {
+    pub kind: ScanStateKind,
+    pub progress: Option<(usize, usize)>,
+}
+
+#[derive(Serialize, TS, Clone)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub enum ScanStateKind {
+    CoverArt,
+    Tag,
+    Idle,
 }
 
 #[derive(Serialize, TS)]

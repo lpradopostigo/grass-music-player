@@ -102,8 +102,10 @@ const LibraryCommands = {
     return invoke("library_scan", { clearData });
   },
 
-  scanCoverArt(): Promise<void> {
-    return invoke("library_scan_cover_art");
+  scanCoverArt(clearData = false): Promise<void> {
+    return invoke("library_scan_cover_art", {
+      clearData,
+    });
   },
 };
 

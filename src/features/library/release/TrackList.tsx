@@ -3,12 +3,12 @@ import { secondsToAudioDuration } from "../../../utils/misc.ts";
 import PlayerCommands from "../../../commands/PlayerCommands.ts";
 import clsx from "clsx";
 import style from "./style.module.css";
-import { useGlobalStore } from "../../../providers/GlobalStoreProvider.tsx";
+import { useGlobalData } from "../../../contexts/GlobalDataContext.tsx";
 import { useIsRouting } from "@solidjs/router";
 import { ReleaseTrack } from "../../../../src-tauri/bindings/ReleaseTrack.ts";
 
 function TrackList(props: TrackListProps) {
-  const [globalData] = useGlobalStore();
+  const { playerState } = useGlobalData();
 
   const [containerEl, setContainerEl] = createSignal<HTMLUListElement>();
 
@@ -84,8 +84,8 @@ function TrackList(props: TrackListProps) {
             data={track()}
             tabindex={index === 0 ? 0 : -1}
             active={
-              globalData.playerState.path === track().path &&
-              globalData.playerState.playbackState === "playing"
+              playerState.path === track().path &&
+              playerState.playbackState === "playing"
             }
             onClick={() => handleTrackClick(index)}
           />

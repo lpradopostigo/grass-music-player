@@ -1,6 +1,7 @@
 import { Index } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
 import { createEventListener } from "@solid-primitives/event-listener";
+import Search from "./Search.tsx";
 
 const data = [
   { href: "/releases", label: "releases" },
@@ -33,10 +34,17 @@ function MenuBar() {
   );
 
   return (
-    <div class="flex gap-2 py-2.5 uppercase">
+    <div class="flex gap-2 uppercase">
+      <Search />
       <Index each={data}>
         {(item) => (
-          <A tabIndex={-1} activeClass="font-bold" href={item().href}>
+          <A
+            data-no-style="true"
+            tabIndex={-1}
+            class="hover:font-bold"
+            activeClass="font-bold"
+            href={item().href}
+          >
             {item().label}
           </A>
         )}

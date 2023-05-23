@@ -17,9 +17,9 @@ function Release() {
     <Show when={releaseQuery.data}>
       <div class="flex h-full flex-col">
         <div
-          class={clsx("bg-black bg-cover bg-center p-4 text-white")}
+          class="bg-black bg-cover bg-center p-4 text-white shadow"
           style={{
-            "background-image": `linear-gradient(rgba(0, 0, 0, 0.425), rgba(0,0,0, 0.425)), url(${
+            "background-image": `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0,0,0, 0.4)), url(${
               releaseQuery.data!.coverArtSrc
             })`,
           }}

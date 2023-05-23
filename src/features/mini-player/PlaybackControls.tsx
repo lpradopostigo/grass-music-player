@@ -90,9 +90,7 @@ function SeekControl(props: {
       <div
         class={clsx(
           "absolute bottom-0 top-0 my-auto h-1 w-full overflow-hidden rounded bg-gray-0",
-          props.disabled
-            ? "disabled"
-            : "group-hover:scale-y-125 group-hover:bg-gray-1"
+          props.disabled ? "disabled" : "group-hover:scale-y-125"
         )}
       >
         <div

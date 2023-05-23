@@ -6,7 +6,7 @@ function Shell(props: ShellProps) {
   return (
     <div class="flex h-full w-full flex-col">
       <header>{props.header}</header>
-      <main class="min-h-0 grow">
+      <main class="min-h-0 grow overflow-hidden">
         <Suspense fallback={<Loader class="h-full" />}>
           <Outlet />
         </Suspense>

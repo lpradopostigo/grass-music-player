@@ -78,9 +78,7 @@ function TrackList(props: TrackListProps) {
       <Index each={props.data}>
         {(track, index) => (
           <Track
-            class={clsx(
-              index !== props.data.length - 1 && "border-b border-gray-1"
-            )}
+            class={clsx(index !== 0 && "border-t border-gray-1")}
             data={track()}
             tabindex={index === 0 ? 0 : -1}
             active={

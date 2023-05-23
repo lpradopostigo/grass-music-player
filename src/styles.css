@@ -3,13 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  #root {
+  body {
     font-size: theme("fontSize.base");
+    user-select: none;
+    scroll-behavior: smooth;
+  }
+
+  #root {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    user-select: none;
-    scroll-behavior: smooth;
     position: relative;
   }
 
@@ -78,15 +81,20 @@
     color: theme("colors.white");
   }
 
+  [role="button"] {
+    cursor: default;
+  }
+
   button:not([data-no-style]) {
+    min-width: theme("width.16");
     border-radius: theme("borderRadius.sm");
     padding: theme("padding.1") theme("padding.2");
-    border: theme("borderWidth.DEFAULT") solid theme("colors.gray.4");
+    border: theme("borderWidth.DEFAULT") solid theme("colors.gray.3");
     font-weight: theme("fontWeight.medium");
   }
 
   button:not([data-no-style]):hover {
-    border-color: theme("colors.gray.6");
+    border-color: theme("colors.gray.5");
   }
 
   button[data-variant="primary"]:not([data-no-style]) {
@@ -95,7 +103,7 @@
   }
 
   button[data-variant="primary"]:not([data-no-style]):hover {
-    border-color: theme("colors.gray.6");
+    border-color: theme("colors.gray.5");
   }
 
   button[data-size="sm"]:not([data-no-style]) {
@@ -110,18 +118,18 @@
   input[type="search"]:not([data-no-style]) {
     border-radius: theme("borderRadius.sm");
     border-width: theme("borderWidth.DEFAULT");
-    border-color: theme("borderColor.gray.4");
+    border-color: theme("borderColor.gray.3");
     padding: theme("padding.[0.5]") theme("padding.1");
   }
 
   input[type="text"]:not([data-no-style]):hover,
   input[type="search"]:not([data-no-style]):hover {
-    border-color: theme("borderColor.gray.6");
+    border-color: theme("borderColor.gray.5");
   }
 
   input[type="text"]:not([data-no-style])::placeholder,
   input[type="search"]:not([data-no-style])::placeholder {
-    color: theme("colors.gray.5");
+    color: theme("colors.placeholder");
   }
 
   input[type="text"]:not([data-no-style]):focus-visible,
@@ -147,6 +155,10 @@
     cursor: default;
   }
 
+  a:not([data-no-style]):hover {
+    text-decoration: underline;
+  }
+
   button {
     cursor: default;
   }
@@ -156,11 +168,11 @@
   }
 
   ::-webkit-scrollbar-track {
-    background-color: theme("colors.gray.1");
+    background-color: theme("colors.gray.0");
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: theme("colors.gray.6");
+    background-color: theme("colors.gray.5");
     border-radius: theme("borderRadius.DEFAULT");
   }
 }

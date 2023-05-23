@@ -23,7 +23,7 @@ function PlaybackInfo() {
         />
         <div class="min-w-0">
           <A
-            class="block max-w-min truncate font-semibold hover:underline"
+            class="block max-w-min truncate font-semibold"
             href={`/releases/${playerState.track!.releaseId}`}
           >
             {playerState.track!.name}
@@ -33,7 +33,7 @@ function PlaybackInfo() {
             when={playerState.track!.artists.length > 1}
             fallback={
               <A
-                class="block max-w-min truncate text-sm hover:underline"
+                class="block max-w-min truncate text-sm"
                 href={`/artists/${playerState.track!.artists[0].id}`}
               >
                 {playerState.track!.artistCreditName}

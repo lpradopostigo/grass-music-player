@@ -67,11 +67,11 @@ function Search() {
     <>
       <button
         {...api().triggerProps}
-        class="ml-4"
-        tabIndex={-1}
+        class="group ml-2 px-2"
         data-no-style="true"
+        tabIndex={-1}
       >
-        <Icon width="16" height="16" name="magnifying-glass" />
+        <Icon class="text-xl group-hover:stroke-2" name="magnifying-glass" />
       </button>
 
       <Show when={api().isOpen}>
@@ -86,14 +86,14 @@ function Search() {
                 class="h-5/6 w-11/12 max-w-7xl bg-white"
               >
                 <div {...api().contentProps} class="flex h-full flex-col">
-                  <div class="relative border-b border-gray-3">
-                    <div class="absolute  grid h-full w-8 place-content-center">
-                      <Icon width="16" height="16" name="magnifying-glass" />
+                  <div class="relative shadow">
+                    <div class="absolute grid h-full w-8 place-content-center">
+                      <Icon class="text-xl" name="magnifying-glass" />
                     </div>
                     <input
                       data-no-style="true"
                       spellcheck={false}
-                      class="w-full py-1.5 pl-8 pr-1.5 placeholder:text-gray-5 focus-visible:outline-none"
+                      class="w-full py-2 pl-8 pr-1.5 placeholder:text-placeholder focus-visible:outline-none"
                       type="search"
                       placeholder="search for releases, artists, etc"
                       onInput={(event) =>

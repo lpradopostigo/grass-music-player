@@ -1,25 +1,49 @@
 import CoverArt from "./CoverArt.tsx";
 import clsx from "clsx";
-import { A } from "@solidjs/router";
+import { A, useNavigate } from "@solidjs/router";
 import { ReleaseOverview } from "../../src-tauri/bindings/ReleaseOverview.ts";
 
 function Release(props: ReleaseProps) {
   const srcs = () => (props.data.thumbnailSrc ? [props.data.thumbnailSrc] : []);
 
+  const navigate = useNavigate();
+
+  const releasePath = () => `/releases/${props.data.id}`;
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+      navigate(releasePath());
+    }
+  }
+
   return (
-    <A
-      href={`/releases/${props.data.id}`}
+    <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      onClick={() => navigate(releasePath())}
       class={clsx(
-        "w-cover-art-md scroll-m-3 focus-visible:outline-offset-4",
+        "h-min w-cover-art-md scroll-m-3 focus-visible:outline-offset-4",
         props.class
       )}
     >
-      <CoverArt srcs={srcs()} />
-      <div class="mt-2 line-clamp-2 break-words font-semibold">
+      <CoverArt class="hover:shadow-lg" srcs={srcs()} />
+      <A
+        tabIndex={-1}
+        href={releasePath()}
+        class="mt-2 line-clamp-2 break-words font-semibold"
+      >
         {props.data.name}
-      </div>
-      <div class="line-clamp-2 text-sm">{props.data.artistCreditName}</div>
-    </A>
+      </A>
+      <A
+        onClick={(event) => event.stopPropagation()}
+        tabIndex={-1}
+        href={releasePath()}
+        class="line-clamp-2 text-sm"
+      >
+        {props.data.artistCreditName}
+      </A>
+    </div>
   );
 }
 

@@ -16,9 +16,9 @@ function Artist() {
     <div class="flex h-full flex-col">
       <Show when={artistQuery.data}>
         <div
-          class="bg-gray-1 bg-cover bg-center p-4"
+          class="bg-white bg-cover bg-center p-4 shadow"
           style={{
-            "background-image": `linear-gradient(rgba(255, 255, 255, 0.55), rgba(255,255,255, 0.55)), url(${artistQuery.data?.backgroundSrc})`,
+            "background-image": `linear-gradient(rgba(255, 255, 255, 0.525), rgba(255,255,255, 0.525)), url(${artistQuery.data?.backgroundSrc})`,
           }}
         >
           <h1>{artistQuery.data!.name}</h1>

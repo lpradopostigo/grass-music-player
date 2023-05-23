@@ -230,7 +230,7 @@ function Grid(props: GridProps) {
           <Show when={subGrid.subGridData && subGrid.subGridData.length !== 0}>
             <div>
               <Show when={subGrid.subGridLabel}>
-                <div class="w-min bg-black pl-4 pr-2 text-xl font-bold text-white">
+                <div class="w-min bg-black pl-4 pr-2 text-lg font-bold text-white">
                   {subGrid.subGridLabel}
                 </div>
               </Show>

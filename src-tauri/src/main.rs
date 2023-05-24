@@ -58,6 +58,7 @@ fn main() {
             // setup services
             let db_path = app_data_dir_path.join("grass.db");
             let db_connection = Connection::open(db_path).expect("Failed to open database");
+            db_connection.set_prepared_statement_cache_capacity(40);
             PreferencesManager::setup().expect("Failed to setup settings manager");
             LibraryManager::new(&db_connection)
                 .setup()

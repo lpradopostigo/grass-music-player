@@ -8,7 +8,7 @@ pub const AUDIO_EXTENSIONS: [&str; 2] = ["mp3", "flac"];
 pub struct Parser;
 
 impl Parser {
-    pub fn parse_file(file_path: &str) -> Result<ParserTrack, ParserError> {
+    pub async fn parse_file(file_path: &str) -> Result<ParserTrack, ParserError> {
         let tag = match TagReader::read(file_path) {
             Ok(tag) => tag,
             Err(_) => return Err(ParserError::TagReadingFailed(file_path.to_string())),
@@ -114,7 +114,7 @@ impl Parser {
         Ok(parsed_track)
     }
 
-    pub fn parse_dir<F>(
+    pub async fn parse_dir<F>(
         dir_path: &str,
         progress_callback: F,
     ) -> (Vec<ParserTrack>, Vec<ParserError>)
@@ -143,7 +143,7 @@ impl Parser {
         for (index, entry) in audio_files.into_iter().enumerate() {
             progress_callback((index + 1, audio_files_count));
             let file_path = entry.path().to_str().unwrap();
-            let parsed_track = match Self::parse_file(file_path) {
+            let parsed_track = match Self::parse_file(file_path).await {
                 Ok(parsed_track) => parsed_track,
                 Err(err) => {
                     errors.push(err);

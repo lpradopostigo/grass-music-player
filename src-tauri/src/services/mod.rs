@@ -6,8 +6,8 @@ mod preferences_manager;
 mod tag_reader;
 
 pub use library_manager::{
-    CoverArtPosition, Artist, ArtistOverview, LibraryManager, Release,
-    PlayerTrack, ReleaseOverview, SearchResult,
+    Artist, ArtistOverview, CoverArtPosition, LibraryManager, PlayerTrack, Release,
+    ReleaseOverview, SearchResult,
 };
 pub use player_manager::PlayerManager;
 pub use preferences_manager::{Preferences, PreferencesManager};

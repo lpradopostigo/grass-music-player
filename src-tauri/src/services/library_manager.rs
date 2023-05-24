@@ -4,9 +4,8 @@ use crate::global::try_get_cover_art_dir_path;
 use crate::services::tag_reader::CoverArtExtension;
 use anyhow::{anyhow, Result};
 use image::imageops::FilterType;
-use r2d2::PooledConnection;
+use r2d2::{PooledConnection};
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::Connection;
 use serde::Serialize;
 use std::fs::{create_dir, create_dir_all, read, remove_dir_all, File};
 use std::io::{Cursor, Write};
@@ -29,26 +28,15 @@ macro_rules! thumbnail_filename {
     };
 }
 
-pub struct LibraryManager {
-    db_connection: PooledConnection<SqliteConnectionManager>,
-}
+pub struct LibraryManager;
 
 impl LibraryManager {
-    pub fn new(db_connection: PooledConnection<SqliteConnectionManager>) -> Self {
-        Self { db_connection }
-    }
-
-    pub fn setup(&self) -> Result<()> {
-        self.db_connection
-            .execute(include_str!("../../sql/artist.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/artist_credit.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/artist_credit_part.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/release.sql"), [])?;
-        self.db_connection
-            .execute(include_str!("../../sql/track.sql"), [])?;
+    pub fn setup(db_connection: PooledConnection<SqliteConnectionManager>) -> Result<()> {
+        db_connection.execute(include_str!("../../sql/artist.sql"), [])?;
+        db_connection.execute(include_str!("../../sql/artist_credit.sql"), [])?;
+        db_connection.execute(include_str!("../../sql/artist_credit_part.sql"), [])?;
+        db_connection.execute(include_str!("../../sql/release.sql"), [])?;
+        db_connection.execute(include_str!("../../sql/track.sql"), [])?;
 
         let cover_art_dir_path = try_get_cover_art_dir_path();
 
@@ -58,21 +46,19 @@ impl LibraryManager {
         Ok(())
     }
 
-    pub fn clear_data(&self) -> Result<()> {
-        self.db_connection.execute("DELETE FROM track", [])?;
-        self.db_connection.execute("DELETE FROM release", [])?;
-        self.db_connection
-            .execute("DELETE FROM artist_credit_part", [])?;
-        self.db_connection
-            .execute("DELETE FROM artist_credit", [])?;
-        self.db_connection.execute("DELETE FROM artist", [])?;
+    pub fn clear_data(db_connection: PooledConnection<SqliteConnectionManager>) -> Result<()> {
+        db_connection.execute("DELETE FROM track", [])?;
+        db_connection.execute("DELETE FROM release", [])?;
+        db_connection.execute("DELETE FROM artist_credit_part", [])?;
+        db_connection.execute("DELETE FROM artist_credit", [])?;
+        db_connection.execute("DELETE FROM artist", [])?;
 
-        self.clear_cover_art_data()?;
+        Self::clear_cover_art_data()?;
 
         Ok(())
     }
 
-    pub fn clear_cover_art_data(&self) -> Result<()> {
+    pub fn clear_cover_art_data() -> Result<()> {
         let cover_art_dir_path = try_get_cover_art_dir_path();
 
         if cover_art_dir_path.exists() {
@@ -153,22 +139,23 @@ impl LibraryManager {
         None
     }
 
-    fn index_track(&self, track: &ParserTrack) -> Result<()> {
-        let mut insert_artist_credit_stmt = self
-            .db_connection
-            .prepare_cached("INSERT INTO artist_credit (id, name) VALUES (?1, ?2)")?;
+    fn index_track(
+        db_connection: &PooledConnection<SqliteConnectionManager>,
+        track: &ParserTrack,
+    ) -> Result<()> {
+        let mut insert_artist_credit_stmt =
+            db_connection.prepare_cached("INSERT INTO artist_credit (id, name) VALUES (?1, ?2)")?;
 
-        let mut insert_artist_stmt = self
-            .db_connection
-            .prepare_cached("INSERT INTO artist (id, name) VALUES (?1, ?2)")?;
+        let mut insert_artist_stmt =
+            db_connection.prepare_cached("INSERT INTO artist (id, name) VALUES (?1, ?2)")?;
 
-        let mut insert_artist_credit_part_stmt = self.db_connection.prepare_cached(
+        let mut insert_artist_credit_part_stmt = db_connection.prepare_cached(
             "INSERT INTO artist_credit_part (artist_credit_id, artist_id) VALUES (?1, ?2)",
         )?;
 
-        let mut insert_release_stmt = self.db_connection.prepare_cached("INSERT INTO release (id, artist_credit_id, name, date, total_tracks, total_discs) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")?;
+        let mut insert_release_stmt = db_connection.prepare_cached("INSERT INTO release (id, artist_credit_id, name, date, total_tracks, total_discs) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")?;
 
-        let mut insert_track_stmt = self.db_connection.prepare_cached("INSERT INTO track (id, release_id, artist_credit_id, name, length, track_number, disc_number, path) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)")?;
+        let mut insert_track_stmt = db_connection.prepare_cached("INSERT INTO track (id, release_id, artist_credit_id, name, length, track_number, disc_number, path) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)")?;
 
         let new_track_artist_credit = DbArtistCredit {
             id: track.id.clone(),
@@ -286,20 +273,27 @@ impl LibraryManager {
         Ok(())
     }
 
-    pub fn scan_file(&self, path: &str) -> Result<(), ParserError> {
-        let parsed_track = Parser::parse_file(path)?;
-        self.db_connection
+    pub async fn scan_file(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+        path: &str,
+    ) -> Result<(), ParserError> {
+        let parsed_track = Parser::parse_file(path).await?;
+        db_connection
             .execute("BEGIN TRANSACTION", [])
             .expect("Failed to begin transaction");
-        self.index_track(&parsed_track).ok();
-        self.db_connection
+        Self::index_track(&db_connection, &parsed_track).ok();
+        db_connection
             .execute("COMMIT", [])
             .expect("Failed to commit transaction");
 
         Ok(())
     }
 
-    pub fn scan_dir(&self, path: &str, window: Window<Wry>) -> Vec<ParserError> {
+    pub async fn scan_dir(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+        path: &str,
+        window: Window<Wry>,
+    ) -> Vec<ParserError> {
         let (parsed_tracks, parsing_errors) = Parser::parse_dir(path, |progress| {
             window
                 .emit(
@@ -310,17 +304,18 @@ impl LibraryManager {
                     },
                 )
                 .expect("Failed to emit scan state")
-        });
+        })
+        .await;
 
-        self.db_connection
+        db_connection
             .execute("BEGIN TRANSACTION", [])
             .expect("Failed to begin transaction");
 
         for track in parsed_tracks.into_iter() {
-            self.index_track(&track).ok();
+            Self::index_track(&db_connection, &track).ok();
         }
 
-        self.db_connection
+        db_connection
             .execute("COMMIT", [])
             .expect("Failed to commit transaction");
 
@@ -337,14 +332,14 @@ impl LibraryManager {
         parsing_errors
     }
 
-    pub fn scan_cover_art(&self, window: Window<Wry>) -> Result<()> {
-        let mut select_release_ids_stmt = self
-            .db_connection
-            .prepare_cached("SELECT id FROM release")?;
+    pub fn scan_cover_art(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+        window: Window<Wry>,
+    ) -> Result<()> {
+        let mut select_release_ids_stmt = db_connection.prepare_cached("SELECT id FROM release")?;
 
-        let mut select_track_path_stmt = self
-            .db_connection
-            .prepare_cached("SELECT path FROM track WHERE release_id = ?1 LIMIT 1")?;
+        let mut select_track_path_stmt =
+            db_connection.prepare_cached("SELECT path FROM track WHERE release_id = ?1 LIMIT 1")?;
 
         let release_ids = select_release_ids_stmt
             .query_map([], |row| row.get(0))?
@@ -392,7 +387,7 @@ impl LibraryManager {
     }
 
     fn search_release_overviews(
-        &self,
+        db_connection: &PooledConnection<SqliteConnectionManager>,
         query: Option<&str>,
         limit: bool,
     ) -> Result<Vec<ReleaseOverview>> {
@@ -412,7 +407,7 @@ impl LibraryManager {
             sql
         };
 
-        let mut select_releases_stmt = self.db_connection.prepare_cached(&sql)?;
+        let mut select_releases_stmt = db_connection.prepare_cached(&sql)?;
 
         let releases = select_releases_stmt
             .query_map([], |row| {
@@ -431,7 +426,7 @@ impl LibraryManager {
     }
 
     fn search_artist_overviews(
-        &self,
+        db_connection: &PooledConnection<SqliteConnectionManager>,
         query: Option<&str>,
         limit: bool,
     ) -> Result<Vec<ArtistOverview>> {
@@ -451,8 +446,8 @@ impl LibraryManager {
             sql
         };
 
-        let mut select_artists_stmt = self.db_connection.prepare_cached(&sql)?;
-        let mut select_artist_release_ids_stmt = self.db_connection.prepare_cached("SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 UNION SELECT DISTINCT 'release'.id FROM 'release' INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = 'release'.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 LIMIT 3")?;
+        let mut select_artists_stmt = db_connection.prepare_cached(&sql)?;
+        let mut select_artist_release_ids_stmt = db_connection.prepare_cached("SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 UNION SELECT DISTINCT 'release'.id FROM 'release' INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = 'release'.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 LIMIT 3")?;
 
         let artists = select_artists_stmt
             .query_map([], |row| {
@@ -482,14 +477,19 @@ impl LibraryManager {
         Ok(artists)
     }
 
-    pub fn get_release_overviews(&self) -> Result<Vec<ReleaseOverview>> {
-        self.search_release_overviews(None, false)
+    pub fn get_release_overviews(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+    ) -> Result<Vec<ReleaseOverview>> {
+        Self::search_release_overviews(&db_connection, None, false)
     }
 
-    pub fn get_release(&self, release_id: &str) -> Result<Release> {
-        let mut select_release_stmt = self.db_connection.prepare_cached("SELECT 'release'.id, 'release'.artist_credit_id, artist_credit.name, 'release'.name, 'release'.date, 'release'.total_tracks, 'release'.total_discs FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id WHERE 'release'.id = ?1")?;
+    pub fn get_release(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+        release_id: &str,
+    ) -> Result<Release> {
+        let mut select_release_stmt = db_connection.prepare_cached("SELECT 'release'.id, 'release'.artist_credit_id, artist_credit.name, 'release'.name, 'release'.date, 'release'.total_tracks, 'release'.total_discs FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id WHERE 'release'.id = ?1")?;
 
-        let mut select_release_tracks_smt = self.db_connection.prepare_cached("SELECT track.id, track.release_id, track.name, track.length, track.track_number, track.disc_number, track.path, artist_credit.name FROM track INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id WHERE track.release_id = ?1 ORDER BY track.disc_number, track.track_number")?;
+        let mut select_release_tracks_smt = db_connection.prepare_cached("SELECT track.id, track.release_id, track.name, track.length, track.track_number, track.disc_number, track.path, artist_credit.name FROM track INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id WHERE track.release_id = ?1 ORDER BY track.disc_number, track.track_number")?;
 
         let release = select_release_stmt.query_row([&release_id], |row| {
             let release_id: String = row.get(0)?;
@@ -527,16 +527,20 @@ impl LibraryManager {
         Ok(release)
     }
 
-    pub fn get_artists_overviews(&self) -> Result<Vec<ArtistOverview>> {
-        self.search_artist_overviews(None, false)
+    pub fn get_artists_overviews(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+    ) -> Result<Vec<ArtistOverview>> {
+        Self::search_artist_overviews(&db_connection, None, false)
     }
 
-    pub fn get_artist(&self, artist_id: &str) -> Result<Artist> {
-        let mut select_artist_releases_stmt = self.db_connection.prepare_cached("SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON artist_credit.id = 'release'.artist_credit_id WHERE 'release'.id IN (SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)  OR 'release'.id IN (SELECT 'release'.id FROM 'release' INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = 'release'.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)",)?;
+    pub fn get_artist(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+        artist_id: &str,
+    ) -> Result<Artist> {
+        let mut select_artist_releases_stmt = db_connection.prepare_cached("SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON artist_credit.id = 'release'.artist_credit_id WHERE 'release'.id IN (SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)  OR 'release'.id IN (SELECT 'release'.id FROM 'release' INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = 'release'.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)",)?;
 
-        let mut select_artist_stmt = self
-            .db_connection
-            .prepare_cached("SELECT id, name FROM artist WHERE id = ?1")?;
+        let mut select_artist_stmt =
+            db_connection.prepare_cached("SELECT id, name FROM artist WHERE id = ?1")?;
 
         let mut background_src = None;
 
@@ -570,10 +574,13 @@ impl LibraryManager {
         Ok(artist)
     }
 
-    pub fn get_player_track(&self, track_path: &str) -> Result<PlayerTrack> {
-        let mut select_track_stmt = self.db_connection.prepare_cached("SELECT track.id, track.release_id, 'release'.name, track.name, artist_credit.name, artist_credit.id FROM track INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id INNER JOIN 'release' ON track.release_id = 'release'.id WHERE track.path = ?1")?;
+    pub fn get_player_track(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+        track_path: &str,
+    ) -> Result<PlayerTrack> {
+        let mut select_track_stmt = db_connection.prepare_cached("SELECT track.id, track.release_id, 'release'.name, track.name, artist_credit.name, artist_credit.id FROM track INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id INNER JOIN 'release' ON track.release_id = 'release'.id WHERE track.path = ?1")?;
 
-        let mut select_track_artists_stmt = self.db_connection.prepare_cached("SELECT artist.id, artist.name FROM artist INNER JOIN artist_credit_part ON artist_credit_part.artist_id = artist.id WHERE artist_credit_part.artist_credit_id = ?1",)?;
+        let mut select_track_artists_stmt = db_connection.prepare_cached("SELECT artist.id, artist.name FROM artist INNER JOIN artist_credit_part ON artist_credit_part.artist_id = artist.id WHERE artist_credit_part.artist_credit_id = ?1",)?;
 
         let track = select_track_stmt.query_row([&track_path], |row| {
             let release_id: String = row.get(1)?;
@@ -604,12 +611,15 @@ impl LibraryManager {
         Ok(track)
     }
 
-    pub fn search(&self, query: &str) -> Result<SearchResult> {
+    pub fn search(
+        db_connection: PooledConnection<SqliteConnectionManager>,
+        query: &str,
+    ) -> Result<SearchResult> {
         let query = format!("%{}%", query.trim());
 
         Ok(SearchResult {
-            releases: self.search_release_overviews(Some(&query), true)?,
-            artists: self.search_artist_overviews(Some(&query), true)?,
+            releases: Self::search_release_overviews(&db_connection, Some(&query), true)?,
+            artists: Self::search_artist_overviews(&db_connection, Some(&query), true)?,
         })
     }
 

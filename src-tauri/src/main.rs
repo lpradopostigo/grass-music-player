@@ -11,11 +11,12 @@ use crate::services::{
     Artist, ArtistOverview, LibraryManager, PlayerManager, PlayerTrack, PreferencesManager,
     Release, ReleaseOverview, SearchResult,
 };
-use rusqlite::Connection;
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
 use services::Preferences;
 use std::fs::create_dir;
+use tauri::async_runtime::spawn_blocking;
 use tauri::{command, generate_context, generate_handler, Builder, Manager, State, Window, Wry};
-use tokio::sync::Mutex;
 use window_shadows::set_shadow;
 
 fn main() {
@@ -57,10 +58,19 @@ fn main() {
 
             // setup services
             let db_path = app_data_dir_path.join("grass.db");
-            let db_connection = Connection::open(db_path).expect("Failed to open database");
-            db_connection.set_prepared_statement_cache_capacity(40);
+            let db_manager = SqliteConnectionManager::file(db_path).with_init(|connection| {
+                connection.set_prepared_statement_cache_capacity(20);
+                Ok(())
+            });
+            let db_pool = Pool::builder()
+                .max_lifetime(None)
+                .max_size(5)
+                .min_idle(Some(1))
+                .build(db_manager)
+                .unwrap();
+
             PreferencesManager::setup().expect("Failed to setup settings manager");
-            LibraryManager::new(&db_connection)
+            LibraryManager::new(db_pool.get().unwrap())
                 .setup()
                 .expect("Failed to setup library manager");
 
@@ -71,7 +81,7 @@ fn main() {
             PlayerManager::setup(main_window).expect("Failed to setup player manager");
 
             // setup tauri state
-            app.manage(Mutex::new(db_connection));
+            app.manage(db_pool);
 
             Ok(())
         })
@@ -139,53 +149,53 @@ fn preferences_set(preferences: Preferences) -> Result<(), ()> {
 
 #[command]
 async fn library_get_release_overviews(
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
 ) -> Result<Vec<ReleaseOverview>, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     library_manager.get_release_overviews().map_err(|_| ())
 }
 
 #[command]
 async fn library_get_release(
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
     release_id: String,
 ) -> Result<Release, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     library_manager.get_release(&release_id).map_err(|_| ())
 }
 
 #[command]
 async fn library_get_artist_overviews(
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
 ) -> Result<Vec<ArtistOverview>, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     library_manager.get_artists_overviews().map_err(|_| ())
 }
 
 #[command]
 async fn library_get_artist(
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
     artist_id: String,
 ) -> Result<Artist, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     library_manager.get_artist(&artist_id).map_err(|_| ())
 }
 
 #[command]
 async fn library_get_player_track(
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
     track_path: String,
 ) -> Result<PlayerTrack, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     library_manager
         .get_player_track(&track_path)
@@ -194,11 +204,11 @@ async fn library_get_player_track(
 
 #[command]
 async fn library_search(
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
     query: String,
 ) -> Result<SearchResult, ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     library_manager.search(&query).map_err(|_| ())
 }
@@ -206,11 +216,11 @@ async fn library_search(
 #[command]
 async fn library_scan(
     clear_data: bool,
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
     window: Window<Wry>,
 ) -> Result<(), ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     if clear_data {
         library_manager
@@ -221,11 +231,16 @@ async fn library_scan(
     let preferences = PreferencesManager::get().expect("Failed to get preferences");
 
     if let Some(library_path) = preferences.library_path {
-        let errors = library_manager.scan_dir(&library_path, window);
+        spawn_blocking(move || {
+            let errors = library_manager.scan_dir(&library_path, window);
 
-        for error in errors {
-            println!("Error: {}", error);
-        }
+            for error in errors {
+                println!("Error: {}", error);
+            }
+        })
+        .await
+        .unwrap();
+
         Ok(())
     } else {
         Err(())
@@ -235,11 +250,11 @@ async fn library_scan(
 #[command]
 async fn library_scan_cover_art(
     clear_data: bool,
-    db_connection: State<'_, Mutex<Connection>>,
+    db_pool: State<'_, Pool<SqliteConnectionManager>>,
     window: Window<Wry>,
 ) -> Result<(), ()> {
-    let db_connection = db_connection.lock().await;
-    let library_manager = LibraryManager::new(&db_connection);
+    let db_connection = db_pool.get().unwrap();
+    let library_manager = LibraryManager::new(db_connection);
 
     if clear_data {
         library_manager

@@ -4,6 +4,8 @@ use crate::global::try_get_cover_art_dir_path;
 use crate::services::tag_reader::CoverArtExtension;
 use anyhow::{anyhow, Result};
 use image::imageops::FilterType;
+use r2d2::PooledConnection;
+use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::Connection;
 use serde::Serialize;
 use std::fs::{create_dir, create_dir_all, read, remove_dir_all, File};
@@ -27,12 +29,12 @@ macro_rules! thumbnail_filename {
     };
 }
 
-pub struct LibraryManager<'a> {
-    db_connection: &'a Connection,
+pub struct LibraryManager {
+    db_connection: PooledConnection<SqliteConnectionManager>,
 }
 
-impl<'a> LibraryManager<'a> {
-    pub fn new(db_connection: &'a Connection) -> Self {
+impl LibraryManager {
+    pub fn new(db_connection: PooledConnection<SqliteConnectionManager>) -> Self {
         Self { db_connection }
     }
 

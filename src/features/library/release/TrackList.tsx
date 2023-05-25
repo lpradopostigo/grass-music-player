@@ -9,9 +9,7 @@ import { ReleaseTrack } from "../../../../src-tauri/bindings/ReleaseTrack.ts";
 
 function TrackList(props: TrackListProps) {
   const { playerState } = useGlobalData();
-
   const [containerEl, setContainerEl] = createSignal<HTMLUListElement>();
-
   const isRouting = useIsRouting();
 
   createEffect(() => {
@@ -78,7 +76,10 @@ function TrackList(props: TrackListProps) {
       <Index each={props.data}>
         {(track, index) => (
           <Track
-            class={clsx(index !== 0 && "border-t border-gray-1")}
+            class={clsx(
+              "hover:shadow-md",
+              index !== 0 && "border-t border-gray-1"
+            )}
             data={track()}
             tabindex={index === 0 ? 0 : -1}
             active={

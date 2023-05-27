@@ -3,26 +3,34 @@
     windows_subsystem = "windows"
 )]
 
-mod global;
-mod services;
+mod database;
+mod library_manager;
+mod music_brainz_manager;
+mod parser;
+mod player_manager;
+mod preferences_manager;
+mod scanner;
+mod tag_reader;
 
-use crate::global::{COVER_ART_DIR_PATH, SETTINGS_FILE_PATH};
-use crate::services::{
-    Artist, ArtistOverview, LibraryManager, PlayerManager, PlayerTrack, PreferencesManager,
-    Release, ReleaseOverview, SearchResult,
+use crate::database::Database;
+use crate::library_manager::{
+    Artist, ArtistOverview, LibraryManager, PlayerTrack, Release, ReleaseOverview, SearchResult,
 };
+use crate::player_manager::PlayerManager;
+use crate::preferences_manager::{Preferences, PreferencesManager};
+use crate::scanner::Scanner;
 use anyhow::bail;
-use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
-use services::Preferences;
 use std::fs::create_dir;
+use std::path::Path;
 use tauri::async_runtime::spawn_blocking;
 use tauri::{
-    command, generate_context, generate_handler, AppHandle, Builder, Manager, Runtime, Window, Wry,
+    command, generate_context, generate_handler, AppHandle, Builder, Manager, Runtime, State,
+    Window, Wry,
 };
 use window_shadows::set_shadow;
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     Builder::default()
         .invoke_handler(generate_handler![
             library_get_release_overviews,
@@ -32,7 +40,6 @@ fn main() -> anyhow::Result<()> {
             library_get_player_track,
             library_search,
             library_scan,
-            library_scan_cover_art,
             player_set_playlist,
             player_play,
             player_pause,
@@ -45,45 +52,35 @@ fn main() -> anyhow::Result<()> {
             preferences_set,
         ])
         .setup(|app| {
+            let main_window = app.get_window("main").unwrap();
+
+            #[cfg(any(windows, target_os = "macos"))]
+            set_shadow(&main_window, true).unwrap();
+
             let app_data_dir_path = app.path_resolver().app_data_dir().unwrap();
 
             if !app_data_dir_path.exists() {
                 create_dir(&app_data_dir_path)?;
             }
 
-            // setup global variables
-            SETTINGS_FILE_PATH.set(app_data_dir_path.join("preferences.json"))?;
-            COVER_ART_DIR_PATH.set(app_data_dir_path.join("cover-art"))?;
-
-            // setup services
+            let preferences_path = app_data_dir_path.join("preferences.json");
+            let cover_art_path = app_data_dir_path.join("cover-art");
             let db_path = app_data_dir_path.join("grass.db");
-            let db_manager = SqliteConnectionManager::file(db_path).with_init(|connection| {
-                connection.set_prepared_statement_cache_capacity(20);
-                Ok(())
-            });
-            let db_pool = Pool::builder()
-                .max_lifetime(None)
-                .max_size(5)
-                .min_idle(Some(1))
-                .build(db_manager)?;
 
-            PreferencesManager::setup()?;
-            LibraryManager::setup(db_pool.get()?)?;
+            let preferences_manager = PreferencesManager::new(preferences_path)?;
+            let scanner = Scanner::new(&cover_art_path);
+            let database = Database::new(&db_path)?;
+            let library_manager = LibraryManager::new(database, &cover_art_path)?;
 
-            let main_window = app.get_window("main").unwrap();
-
-            #[cfg(any(windows, target_os = "macos"))]
-            set_shadow(&main_window, true).unwrap();
             PlayerManager::setup(main_window).expect("Failed to setup player manager");
 
-            // setup tauri state
-            app.manage(db_pool);
+            app.manage(library_manager);
+            app.manage(preferences_manager);
+            app.manage(scanner);
 
             Ok(())
         })
         .run(generate_context!())?;
-
-    grass_audio_rs::terminate().expect("Failed to terminate audio player");
 
     Ok(())
 }
@@ -133,13 +130,16 @@ fn player_previous() {
 // preferences commands
 
 #[command]
-fn preferences_get() -> CommandResult<Preferences> {
-    Ok(PreferencesManager::get()?)
+fn preferences_get(preferences_manager: State<PreferencesManager>) -> CommandResult<Preferences> {
+    Ok(preferences_manager.get()?)
 }
 
 #[command]
-fn preferences_set(preferences: Preferences) -> CommandResult<()> {
-    Ok(PreferencesManager::set(&preferences)?)
+fn preferences_set(
+    preferences: Preferences,
+    preferences_manager: State<PreferencesManager>,
+) -> CommandResult<()> {
+    Ok(preferences_manager.set(&preferences)?)
 }
 
 // library commands
@@ -149,9 +149,8 @@ async fn library_get_release_overviews<R: Runtime>(
     app_handle: AppHandle<R>,
 ) -> CommandResult<Vec<ReleaseOverview>> {
     Ok(spawn_blocking(move || {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
-        LibraryManager::get_release_overviews(db_connection)
+        let library_manager = app_handle.state::<LibraryManager>();
+        library_manager.get_release_overviews()
     })
     .await??)
 }
@@ -162,9 +161,8 @@ async fn library_get_release<R: Runtime>(
     app_handle: AppHandle<R>,
 ) -> CommandResult<Release> {
     Ok(spawn_blocking(move || {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
-        LibraryManager::get_release(db_connection, &release_id)
+        let library_manager = app_handle.state::<LibraryManager>();
+        library_manager.get_release(&release_id)
     })
     .await??)
 }
@@ -174,9 +172,8 @@ async fn library_get_artist_overviews<R: Runtime>(
     app_handle: AppHandle<R>,
 ) -> CommandResult<Vec<ArtistOverview>> {
     Ok(spawn_blocking(move || {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
-        LibraryManager::get_artists_overviews(db_connection)
+        let library_manager = app_handle.state::<LibraryManager>();
+        library_manager.get_artist_overviews()
     })
     .await??)
 }
@@ -187,9 +184,8 @@ async fn library_get_artist<R: Runtime>(
     artist_id: String,
 ) -> CommandResult<Artist> {
     Ok(spawn_blocking(move || {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
-        LibraryManager::get_artist(db_connection, &artist_id)
+        let library_manager = app_handle.state::<LibraryManager>();
+        library_manager.get_artist(&artist_id)
     })
     .await??)
 }
@@ -200,9 +196,8 @@ async fn library_get_player_track<R: Runtime>(
     track_path: String,
 ) -> CommandResult<PlayerTrack> {
     Ok(spawn_blocking(move || {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
-        LibraryManager::get_player_track(db_connection, &track_path)
+        let library_manager = app_handle.state::<LibraryManager>();
+        library_manager.get_player_track(&track_path)
     })
     .await??)
 }
@@ -213,9 +208,8 @@ async fn library_search<R: Runtime>(
     query: String,
 ) -> CommandResult<SearchResult> {
     Ok(spawn_blocking(move || {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
-        LibraryManager::search(db_connection, &query)
+        let library_manager = app_handle.state::<LibraryManager>();
+        library_manager.search(&query)
     })
     .await??)
 }
@@ -227,22 +221,30 @@ async fn library_scan<R: Runtime>(
     window: Window<Wry>,
 ) -> CommandResult<()> {
     spawn_blocking(move || async move {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
+        let library_manager = app_handle.state::<LibraryManager>();
+        let preferences_manager = app_handle.state::<PreferencesManager>();
+        let scanner = app_handle.state::<Scanner>();
 
         if clear_data {
-            LibraryManager::clear_data(db_connection)?;
+            library_manager.clear_data()?;
         }
 
-        let preferences = PreferencesManager::get()?;
+        let preferences = preferences_manager.get()?;
 
         if let Some(library_path) = preferences.library_path {
-            let db_connection = db_pool.get()?;
-            let errors = LibraryManager::scan_dir(db_connection, &library_path, window).await;
+            let (releases, errors) = scanner
+                .scan_dir(Path::new(&library_path), |progress| {
+                    window
+                        .emit("library:scan-state", progress)
+                        .expect("Failed to emit scan state")
+                })
+                .await?;
             for error in errors {
                 println!("Error: {}", error);
             }
 
+            library_manager.add_releases(&releases)?;
+            window.emit("library:scan-complete", None::<()>)?;
             Ok(())
         } else {
             bail!("No library path set");
@@ -250,27 +252,6 @@ async fn library_scan<R: Runtime>(
     })
     .await?
     .await?;
-
-    Ok(())
-}
-
-#[command]
-async fn library_scan_cover_art<R: Runtime>(
-    clear_data: bool,
-    app_handle: AppHandle<R>,
-    window: Window<Wry>,
-) -> CommandResult<()> {
-    if clear_data {
-        LibraryManager::clear_cover_art_data()?;
-    }
-
-    spawn_blocking(move || {
-        let db_pool = app_handle.state::<Pool<SqliteConnectionManager>>();
-        let db_connection = db_pool.get()?;
-
-        LibraryManager::scan_cover_art(db_connection, window)
-    })
-    .await??;
 
     Ok(())
 }

@@ -1,16 +1,13 @@
-use super::db_entities::{DbArtist, DbArtistCredit, DbArtistCreditPart, DbRelease, DbTrack};
-use super::parser::{Parser, ParserError, ParserTrack};
-use crate::global::try_get_cover_art_dir_path;
-use crate::services::tag_reader::CoverArtExtension;
-use anyhow::{anyhow, Result};
+use super::database::Database;
+use super::database::{DbArtist, DbArtistCredit, DbArtistCreditPart, DbRelease, DbTrack};
+use super::tag_reader::CoverArtExtension;
+use crate::scanner::ScannerRelease;
+use anyhow::Context;
 use image::imageops::FilterType;
-use r2d2::{PooledConnection};
-use r2d2_sqlite::SqliteConnectionManager;
 use serde::Serialize;
-use std::fs::{create_dir, create_dir_all, read, remove_dir_all, File};
+use std::fs::{create_dir, create_dir_all, remove_dir_all, File};
 use std::io::{Cursor, Write};
-use std::path::Path;
-use tauri::{Window, Wry};
+use std::path::{Path, PathBuf};
 use ts_rs::TS;
 
 const THUMBNAIL_SIZE: u32 = 320;
@@ -28,48 +25,46 @@ macro_rules! thumbnail_filename {
     };
 }
 
-pub struct LibraryManager;
+pub struct LibraryManager {
+    db: Database,
+    cover_art_dir: PathBuf,
+}
 
 impl LibraryManager {
-    pub fn setup(db_connection: PooledConnection<SqliteConnectionManager>) -> Result<()> {
-        db_connection.execute(include_str!("../../sql/artist.sql"), [])?;
-        db_connection.execute(include_str!("../../sql/artist_credit.sql"), [])?;
-        db_connection.execute(include_str!("../../sql/artist_credit_part.sql"), [])?;
-        db_connection.execute(include_str!("../../sql/release.sql"), [])?;
-        db_connection.execute(include_str!("../../sql/track.sql"), [])?;
-
-        let cover_art_dir_path = try_get_cover_art_dir_path();
-
-        if !cover_art_dir_path.exists() {
-            create_dir_all(cover_art_dir_path)?;
+    pub fn new(db: Database, cover_art_dir: &Path) -> anyhow::Result<Self> {
+        if cover_art_dir.exists() {
+            create_dir_all(cover_art_dir)?;
         }
-        Ok(())
+
+        Ok(Self {
+            db,
+            cover_art_dir: cover_art_dir.into(),
+        })
     }
 
-    pub fn clear_data(db_connection: PooledConnection<SqliteConnectionManager>) -> Result<()> {
+    pub fn clear_data(&self) -> anyhow::Result<()> {
+        let db_connection = self.db.get_connection()?;
+
         db_connection.execute("DELETE FROM track", [])?;
         db_connection.execute("DELETE FROM release", [])?;
         db_connection.execute("DELETE FROM artist_credit_part", [])?;
         db_connection.execute("DELETE FROM artist_credit", [])?;
         db_connection.execute("DELETE FROM artist", [])?;
 
-        Self::clear_cover_art_data()?;
+        self.clear_cover_art_data()?;
 
         Ok(())
     }
 
-    pub fn clear_cover_art_data() -> Result<()> {
-        let cover_art_dir_path = try_get_cover_art_dir_path();
-
-        if cover_art_dir_path.exists() {
-            remove_dir_all(&cover_art_dir_path)?;
-            create_dir(cover_art_dir_path)?;
+    pub fn clear_cover_art_data(&self) -> anyhow::Result<()> {
+        if self.cover_art_dir.exists() {
+            remove_dir_all(&self.cover_art_dir)?;
+            create_dir(&self.cover_art_dir)?;
         }
-
         Ok(())
     }
 
-    fn create_thumbnail(data: &[u8]) -> Result<Vec<u8>> {
+    fn create_thumbnail(data: &[u8]) -> anyhow::Result<Vec<u8>> {
         let original_image = image::load_from_memory(data)?;
 
         let resized_image =
@@ -84,65 +79,76 @@ impl LibraryManager {
         Ok(thumbnail)
     }
 
-    fn cover_art_is_indexed(release_id: &str) -> bool {
-        Self::get_cover_art_src(release_id).is_some()
-            && Self::get_thumbnail_src(release_id).is_some()
+    fn cover_art_is_indexed(&self, release_id: &str) -> anyhow::Result<bool> {
+        Ok(self.get_cover_art_src(release_id)?.is_some()
+            && self.get_thumbnail_src(release_id)?.is_some())
     }
 
-    fn index_cover_art(release_id: &str, data: &[u8], extension: &str) -> Result<()> {
-        if Self::cover_art_is_indexed(release_id) {
-            return Err(anyhow!("Cover art already indexed for {:?}", release_id));
+    fn index_cover_art(
+        &self,
+        release_id: &str,
+        data: &[u8],
+        extension: &str,
+    ) -> anyhow::Result<()> {
+        if self.cover_art_is_indexed(release_id)? {
+            anyhow::bail!("Cover art already indexed for {:?}", release_id)
         }
 
-        let cover_art_dir_path = try_get_cover_art_dir_path();
+        let cover_art_path = &self
+            .cover_art_dir
+            .join(cover_art_filename!(release_id, extension));
+        let thumbnail_path = &self.cover_art_dir.join(thumbnail_filename!(release_id));
 
-        let cover_art_path = cover_art_dir_path.join(cover_art_filename!(release_id, extension));
-        let thumbnail_path = cover_art_dir_path.join(thumbnail_filename!(release_id));
+        let thumbnail = Self::create_thumbnail(data)?;
 
-        let thumbnail = match Self::create_thumbnail(data) {
-            Ok(thumbnail) => thumbnail,
-            Err(_) => return Err(anyhow!("Failed to create thumbnail for {:?}", release_id)),
-        };
+        let mut picture_file = File::create(cover_art_path)?;
+        picture_file.write_all(data)?;
 
-        let mut picture_file = File::create(cover_art_path).unwrap();
-        picture_file.write_all(data).unwrap();
-
-        let mut thumbnail_file = File::create(thumbnail_path).unwrap();
-        thumbnail_file.write_all(&thumbnail).unwrap();
+        let mut thumbnail_file = File::create(thumbnail_path)?;
+        thumbnail_file.write_all(&thumbnail)?;
 
         Ok(())
     }
 
-    fn get_thumbnail_src(release_id: &str) -> Option<String> {
-        let cover_art_dir_path = try_get_cover_art_dir_path();
-        let thumbnail_path = cover_art_dir_path.join(thumbnail_filename!(&release_id));
+    fn get_thumbnail_src(&self, release_id: &str) -> anyhow::Result<Option<String>> {
+        let thumbnail_path = self.cover_art_dir.join(thumbnail_filename!(&release_id));
 
         if thumbnail_path.exists() {
-            Some(thumbnail_path.as_os_str().to_str().unwrap().to_string())
+            Ok(Some(
+                thumbnail_path
+                    .as_os_str()
+                    .to_str()
+                    .context("Failed to convert path to string")?
+                    .to_string(),
+            ))
         } else {
-            None
+            Ok(None)
         }
     }
 
-    fn get_cover_art_src(release_id: &str) -> Option<String> {
-        let cover_art_dir_path = try_get_cover_art_dir_path();
-
+    fn get_cover_art_src(&self, release_id: &str) -> anyhow::Result<Option<String>> {
         for extension in &EXTENSIONS {
-            let file_path =
-                cover_art_dir_path.join(cover_art_filename!(release_id, extension.to_string()));
+            let file_path = self
+                .cover_art_dir
+                .join(cover_art_filename!(release_id, extension.to_string()));
 
             if file_path.exists() {
-                return Some(file_path.as_os_str().to_str().unwrap().to_string());
+                return Ok(Some(
+                    file_path
+                        .as_os_str()
+                        .to_str()
+                        .context("Failed to convert path to string")?
+                        .to_string(),
+                ));
             }
         }
 
-        None
+        Ok(None)
     }
 
-    fn index_track(
-        db_connection: &PooledConnection<SqliteConnectionManager>,
-        track: &ParserTrack,
-    ) -> Result<()> {
+    fn index_release(&self, release: &ScannerRelease) -> anyhow::Result<()> {
+        let db_connection = self.db.get_connection()?;
+
         let mut insert_artist_credit_stmt =
             db_connection.prepare_cached("INSERT INTO artist_credit (id, name) VALUES (?1, ?2)")?;
 
@@ -153,46 +159,13 @@ impl LibraryManager {
             "INSERT INTO artist_credit_part (artist_credit_id, artist_id) VALUES (?1, ?2)",
         )?;
 
-        let mut insert_release_stmt = db_connection.prepare_cached("INSERT INTO release (id, artist_credit_id, name, date, total_tracks, total_discs) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")?;
+        let mut insert_release_stmt =db_connection.prepare_cached("INSERT INTO release (id, artist_credit_id, name, date, total_tracks, total_discs) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")?;
 
-        let mut insert_track_stmt = db_connection.prepare_cached("INSERT INTO track (id, release_id, artist_credit_id, name, length, track_number, disc_number, path) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)")?;
-
-        let new_track_artist_credit = DbArtistCredit {
-            id: track.id.clone(),
-            name: track.artist_credit_name.clone(),
-        };
-
-        if insert_artist_credit_stmt
-            .execute((&new_track_artist_credit.id, &new_track_artist_credit.name))
-            .is_ok()
-        {
-            for artist in &track.artists {
-                let new_artist = DbArtist {
-                    id: artist.id.clone(),
-                    name: artist.name.clone(),
-                };
-
-                insert_artist_stmt
-                    .execute((&new_artist.id, &new_artist.name))
-                    .ok();
-
-                let new_artist_credit_part = DbArtistCreditPart {
-                    artist_credit_id: new_track_artist_credit.id.clone(),
-                    artist_id: new_artist.id.clone(),
-                };
-
-                insert_artist_credit_part_stmt
-                    .execute((
-                        new_artist_credit_part.artist_credit_id,
-                        new_artist_credit_part.artist_id,
-                    ))
-                    .ok();
-            }
-        }
+        let mut insert_track_stmt =db_connection.prepare_cached("INSERT INTO track (id, release_id, artist_credit_id, name, length, track_number, disc_number, path) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)")?;
 
         let new_release_artist_credit = DbArtistCredit {
-            id: track.release_id.clone(),
-            name: track.release_artist_credit_name.clone(),
+            id: release.id.clone(),
+            name: release.artist_credit_name.clone(),
         };
 
         if insert_artist_credit_stmt
@@ -202,7 +175,7 @@ impl LibraryManager {
             ))
             .is_ok()
         {
-            for artist in &track.release_artists {
+            for artist in &release.artists {
                 let new_release_artist = DbArtist {
                     id: artist.id.clone(),
                     name: artist.name.clone(),
@@ -226,12 +199,12 @@ impl LibraryManager {
             }
 
             let new_release = DbRelease {
-                id: track.release_id.clone(),
+                id: release.id.clone(),
                 artist_credit_id: new_release_artist_credit.id,
-                name: track.release_name.clone(),
-                date: track.release_date.clone(),
-                total_tracks: track.release_total_tracks,
-                total_discs: track.release_total_discs,
+                name: release.name.clone(),
+                date: release.date.clone(),
+                total_tracks: release.total_tracks,
+                total_discs: release.total_discs,
             };
 
             insert_release_stmt
@@ -246,151 +219,107 @@ impl LibraryManager {
                 .ok();
         }
 
-        let new_track = DbTrack {
-            id: track.id.clone(),
-            name: track.name.clone(),
-            length: track.length,
-            track_number: track.track_number,
-            disc_number: track.disc_number,
-            artist_credit_id: new_track_artist_credit.id,
-            release_id: track.release_id.clone(),
-            path: track.path.clone(),
-        };
-
-        insert_track_stmt
-            .execute((
-                new_track.id,
-                new_track.release_id,
-                new_track.artist_credit_id,
-                new_track.name,
-                new_track.length,
-                new_track.track_number,
-                new_track.disc_number,
-                new_track.path,
-            ))
+        if let Some(cover_art) = &release.cover_art {
+            self.index_cover_art(
+                &release.id,
+                &cover_art.data,
+                &cover_art.extension.to_string(),
+            )
             .ok();
-
-        Ok(())
-    }
-
-    pub async fn scan_file(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-        path: &str,
-    ) -> Result<(), ParserError> {
-        let parsed_track = Parser::parse_file(path).await?;
-        db_connection
-            .execute("BEGIN TRANSACTION", [])
-            .expect("Failed to begin transaction");
-        Self::index_track(&db_connection, &parsed_track).ok();
-        db_connection
-            .execute("COMMIT", [])
-            .expect("Failed to commit transaction");
-
-        Ok(())
-    }
-
-    pub async fn scan_dir(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-        path: &str,
-        window: Window<Wry>,
-    ) -> Vec<ParserError> {
-        let (parsed_tracks, parsing_errors) = Parser::parse_dir(path, |progress| {
-            window
-                .emit(
-                    "library:scan-state",
-                    ScanState {
-                        kind: ScanStateKind::CoverArt,
-                        progress: Some(progress),
-                    },
-                )
-                .expect("Failed to emit scan state")
-        })
-        .await;
-
-        db_connection
-            .execute("BEGIN TRANSACTION", [])
-            .expect("Failed to begin transaction");
-
-        for track in parsed_tracks.into_iter() {
-            Self::index_track(&db_connection, &track).ok();
         }
 
-        db_connection
-            .execute("COMMIT", [])
-            .expect("Failed to commit transaction");
+        for track in release.tracks.iter() {
+            let new_track_artist_credit = DbArtistCredit {
+                id: track.id.clone(),
+                name: track.artist_credit_name.clone(),
+            };
 
-        window
-            .emit(
-                "library:scan-state",
-                ScanState {
-                    kind: ScanStateKind::Idle,
-                    progress: None,
-                },
-            )
-            .expect("Failed to emit scan state");
-
-        parsing_errors
-    }
-
-    pub fn scan_cover_art(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-        window: Window<Wry>,
-    ) -> Result<()> {
-        let mut select_release_ids_stmt = db_connection.prepare_cached("SELECT id FROM release")?;
-
-        let mut select_track_path_stmt =
-            db_connection.prepare_cached("SELECT path FROM track WHERE release_id = ?1 LIMIT 1")?;
-
-        let release_ids = select_release_ids_stmt
-            .query_map([], |row| row.get(0))?
-            .collect::<Result<Vec<String>, _>>()?;
-
-        for (index, id) in release_ids.iter().enumerate() {
-            window.emit(
-                "library:scan-state",
-                ScanState {
-                    kind: ScanStateKind::CoverArt,
-                    progress: Some((index + 1, release_ids.len())),
-                },
-            )?;
-
-            if LibraryManager::cover_art_is_indexed(id) {
-                continue;
-            }
-
-            let track_path: String = select_track_path_stmt.query_row([&id], |row| row.get(0))?;
-
-            let track_path = Path::new(&track_path);
-            let release_path = track_path.parent().unwrap();
-
-            for extension in &EXTENSIONS {
-                let cover_art_path = release_path.join(format!("cover.{}", extension));
-                if let Ok(cover_art) = read(cover_art_path) {
-                    match LibraryManager::index_cover_art(id, &cover_art, &extension.to_string()) {
-                        Ok(_) => {}
-                        Err(e) => println!("Failed to add cover art: {:?}", e),
+            if insert_artist_credit_stmt
+                .execute((&new_track_artist_credit.id, &new_track_artist_credit.name))
+                .is_ok()
+            {
+                for artist in &track.artists {
+                    let new_artist = DbArtist {
+                        id: artist.id.clone(),
+                        name: artist.name.clone(),
                     };
-                    break;
+
+                    insert_artist_stmt
+                        .execute((&new_artist.id, &new_artist.name))
+                        .ok();
+
+                    let new_artist_credit_part = DbArtistCreditPart {
+                        artist_credit_id: new_track_artist_credit.id.clone(),
+                        artist_id: new_artist.id.clone(),
+                    };
+
+                    insert_artist_credit_part_stmt
+                        .execute((
+                            new_artist_credit_part.artist_credit_id,
+                            new_artist_credit_part.artist_id,
+                        ))
+                        .ok();
                 }
             }
+
+            let new_track = DbTrack {
+                id: track.id.clone(),
+                name: track.name.clone(),
+                length: track.length,
+                track_number: track.track_number,
+                disc_number: track.disc_number,
+                artist_credit_id: new_track_artist_credit.id,
+                release_id: release.id.clone(),
+                path: track
+                    .path
+                    .to_str()
+                    .context("Failed to convert path to string")?
+                    .to_string(),
+            };
+
+            insert_track_stmt
+                .execute((
+                    new_track.id,
+                    new_track.release_id,
+                    new_track.artist_credit_id,
+                    new_track.name,
+                    new_track.length,
+                    new_track.track_number,
+                    new_track.disc_number,
+                    new_track.path,
+                ))
+                .ok();
         }
 
-        window.emit(
-            "library:scan-state",
-            ScanState {
-                kind: ScanStateKind::Idle,
-                progress: None,
-            },
-        )?;
+        Ok(())
+    }
+
+    pub fn add_releases(&self, releases: &Vec<ScannerRelease>) -> anyhow::Result<()> {
+        let db_connection = self
+            .db
+            .get_connection()
+            .expect("Failed to get db connection");
+
+        db_connection
+            .execute("BEGIN TRANSACTION", [])
+            .expect("Failed to begin transaction");
+
+        for release in releases.iter() {
+            self.index_release(release)?;
+        }
+
+        db_connection
+            .execute("COMMIT", [])
+            .expect("Failed to commit transaction");
 
         Ok(())
     }
 
     fn search_release_overviews(
-        db_connection: &PooledConnection<SqliteConnectionManager>,
+        &self,
         query: Option<&str>,
         limit: bool,
-    ) -> Result<Vec<ReleaseOverview>> {
+    ) -> anyhow::Result<Vec<ReleaseOverview>> {
         let sql = {
             let mut sql = String::from("SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id",);
 
@@ -407,29 +336,31 @@ impl LibraryManager {
             sql
         };
 
-        let mut select_releases_stmt = db_connection.prepare_cached(&sql)?;
+        let db_connection = self.db.get_connection()?;
 
-        let releases = select_releases_stmt
-            .query_map([], |row| {
-                let release_id: String = row.get(0)?;
-                let thumbnail_src = Self::get_thumbnail_src(&release_id);
-                Ok(ReleaseOverview {
-                    id: release_id,
-                    name: row.get(1)?,
-                    artist_credit_name: row.get(2)?,
-                    thumbnail_src,
-                })
-            })?
-            .collect::<Result<Vec<_>, _>>()?;
+        let mut select_releases_stmt = db_connection.prepare_cached(&sql)?;
+        let mut rows = select_releases_stmt.query([])?;
+        let mut releases = Vec::new();
+
+        while let Some(row) = rows.next()? {
+            let release_id: String = row.get(0)?;
+            let thumbnail_src = self.get_thumbnail_src(&release_id)?;
+            releases.push(ReleaseOverview {
+                id: release_id,
+                name: row.get(1)?,
+                artist_credit_name: row.get(2)?,
+                thumbnail_src,
+            });
+        }
 
         Ok(releases)
     }
 
     fn search_artist_overviews(
-        db_connection: &PooledConnection<SqliteConnectionManager>,
+        &self,
         query: Option<&str>,
         limit: bool,
-    ) -> Result<Vec<ArtistOverview>> {
+    ) -> anyhow::Result<Vec<ArtistOverview>> {
         let sql = {
             let mut sql = String::from("SELECT id, name FROM artist");
 
@@ -446,6 +377,8 @@ impl LibraryManager {
             sql
         };
 
+        let db_connection = self.db.get_connection()?;
+
         let mut select_artists_stmt = db_connection.prepare_cached(&sql)?;
         let mut select_artist_release_ids_stmt = db_connection.prepare_cached("SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 UNION SELECT DISTINCT 'release'.id FROM 'release' INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = 'release'.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1 LIMIT 3")?;
 
@@ -460,7 +393,7 @@ impl LibraryManager {
                     .collect::<Result<Vec<String>, _>>()?;
 
                 for release_id in release_ids {
-                    let thumbnail_src = Self::get_thumbnail_src(&release_id);
+                    let thumbnail_src = self.get_thumbnail_src(&release_id).unwrap();
                     if let Some(thumbnail_src) = thumbnail_src {
                         thumbnail_srcs.push(thumbnail_src);
                     }
@@ -477,16 +410,13 @@ impl LibraryManager {
         Ok(artists)
     }
 
-    pub fn get_release_overviews(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-    ) -> Result<Vec<ReleaseOverview>> {
-        Self::search_release_overviews(&db_connection, None, false)
+    pub fn get_release_overviews(&self) -> anyhow::Result<Vec<ReleaseOverview>> {
+        self.search_release_overviews(None, false)
     }
 
-    pub fn get_release(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-        release_id: &str,
-    ) -> Result<Release> {
+    pub fn get_release(&self, release_id: &str) -> anyhow::Result<Release> {
+        let db_connection = self.db.get_connection()?;
+
         let mut select_release_stmt = db_connection.prepare_cached("SELECT 'release'.id, 'release'.artist_credit_id, artist_credit.name, 'release'.name, 'release'.date, 'release'.total_tracks, 'release'.total_discs FROM 'release' INNER JOIN artist_credit ON 'release'.artist_credit_id = artist_credit.id WHERE 'release'.id = ?1")?;
 
         let mut select_release_tracks_smt = db_connection.prepare_cached("SELECT track.id, track.release_id, track.name, track.length, track.track_number, track.disc_number, track.path, artist_credit.name FROM track INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id WHERE track.release_id = ?1 ORDER BY track.disc_number, track.track_number")?;
@@ -509,7 +439,7 @@ impl LibraryManager {
                 })?
                 .collect::<Result<Vec<_>, _>>()?;
 
-            let cover_art_src = Self::get_cover_art_src(&release_id);
+            let cover_art_src = self.get_cover_art_src(&release_id).unwrap();
 
             Ok(Release {
                 id: release_id,
@@ -527,16 +457,13 @@ impl LibraryManager {
         Ok(release)
     }
 
-    pub fn get_artists_overviews(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-    ) -> Result<Vec<ArtistOverview>> {
-        Self::search_artist_overviews(&db_connection, None, false)
+    pub fn get_artist_overviews(&self) -> anyhow::Result<Vec<ArtistOverview>> {
+        self.search_artist_overviews(None, false)
     }
 
-    pub fn get_artist(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-        artist_id: &str,
-    ) -> Result<Artist> {
+    pub fn get_artist(&self, artist_id: &str) -> anyhow::Result<Artist> {
+        let db_connection = self.db.get_connection()?;
+
         let mut select_artist_releases_stmt = db_connection.prepare_cached("SELECT 'release'.id, 'release'.name, artist_credit.name FROM 'release' INNER JOIN artist_credit ON artist_credit.id = 'release'.artist_credit_id WHERE 'release'.id IN (SELECT DISTINCT track.release_id FROM track INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = track.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)  OR 'release'.id IN (SELECT 'release'.id FROM 'release' INNER JOIN artist_credit_part ON artist_credit_part.artist_credit_id = 'release'.artist_credit_id INNER JOIN artist ON artist.id = artist_credit_part.artist_id WHERE artist.id = ?1)",)?;
 
         let mut select_artist_stmt =
@@ -547,10 +474,10 @@ impl LibraryManager {
         let releases = select_artist_releases_stmt
             .query_map([&artist_id], |row| {
                 let release_id: String = row.get(0)?;
-                let thumbnail_src = Self::get_thumbnail_src(&release_id);
+                let thumbnail_src = self.get_thumbnail_src(&release_id).unwrap();
 
                 if background_src.is_none() && thumbnail_src.is_some() {
-                    background_src = Self::get_cover_art_src(&release_id);
+                    background_src = self.get_cover_art_src(&release_id).unwrap();
                 }
 
                 Ok(ReleaseOverview {
@@ -574,17 +501,16 @@ impl LibraryManager {
         Ok(artist)
     }
 
-    pub fn get_player_track(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-        track_path: &str,
-    ) -> Result<PlayerTrack> {
+    pub fn get_player_track(&self, track_path: &str) -> anyhow::Result<PlayerTrack> {
+        let db_connection = self.db.get_connection()?;
+
         let mut select_track_stmt = db_connection.prepare_cached("SELECT track.id, track.release_id, 'release'.name, track.name, artist_credit.name, artist_credit.id FROM track INNER JOIN artist_credit ON track.artist_credit_id = artist_credit.id INNER JOIN 'release' ON track.release_id = 'release'.id WHERE track.path = ?1")?;
 
         let mut select_track_artists_stmt = db_connection.prepare_cached("SELECT artist.id, artist.name FROM artist INNER JOIN artist_credit_part ON artist_credit_part.artist_id = artist.id WHERE artist_credit_part.artist_credit_id = ?1",)?;
 
         let track = select_track_stmt.query_row([&track_path], |row| {
             let release_id: String = row.get(1)?;
-            let thumbnail_src = Self::get_thumbnail_src(&release_id);
+            let thumbnail_src = self.get_thumbnail_src(&release_id).unwrap();
 
             let artist_credit_id: String = row.get(5)?;
 
@@ -611,22 +537,23 @@ impl LibraryManager {
         Ok(track)
     }
 
-    pub fn search(
-        db_connection: PooledConnection<SqliteConnectionManager>,
-        query: &str,
-    ) -> Result<SearchResult> {
+    pub fn search(&self, query: &str) -> anyhow::Result<SearchResult> {
         let query = format!("%{}%", query.trim());
 
         Ok(SearchResult {
-            releases: Self::search_release_overviews(&db_connection, Some(&query), true)?,
-            artists: Self::search_artist_overviews(&db_connection, Some(&query), true)?,
+            releases: self.search_release_overviews(Some(&query), true)?,
+            artists: self.search_artist_overviews(Some(&query), true)?,
         })
     }
 
-    pub fn get_preferred_cover_art_position(release_id: &str) -> Result<CoverArtPosition> {
+    pub fn get_preferred_cover_art_position(
+        &self,
+        release_id: &str,
+    ) -> anyhow::Result<CoverArtPosition> {
         let picture_size = 120;
-        let picture = Self::get_thumbnail_src(release_id)
-            .ok_or_else(|| anyhow!("Thumbnail not found for {:?}", release_id))?;
+        let picture = self
+            .get_thumbnail_src(release_id)?
+            .context("No thumbnail found")?;
         let picture = image::open(picture)?;
         let picture = picture.resize_exact(picture_size, picture_size, FilterType::Nearest);
 
@@ -756,23 +683,6 @@ pub struct PlayerTrack {
     pub artist_credit_name: String,
     pub artists: Vec<DbArtist>,
     pub thumbnail_src: Option<String>,
-}
-
-#[derive(Serialize, TS, Clone)]
-#[ts(export)]
-#[serde(rename_all = "camelCase")]
-pub struct ScanState {
-    pub kind: ScanStateKind,
-    pub progress: Option<(usize, usize)>,
-}
-
-#[derive(Serialize, TS, Clone)]
-#[ts(export)]
-#[serde(rename_all = "camelCase")]
-pub enum ScanStateKind {
-    CoverArt,
-    Tag,
-    Idle,
 }
 
 #[derive(Serialize, TS)]

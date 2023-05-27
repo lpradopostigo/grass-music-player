@@ -23,22 +23,16 @@ function Preferences() {
 
   const api = createMemo(() => dialog.connect(state, send, normalizeProps));
 
-  async function handleScanClick(type: "normal" | "full" | "onlyCoverArt") {
+  async function handleScanClick(type: "normal" | "full") {
     api().open();
 
     switch (type) {
       case "normal":
         await LibraryCommands.scan();
-        await LibraryCommands.scanCoverArt();
         break;
 
       case "full":
         await LibraryCommands.scan(true);
-        await LibraryCommands.scanCoverArt();
-        break;
-
-      case "onlyCoverArt":
-        await LibraryCommands.scanCoverArt(true);
         break;
     }
 
@@ -73,13 +67,11 @@ function Preferences() {
                     {...api().titleProps}
                     class="bg-black p-2 font-semibold text-white"
                   >
-                    {scanState.kind === "coverArt"
-                      ? "scanning cover art"
-                      : "scanning tags"}
+                    scan in progress
                   </div>
                   <div class="flex flex-col items-center gap-4 p-4">
                     <div {...api().descriptionProps}>
-                      {scanState.progress?.[0]} of {scanState.progress?.[1]}
+                      {scanState()?.[0]} of {scanState()?.[1]}
                     </div>
                     <Loader />
                   </div>
@@ -127,13 +119,6 @@ function Preferences() {
               onClick={() => handleScanClick("full")}
             >
               full scan
-            </button>
-
-            <button
-              disabled={!preferences.libraryPath}
-              onClick={() => handleScanClick("onlyCoverArt")}
-            >
-              rescan cover art
             </button>
           </div>
         </div>

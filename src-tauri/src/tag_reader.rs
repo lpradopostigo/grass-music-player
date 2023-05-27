@@ -1,16 +1,17 @@
-use anyhow::{bail, Result};
+use anyhow::Context;
 use lofty::{read_from_path, Accessor, AudioFile, ItemKey, MimeType, TaggedFileExt};
 use std::fmt::Display;
+use std::path::Path;
 
 pub struct TagReader;
 
 impl TagReader {
-    pub fn read(path: &str) -> Result<Tag> {
+    pub fn read(path: &Path) -> anyhow::Result<TaggedFile> {
         let tagged_file = read_from_path(path)?;
 
         let file_properties = tagged_file.properties();
 
-        let tag = tagged_file.primary_tag().unwrap();
+        let tag = tagged_file.primary_tag().context("No tag found")?;
 
         let album_artist = tag.get_string(&ItemKey::AlbumArtist).map(|s| s.to_string());
 
@@ -46,7 +47,7 @@ impl TagReader {
                 let extension = match picture.mime_type() {
                     MimeType::Jpeg => CoverArtExtension::Jpeg,
                     MimeType::Png => CoverArtExtension::Png,
-                    _ => bail!("Unsupported cover art format"),
+                    _ => anyhow::bail!("Unsupported cover art format"),
                 };
 
                 Some(CoverArt {
@@ -57,7 +58,7 @@ impl TagReader {
             None => None,
         };
 
-        Ok(Tag {
+        Ok(TaggedFile {
             date,
             artists,
             musicbrainz_track_id,
@@ -75,13 +76,16 @@ impl TagReader {
             duration: file_properties.duration().as_secs_f64(),
             album: tag.album().map(|s| s.into_owned()),
             year: tag.year().map(|s| s as u16),
-            path: path.into(),
+            path: path
+                .to_str()
+                .context("Failed to convert path to string")?
+                .to_string(),
         })
     }
 }
 
 #[derive(Debug)]
-pub struct Tag {
+pub struct TaggedFile {
     pub album: Option<String>,
     pub album_artist: Option<String>,
     pub artist: Option<String>,
@@ -102,13 +106,13 @@ pub struct Tag {
     pub year: Option<u16>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CoverArt {
     pub data: Vec<u8>,
     pub extension: CoverArtExtension,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CoverArtExtension {
     Jpeg,
     Png,

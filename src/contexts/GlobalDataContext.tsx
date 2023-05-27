@@ -1,7 +1,9 @@
 import {
+  Accessor,
   createContext,
   createEffect,
   createResource,
+  createSignal,
   JSX,
   onCleanup,
   useContext,
@@ -10,7 +12,6 @@ import { createStore } from "solid-js/store";
 import { Preferences } from "../../src-tauri/bindings/Preferences.ts";
 import { PlayerState } from "../../src-tauri/bindings/PlayerState.ts";
 import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack.ts";
-import { ScanState } from "../../src-tauri/bindings/ScanState.ts";
 import { listen } from "@tauri-apps/api/event";
 import LibraryCommands from "../commands/LibraryCommands.ts";
 import PreferencesCommands from "../commands/PreferencesCommands.ts";
@@ -34,10 +35,7 @@ function GlobalDataProvider(props: { children: JSX.Element }) {
     libraryPath: null,
   });
 
-  const [scanState, setScanState] = createStore<ScanState>({
-    kind: "idle",
-    progress: null,
-  });
+  const [scanState, setScanState] = createSignal<ScanState>(null);
 
   const [preferencesResource, { refetch: refetchPreferences }] = createResource(
     PreferencesCommands.get
@@ -74,8 +72,6 @@ function GlobalDataProvider(props: { children: JSX.Element }) {
   const unlistenScanState = listen<ScanState>(
     "library:scan-state",
     ({ payload }) => {
-      // setScanState("kind", payload.kind);
-      // setScanState("progress", payload.progress);
       setScanState(payload);
     }
   );
@@ -102,12 +98,14 @@ function GlobalDataProvider(props: { children: JSX.Element }) {
   );
 }
 
+type ScanState = [number, number] | null;
+
 type GlobalDataValue = {
   playerState: PlayerState & {
     track: PlayerTrack | null;
   };
   preferences: Preferences;
-  scanState: ScanState;
+  scanState: Accessor<ScanState>;
   updatePreferences: (preferences: Preferences) => Promise<void>;
 };
 

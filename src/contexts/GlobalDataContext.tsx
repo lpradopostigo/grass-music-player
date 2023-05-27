@@ -15,6 +15,7 @@ import { PlayerTrack } from "../../src-tauri/bindings/PlayerTrack.ts";
 import { listen } from "@tauri-apps/api/event";
 import LibraryCommands from "../commands/LibraryCommands.ts";
 import PreferencesCommands from "../commands/PreferencesCommands.ts";
+import { ScanState } from "../../src-tauri/bindings/ScanState.ts";
 
 const GlobalDataContext = createContext<GlobalDataValue>();
 
@@ -35,7 +36,10 @@ function GlobalDataProvider(props: { children: JSX.Element }) {
     libraryPath: null,
   });
 
-  const [scanState, setScanState] = createSignal<ScanState>(null);
+  const [scanState, setScanState] = createSignal<ScanState>({
+    progress: null,
+    phase: "idle",
+  });
 
   const [preferencesResource, { refetch: refetchPreferences }] = createResource(
     PreferencesCommands.get
@@ -97,8 +101,6 @@ function GlobalDataProvider(props: { children: JSX.Element }) {
     </GlobalDataContext.Provider>
   );
 }
-
-type ScanState = [number, number] | null;
 
 type GlobalDataValue = {
   playerState: PlayerState & {

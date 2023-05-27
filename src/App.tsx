@@ -19,7 +19,7 @@ function App() {
     "keydown",
     (event) => {
       if (
-        Array.isArray(scanState()) ||
+        scanState().phase !== "idle" ||
         (event.target as HTMLElement | null)?.closest(
           "[role=dialog],[role=alertdialog]"
         )

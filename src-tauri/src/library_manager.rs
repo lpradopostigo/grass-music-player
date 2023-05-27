@@ -4,6 +4,8 @@ use super::tag_reader::CoverArtExtension;
 use crate::scanner::ScannerRelease;
 use anyhow::Context;
 use image::imageops::FilterType;
+use r2d2::PooledConnection;
+use r2d2_sqlite::SqliteConnectionManager;
 use serde::Serialize;
 use std::fs::{create_dir, create_dir_all, remove_dir_all, File};
 use std::io::{Cursor, Write};
@@ -146,9 +148,11 @@ impl LibraryManager {
         Ok(None)
     }
 
-    fn index_release(&self, release: &ScannerRelease) -> anyhow::Result<()> {
-        let db_connection = self.db.get_connection()?;
-
+    fn index_release(
+        &self,
+        db_connection: &PooledConnection<SqliteConnectionManager>,
+        release: &ScannerRelease,
+    ) -> anyhow::Result<()> {
         let mut insert_artist_credit_stmt =
             db_connection.prepare_cached("INSERT INTO artist_credit (id, name) VALUES (?1, ?2)")?;
 
@@ -294,23 +298,24 @@ impl LibraryManager {
         Ok(())
     }
 
-    pub fn add_releases(&self, releases: &Vec<ScannerRelease>) -> anyhow::Result<()> {
-        let db_connection = self
-            .db
-            .get_connection()
-            .expect("Failed to get db connection");
+    pub fn add_releases<F>(
+        &self,
+        releases: &[ScannerRelease],
+        progress_callback: F,
+    ) -> anyhow::Result<()>
+    where
+        F: Fn((usize, usize)),
+    {
+        let db_connection = self.db.get_connection()?;
 
-        db_connection
-            .execute("BEGIN TRANSACTION", [])
-            .expect("Failed to begin transaction");
+        db_connection.execute("BEGIN TRANSACTION", [])?;
 
-        for release in releases.iter() {
-            self.index_release(release)?;
+        for (index, release) in releases.iter().enumerate() {
+            progress_callback((index + 1, releases.len()));
+            self.index_release(&db_connection, release)?;
         }
 
-        db_connection
-            .execute("COMMIT", [])
-            .expect("Failed to commit transaction");
+        db_connection.execute("COMMIT", [])?;
 
         Ok(())
     }

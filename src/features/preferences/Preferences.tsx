@@ -67,11 +67,13 @@ function Preferences() {
                     {...api().titleProps}
                     class="bg-black p-2 font-semibold text-white"
                   >
-                    scan in progress
+                    {scanState().phase === "parsing"
+                      ? "parsing files"
+                      : "indexing releases"}
                   </div>
                   <div class="flex flex-col items-center gap-4 p-4">
                     <div {...api().descriptionProps}>
-                      {scanState()?.[0]} of {scanState()?.[1]}
+                      {scanState().progress?.[0]} of {scanState().progress?.[1]}
                     </div>
                     <Loader />
                   </div>

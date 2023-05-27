@@ -20,6 +20,7 @@ use crate::player_manager::PlayerManager;
 use crate::preferences_manager::{Preferences, PreferencesManager};
 use crate::scanner::Scanner;
 use anyhow::bail;
+use serde::Serialize;
 use std::fs::create_dir;
 use std::path::Path;
 use tauri::async_runtime::spawn_blocking;
@@ -27,6 +28,7 @@ use tauri::{
     command, generate_context, generate_handler, AppHandle, Builder, Manager, Runtime, State,
     Window, Wry,
 };
+use ts_rs::TS;
 use window_shadows::set_shadow;
 
 #[tokio::main]
@@ -232,19 +234,40 @@ async fn library_scan<R: Runtime>(
         let preferences = preferences_manager.get()?;
 
         if let Some(library_path) = preferences.library_path {
-            let (releases, errors) = scanner
+            let (releases, _) = scanner
                 .scan_dir(Path::new(&library_path), |progress| {
                     window
-                        .emit("library:scan-state", progress)
+                        .emit(
+                            "library:scan-state",
+                            ScanState {
+                                progress: Some(progress),
+                                phase: ScanStatePhase::Parsing,
+                            },
+                        )
                         .expect("Failed to emit scan state")
                 })
                 .await?;
-            for error in errors {
-                println!("Error: {}", error);
-            }
 
-            library_manager.add_releases(&releases)?;
-            window.emit("library:scan-complete", None::<()>)?;
+            library_manager.add_releases(&releases, |progress| {
+                window
+                    .emit(
+                        "library:scan-state",
+                        ScanState {
+                            progress: Some(progress),
+                            phase: ScanStatePhase::Indexing,
+                        },
+                    )
+                    .expect("Failed to emit scan state")
+            })?;
+
+            window.emit(
+                "library:scan-state",
+                ScanState {
+                    progress: None,
+                    phase: ScanStatePhase::Idle,
+                },
+            )?;
+
             Ok(())
         } else {
             bail!("No library path set");
@@ -254,6 +277,23 @@ async fn library_scan<R: Runtime>(
     .await?;
 
     Ok(())
+}
+
+#[derive(Serialize, Clone, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+struct ScanState {
+    progress: Option<(usize, usize)>,
+    phase: ScanStatePhase,
+}
+
+#[derive(Serialize, Clone, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+enum ScanStatePhase {
+    Parsing,
+    Indexing,
+    Idle,
 }
 
 #[derive(Debug, thiserror::Error)]

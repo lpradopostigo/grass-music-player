@@ -1597,18 +1597,19 @@ dependencies = [
 
 [[package]]
 name = "grass-audio-rs"
-version = "0.2.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6952ecf3d336e85320fbdf6fc4ea693007aca37d2f8f31b523565e357ed47e0e"
+checksum = "3fd397c515bb8d06e5cef962c4e906befd45041c0269cba20fef8960b8952d8b"
 dependencies = [
  "grass-audio-sys",
+ "thiserror",
 ]
 
 [[package]]
 name = "grass-audio-sys"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a928a01f36a80e6cac6865bfb64205423532b5bdd280e059b4428ff6c90508d7"
+checksum = "3bb878e2a5d43a765e6a9753111f118757733cb3cc0f3a2350e502588b9ea117"
 dependencies = [
  "bindgen",
 ]

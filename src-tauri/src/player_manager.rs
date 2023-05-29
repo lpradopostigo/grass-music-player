@@ -1,3 +1,4 @@
+use grass_audio_rs::{GrassAudio, PlaybackState as GrassAudioPlaybackState, SampleRate};
 use serde::Serialize;
 use souvlaki::{MediaControlEvent, MediaControls, MediaMetadata, MediaPlayback, PlatformConfig};
 use std::ffi::c_void;
@@ -9,14 +10,17 @@ use ts_rs::TS;
 pub struct PlayerManager;
 
 impl PlayerManager {
-    pub fn setup(window: Window<Wry>) -> Result<(), grass_audio_rs::Error> {
-        grass_audio_rs::init(grass_audio_rs::SampleRate::Hz44100)?;
+    pub fn setup(window: Window<Wry>) -> anyhow::Result<()> {
+        GrassAudio::init(SampleRate::Hz44100)?;
 
         let window_clone = window.clone();
 
         thread::spawn(move || loop {
             window_clone
-                .emit("player:state", Self::get_state())
+                .emit(
+                    "player:state",
+                    Self::get_state().expect("Failed to get player state"),
+                )
                 .expect("Failed to emit player-state event");
 
             thread::sleep(Duration::from_millis(250));
@@ -45,20 +49,21 @@ impl PlayerManager {
                 .expect("Failed to attach event handler");
 
             loop {
-                let playback_state = grass_audio_rs::get_playback_state();
+                let playback_state =
+                    GrassAudio::get_playback_state().expect("Failed to get playback state");
 
                 match playback_state {
-                    grass_audio_rs::PlaybackState::Playing => {
+                    GrassAudioPlaybackState::Playing => {
                         controls
                             .set_playback(MediaPlayback::Playing { progress: None })
                             .expect("Failed to set playback state");
                     }
-                    grass_audio_rs::PlaybackState::Paused => {
+                    GrassAudioPlaybackState::Paused => {
                         controls
                             .set_playback(MediaPlayback::Paused { progress: None })
                             .expect("Failed to set playback state");
                     }
-                    grass_audio_rs::PlaybackState::Stopped => {
+                    GrassAudioPlaybackState::Stopped => {
                         controls
                             .set_playback(MediaPlayback::Stopped)
                             .expect("Failed to set playback state");
@@ -72,45 +77,45 @@ impl PlayerManager {
         Ok(())
     }
 
-    pub fn get_state() -> PlayerState {
-        PlayerState {
-            playback_state: grass_audio_rs::get_playback_state().into(),
-            path: grass_audio_rs::get_current_track_path(),
-            total_time: grass_audio_rs::get_track_length(),
-            position: grass_audio_rs::get_track_position(),
-        }
+    pub fn get_state() -> anyhow::Result<PlayerState> {
+        Ok(PlayerState {
+            playback_state: GrassAudio::get_playback_state()?.into(),
+            path: GrassAudio::get_playlist_path()?,
+            total_time: GrassAudio::get_length()?,
+            position: GrassAudio::get_position()?,
+        })
     }
 
     pub fn play() {
-        grass_audio_rs::play();
+        GrassAudio::play();
     }
 
     pub fn pause() {
-        grass_audio_rs::pause();
+        GrassAudio::pause();
     }
 
     pub fn stop() {
-        grass_audio_rs::stop();
+        GrassAudio::stop();
     }
 
     pub fn skip_to_track(index: i16) {
-        grass_audio_rs::skip_to_track(index);
+        GrassAudio::skip_to(index);
     }
 
     pub fn next() {
-        grass_audio_rs::next();
+        GrassAudio::next();
     }
 
     pub fn previous() {
-        grass_audio_rs::previous();
+        GrassAudio::previous();
     }
 
     pub fn seek(seek_time: f64) {
-        grass_audio_rs::seek(seek_time);
+        GrassAudio::seek(seek_time);
     }
 
     pub fn set_playlist(paths: &[String]) {
-        grass_audio_rs::set_playlist(paths);
+        GrassAudio::set_playlist(paths);
     }
 }
 
@@ -123,12 +128,12 @@ pub enum PlaybackState {
     Stopped,
 }
 
-impl From<grass_audio_rs::PlaybackState> for PlaybackState {
-    fn from(state: grass_audio_rs::PlaybackState) -> Self {
+impl From<GrassAudioPlaybackState> for PlaybackState {
+    fn from(state: GrassAudioPlaybackState) -> Self {
         match state {
-            grass_audio_rs::PlaybackState::Playing => PlaybackState::Playing,
-            grass_audio_rs::PlaybackState::Paused => PlaybackState::Paused,
-            grass_audio_rs::PlaybackState::Stopped => PlaybackState::Stopped,
+            GrassAudioPlaybackState::Playing => PlaybackState::Playing,
+            GrassAudioPlaybackState::Paused => PlaybackState::Paused,
+            GrassAudioPlaybackState::Stopped => PlaybackState::Stopped,
         }
     }
 }

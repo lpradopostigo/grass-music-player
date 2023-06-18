@@ -1,9 +1,18 @@
 # Grass Music Player
-An opinionated desktop music player with **gap-less playback** that aims to be **minimal and polished**.
 
-## Project Status
-I'm rewriting this thing using tauri, the previous prototype built with electron did not meet my expectations, in concrete the overall memory usage, it was using around 250mb when playing music and 150mb on idle, since tauri uses rust over node an immediate gain is perceivable.
+An opinionated desktop music player with that aims to be **minimal and polished**.
 
-Some screenshots of the new rewrite:
-![preview 1](docs/assets/readme-preview-1.png)
-![preview 2](docs/assets/readme-preview-2.png)
+**Note:** This project is still in early development and some features are not yet implemented.
+
+![preview-1](/docs/assets/preview-1.png)
+![preview-2](/docs/assets/preview-2.png)
+![preview-3](/docs/assets/preview-3.png)
+
+## Features
+
+- **clean UI** - The UI uses neutral colors, this allows the album art to be the main focus.
+- **gapless playback** - Thanks to the [BASS library](http://www.un4seen.com/bass.html).
+- **MusicBrainz centered** - Only files with MusicBrainz tags are allowed to be added to the library (other files can be
+  played via playlists).
+- **keyboard navigation** - The UI is designed to be used either with a mouse or a keyboard.
+- **broad search** - Search for artists, albums, songs, and playlists.

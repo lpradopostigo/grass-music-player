@@ -69,16 +69,16 @@ async fn main() -> anyhow::Result<()> {
             let cover_art_path = app_data_dir_path.join("cover-art");
             let db_path = app_data_dir_path.join("grass.db");
 
+            let player_manager = PlayerManager::new(main_window)?;
             let preferences_manager = PreferencesManager::new(preferences_path)?;
             let scanner = Scanner::new(&cover_art_path);
             let database = Database::new(&db_path)?;
             let library_manager = LibraryManager::new(database, &cover_art_path)?;
 
-            PlayerManager::setup(main_window).expect("Failed to setup player manager");
-
             app.manage(library_manager);
             app.manage(preferences_manager);
             app.manage(scanner);
+            app.manage(player_manager);
 
             Ok(())
         })
@@ -90,43 +90,48 @@ async fn main() -> anyhow::Result<()> {
 // player commands
 
 #[command]
-fn player_set_playlist(paths: Vec<String>) {
-    PlayerManager::set_playlist(&paths);
+fn player_set_playlist(
+    paths: Vec<String>,
+    player_manager: State<PlayerManager>,
+) -> CommandResult<()> {
+    let paths = paths.iter().map(|s| s.as_str()).collect::<Vec<_>>();
+    player_manager.set_playlist(&paths);
+    Ok(())
 }
 
 #[command]
-fn player_play() {
-    PlayerManager::play();
+fn player_play(player_manager: State<PlayerManager>) {
+    player_manager.play();
 }
 
 #[command]
-fn player_pause() {
-    PlayerManager::pause();
+fn player_pause(player_manager: State<PlayerManager>) {
+    player_manager.pause();
 }
 
 #[command]
-fn player_stop() {
-    PlayerManager::stop();
+fn player_stop(player_manager: State<PlayerManager>) {
+    player_manager.stop();
 }
 
 #[command]
-fn player_seek(seek_time: f64) {
-    PlayerManager::seek(seek_time);
+fn player_seek(seek_time: f64, player_manager: State<PlayerManager>) {
+    player_manager.seek(seek_time);
 }
 
 #[command]
-fn player_skip_to_track(track_index: i16) {
-    PlayerManager::skip_to_track(track_index);
+fn player_skip_to_track(track_index: usize, player_manager: State<PlayerManager>) {
+    player_manager.skip_to_track(track_index);
 }
 
 #[command]
-fn player_next() {
-    PlayerManager::next();
+fn player_next(player_manager: State<PlayerManager>) {
+    player_manager.next();
 }
 
 #[command]
-fn player_previous() {
-    PlayerManager::previous();
+fn player_previous(player_manager: State<PlayerManager>) {
+    player_manager.previous();
 }
 
 // preferences commands

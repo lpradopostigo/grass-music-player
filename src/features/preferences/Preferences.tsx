@@ -7,6 +7,7 @@ import { normalizeProps, useMachine } from "@zag-js/solid";
 import * as dialog from "@zag-js/dialog";
 import { Portal } from "solid-js/web";
 import Loader from "../../components/Loader.tsx";
+import PlayerCommands from "../../commands/PlayerCommands.ts";
 
 function Preferences() {
   const { updatePreferences, scanState, preferences } = useGlobalData();
@@ -23,20 +24,11 @@ function Preferences() {
 
   const api = createMemo(() => dialog.connect(state, send, normalizeProps));
 
-  async function handleScanClick(type: "normal" | "full") {
+  async function handleScanClick(clearData: boolean) {
     api().open();
-
-    switch (type) {
-      case "normal":
-        await LibraryCommands.scan();
-        break;
-
-      case "full":
-        await LibraryCommands.scan(true);
-        break;
-    }
-
-    queryClient.invalidateQueries(["library"]);
+    await PlayerCommands.stop();
+    await LibraryCommands.scan(clearData);
+    await queryClient.invalidateQueries(["library"]);
     api().close();
   }
 
@@ -111,14 +103,14 @@ function Preferences() {
             <button
               data-variant="primary"
               disabled={!preferences.libraryPath}
-              onClick={() => handleScanClick("normal")}
+              onClick={() => handleScanClick(false)}
             >
               scan
             </button>
 
             <button
               disabled={!preferences.libraryPath}
-              onClick={() => handleScanClick("full")}
+              onClick={() => handleScanClick(true)}
             >
               full scan
             </button>

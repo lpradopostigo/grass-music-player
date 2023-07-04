@@ -10,22 +10,23 @@ pub enum Error {
     UnsupportedFileFormat(String),
     #[error("invalid position {0}")]
     InvalidPosition(f64),
+    #[error("invalid handle")]
+    InvalidHandle,
     #[error("internal error")]
     Internal,
 }
 
 type Result<T> = std::result::Result<T, Error>;
 
-pub struct Stream {
-    handle: u32,
-}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Stream(pub u32);
 
 impl Stream {
     pub fn new(path: &str) -> Result<Self> {
-        let mut c_str: Vec<u16> = OsStr::new(path).encode_wide().collect();
-        c_str.push('\0' as u16);
-
         unsafe {
+            let mut c_str: Vec<u16> = OsStr::new(path).encode_wide().collect();
+            c_str.push('\0' as u16);
+
             let stream_handle = BASS_StreamCreateFile(
                 0,
                 c_str.as_ptr() as _,
@@ -42,33 +43,27 @@ impl Stream {
                     _ => Err(Error::Internal),
                 }
             } else {
-                Ok(Self {
-                    handle: stream_handle,
-                })
+                Ok(Self(stream_handle))
             }
         }
     }
 
-    pub fn handle(&self) -> u32 {
-        self.handle
-    }
-
-    pub fn position(&self) -> f64 {
+    pub fn position(&self) -> Result<f64> {
         unsafe {
-            BASS_ChannelBytes2Seconds(
-                self.handle,
-                BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE),
-            )
+            let position = BASS_ChannelGetPosition(self.0, BASS_POS_BYTE);
+
+            match BASS_ErrorGetCode() {
+                BASS_OK => Ok(self.bytes_to_seconds(position)?),
+                BASS_ERROR_HANDLE => Err(Error::InvalidHandle),
+                _ => Err(Error::Internal),
+            }
         }
     }
 
     pub fn set_position(&mut self, position: f64) -> Result<()> {
         unsafe {
-            let result = BASS_ChannelSetPosition(
-                self.handle,
-                BASS_ChannelSeconds2Bytes(self.handle, position),
-                BASS_POS_BYTE,
-            );
+            let bytes = self.seconds_to_bytes(position)?;
+            let result = BASS_ChannelSetPosition(self.0, bytes, BASS_POS_BYTE);
 
             if result == 0 {
                 match BASS_ErrorGetCode() {
@@ -81,12 +76,39 @@ impl Stream {
         }
     }
 
-    pub fn duration(&self) -> f64 {
+    pub fn duration(&self) -> Result<f64> {
         unsafe {
-            BASS_ChannelBytes2Seconds(
-                self.handle,
-                BASS_ChannelGetLength(self.handle, BASS_POS_BYTE),
-            )
+            let length = BASS_ChannelGetLength(self.0, BASS_POS_BYTE);
+
+            match BASS_ErrorGetCode() {
+                BASS_OK => Ok(self.bytes_to_seconds(length)?),
+                BASS_ERROR_HANDLE => Err(Error::InvalidHandle),
+                _ => Err(Error::Internal),
+            }
+        }
+    }
+
+    fn bytes_to_seconds(&self, bytes: u64) -> Result<f64> {
+        unsafe {
+            let seconds = BASS_ChannelBytes2Seconds(self.0, bytes);
+
+            match BASS_ErrorGetCode() {
+                BASS_OK => Ok(seconds),
+                BASS_ERROR_HANDLE => Err(Error::InvalidHandle),
+                _ => unreachable!("unexpected error code"),
+            }
+        }
+    }
+
+    fn seconds_to_bytes(&self, seconds: f64) -> Result<u64> {
+        unsafe {
+            let bytes = BASS_ChannelSeconds2Bytes(self.0, seconds);
+
+            match BASS_ErrorGetCode() {
+                BASS_OK => Ok(bytes),
+                BASS_ERROR_HANDLE => Err(Error::InvalidHandle),
+                _ => unreachable!("unexpected error code"),
+            }
         }
     }
 }
@@ -94,7 +116,7 @@ impl Stream {
 impl Drop for Stream {
     fn drop(&mut self) {
         unsafe {
-            BASS_StreamFree(self.handle);
+            BASS_StreamFree(self.0);
         }
     }
 }

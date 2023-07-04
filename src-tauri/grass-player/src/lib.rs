@@ -7,6 +7,8 @@ pub use crate::mixer::PlaybackState;
 use crate::stream::Stream;
 use crossbeam::channel;
 use output_device::OutputDevice;
+use std::mem::ManuallyDrop;
+use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, RwLock};
 use std::thread;
 
@@ -25,7 +27,7 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 struct InnerState {
-    stream: Option<Stream>,
+    stream: ManuallyDrop<Option<Stream>>,
     mixer: Mixer,
     sources: Vec<String>,
     source_index: usize,
@@ -59,7 +61,7 @@ impl Player {
             _output_device: output_device,
             inner_state: Arc::new(RwLock::new(InnerState {
                 sample_rate,
-                stream: None,
+                stream: ManuallyDrop::new(None),
                 mixer: Mixer::new(sample_rate, 2)?,
                 sources: Vec::new(),
                 source_index: 0,
@@ -87,8 +89,8 @@ impl Player {
 
                 if inner_state.stream.is_none() {
                     let stream = Stream::new(&inner_state.sources[inner_state.source_index])?;
-                    inner_state.mixer.add_stream(&stream)?;
-                    inner_state.stream = Some(stream);
+                    inner_state.mixer.add_stream(stream.clone())?;
+                    inner_state.stream = ManuallyDrop::new(Some(stream));
                 }
 
                 inner_state.mixer.play().map_err(|_| Error::Internal)?;
@@ -118,7 +120,7 @@ impl Player {
                 inner_state.mixer =
                     Mixer::new(inner_state.sample_rate, 2).map_err(|_| Error::Internal)?;
                 inner_state.source_index = source_index;
-                inner_state.stream = None;
+                inner_state.stream = ManuallyDrop::new(None);
 
                 inner_state
                     .mixer
@@ -148,13 +150,13 @@ impl Player {
                 inner_state.mixer =
                     Mixer::new(inner_state.sample_rate, 2).map_err(|_| Error::Internal)?;
                 inner_state.source_index = 0;
-                inner_state.stream = None;
+                inner_state.stream = ManuallyDrop::new(None);
             }
 
             Signal::Seek(seconds) => {
                 let mut inner_state = inner_state.write().map_err(|_| Error::Internal)?;
 
-                if let Some(stream) = &mut inner_state.stream {
+                if let Some(stream) = inner_state.stream.deref_mut() {
                     stream.set_position(seconds).map_err(|_| Error::Internal)?;
                 }
             }
@@ -172,9 +174,8 @@ impl Player {
         let mut inner_state = inner_state.write().map_err(|_| Error::Internal)?;
 
         if inner_state.source_index == inner_state.sources.len() - 1 {
-            println!("last source ended");
             inner_state.source_index = 0;
-            inner_state.stream = None;
+            inner_state.stream = ManuallyDrop::new(None);
         } else {
             let new_source_index = inner_state.source_index + 1;
 
@@ -183,9 +184,9 @@ impl Player {
 
             inner_state
                 .mixer
-                .add_stream(&stream)
+                .add_stream(stream.clone())
                 .map_err(|_| Error::Internal)?;
-            inner_state.stream = Some(stream);
+            inner_state.stream = ManuallyDrop::new(Some(stream));
             inner_state.mixer.reset_position().ok();
             inner_state.source_index = new_source_index;
         }
@@ -228,8 +229,8 @@ impl Player {
 
     pub fn source_position(&self) -> f64 {
         if let Ok(inner_state) = self.inner_state.read() {
-            if let Some(stream) = &inner_state.stream {
-                stream.position()
+            if let Some(stream) = inner_state.stream.deref() {
+                stream.position().unwrap_or(0.0)
             } else {
                 0.0
             }
@@ -240,8 +241,8 @@ impl Player {
 
     pub fn source_duration(&self) -> f64 {
         if let Ok(inner_state) = self.inner_state.read() {
-            if let Some(stream) = &inner_state.stream {
-                stream.duration()
+            if let Some(stream) = inner_state.stream.deref() {
+                stream.duration().unwrap_or(0.0)
             } else {
                 0.0
             }

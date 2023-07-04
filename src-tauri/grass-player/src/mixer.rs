@@ -2,6 +2,7 @@ use crate::stream::Stream;
 use bass_sys::*;
 use bassmix_sys::*;
 use std::ffi::c_void;
+use std::mem::ManuallyDrop;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -49,18 +50,21 @@ impl Mixer {
         }
     }
 
-    pub fn handle(&self) -> u32 {
-        self.handle
-    }
-
-    pub fn add_stream(&self, stream: &Stream) -> Result<()> {
+    pub fn add_stream(&mut self, stream: Stream) -> Result<()> {
         unsafe {
-            let result =
-                BASS_Mixer_StreamAddChannel(self.handle, stream.handle(), BASS_MIXER_NORAMPIN);
+            let stream = ManuallyDrop::new(stream);
+            let result = BASS_Mixer_StreamAddChannel(
+                self.handle,
+                stream.0,
+                BASS_STREAM_AUTOFREE | BASS_MIXER_CHAN_NORAMPIN,
+            );
             if result == 0 {
                 match BASS_ErrorGetCode() {
                     BASS_ERROR_ALREADY => Err(Error::StreamAlreadyAdded),
-                    _ => Err(Error::Internal),
+                    _ => {
+                        let _ = ManuallyDrop::into_inner(stream);
+                        Err(Error::Internal)
+                    }
                 }
             } else {
                 Ok(())
@@ -132,7 +136,7 @@ impl Mixer {
         let result = unsafe {
             BASS_ChannelSetSync(
                 self.handle,
-                BASS_SYNC_END | BASS_SYNC_MIXTIME | BASS_SYNC_THREAD,
+                BASS_SYNC_END | BASS_SYNC_MIXTIME,
                 0,
                 Self::sync_handler::<T> as _,
                 callback as _,
